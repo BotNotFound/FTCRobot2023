@@ -9,11 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public final class Arm extends ModuleBase {
 
     /**
-     * The encoder resolution -- amount of 'rotation' equal to 1 full revolution of the motor
-     */
-    public static final int ENCODER_RESOLUTION = ((((1+(46/17))) * (1+(46/17))) * (1+(46/17)) * 28);
-
-    /**
      * The motor moving the arm
      */
     private final DcMotor armMotor;
@@ -56,8 +51,8 @@ public final class Arm extends ModuleBase {
         armMotor.setTargetPosition(rotation);
     }
 
-    public int getRotation() {
-        return armMotor.getTargetPosition();
+    public void rotate(double rotation) {
+        armMotor.setPower(rotation);
     }
 
     public boolean isRotating() {

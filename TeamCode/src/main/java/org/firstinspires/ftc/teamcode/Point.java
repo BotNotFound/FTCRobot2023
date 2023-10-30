@@ -50,4 +50,9 @@ public final class Point {
     public Point multiply(double factor) {
         return new Point(x * factor, y * factor, rotation * factor);
     }
+
+    @Override
+    public String toString() {
+        return "<" + x + ", " + y + ", " + rotation + ">";
+    }
 }

@@ -84,7 +84,7 @@ public class RedPropThreshold implements VisionProcessor {
 
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
-
+        outStr = "test3";
     }
 
     public String getPropPosition(){  //Returns position of the prop in a String

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.*;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.openftc.easyopencv.OpenCvCamera;
 
 import java.util.Locale;
 
@@ -20,7 +21,7 @@ public class CameraTest extends LinearOpMode {
         portal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setCameraResolution(new Size(1280, 720))
-                .setCamera(BuiltinCameraDirection.BACK)
+                //.setCamera(BuiltinCameraDirection.BACK)
                 .addProcessor(redPropThreshold)
                 .build();
 

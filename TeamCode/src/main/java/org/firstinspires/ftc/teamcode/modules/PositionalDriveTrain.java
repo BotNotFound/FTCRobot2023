@@ -33,13 +33,14 @@ public final class PositionalDriveTrain extends DriveTrain {
      */
     private final Thread positionUpdaterThread = new Thread(() -> {
         double prevTime = parent.getRuntime(),
-                deltaTime;
+                deltaTime, curRuntime;
         Point threadSafeRemainingDistance = new Point(0,0,0),
                 distanceOffset;
 
         while (!killUpdaterThread) {
-            deltaTime = parent.getRuntime() - prevTime;
-            prevTime = parent.getRuntime();
+            curRuntime = parent.getRuntime();
+            deltaTime = curRuntime - prevTime;
+            prevTime = curRuntime;
 
             if (threadSafeRemainingDistance.x == 0 &&
                     threadSafeRemainingDistance.y == 0 &&

@@ -18,7 +18,7 @@ public class CameraTest extends LinearOpMode {
     DoubleSupplier minArea = () -> 5;
     DoubleSupplier left = () -> 5;
     DoubleSupplier right = () -> 15;
-    private ColorMassDetectionProcessor cmdProcessor = new ColorMassDetectionProcessor(new Scalar(37, 100, 100), new Scalar(57, 100, 100), minArea, left, right);
+    private ColorMassDetectionProcessor cmdProcessor = new ColorMassDetectionProcessor(new Scalar(0, 0, 0), new Scalar(360, 100, 100), minArea, left, right);
     private VisionPortal portal;
 
     @Override

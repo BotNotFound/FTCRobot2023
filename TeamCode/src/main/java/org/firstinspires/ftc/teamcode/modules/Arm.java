@@ -45,8 +45,13 @@ public final class Arm extends ModuleBase {
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
+    @Override
+    public void cleanupModule() {
+
+    }
+
     public void setRotation(int rotation) {
-        telemetry.addData("Rotating arm to:", rotation);
+        getTelemetry().addData("Rotating arm to:", rotation);
 
         armMotor.setTargetPosition(rotation);
     }

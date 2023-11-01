@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.modules.Arm;
 @TeleOp(name="Manual Control")
 public class TeleOpMain extends OpBase {
 
+    protected Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
+
     @Override
     public void start() {
         super.start();
@@ -37,7 +39,7 @@ public class TeleOpMain extends OpBase {
         currentGamepad2.copy(gamepad2);
 
         // 1st gamepad controls movement
-        mover.moveAndRotateRobot(
+        driveTrain.setVelocity(
                 gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
                 gamepad1.right_stick_x

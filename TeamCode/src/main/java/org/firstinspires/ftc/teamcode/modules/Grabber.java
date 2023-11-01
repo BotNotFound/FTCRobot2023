@@ -61,12 +61,17 @@ public final class Grabber extends ModuleBase {
         release(); // in case the grabber is currently active, deactivate it
     }
 
+    @Override
+    public void cleanupModule() {
+
+    }
+
     /**
      * Rotates the grabber by the specified amount
      * @param rotation The amount to rotate the grabber by
      */
     public void rotate(double rotation) {
-        telemetry.addData("Rotating grabber by:", rotation);
+        getTelemetry().addData("Rotating grabber by:", rotation);
 
         // rotate relative to current position to preserve grab state
         servo1.setPosition(servo1.getPosition() + rotation);
@@ -80,7 +85,7 @@ public final class Grabber extends ModuleBase {
         if (isGrabbing()) { return; }
         isGrabbing = true;
 
-        telemetry.addLine("Grabbing grabber");
+        getTelemetry().addLine("Grabbing grabber");
 
         // rotating servos in different directions to rotate the middle gear
         servo1.setPosition(servo1.getPosition() + ACTIVE_SERVO_ROTATION_OFFSET);
@@ -94,7 +99,7 @@ public final class Grabber extends ModuleBase {
         if (!isGrabbing()) { return; }
         isGrabbing = false;
 
-        telemetry.addLine("Releasing grabber");
+        getTelemetry().addLine("Releasing grabber");
 
         // rotating servos in different directions to rotate the middle gear
         servo1.setPosition(servo1.getPosition()  - ACTIVE_SERVO_ROTATION_OFFSET);

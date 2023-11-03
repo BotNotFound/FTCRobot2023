@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
 /**
  * A point.  The coordinate system we are using is horizontal and vertical translation in a rotated
  *  XY coordinate plane, and our unit of distance is nanoseconds.
@@ -34,15 +36,6 @@ public final class Point {
     }
 
     /**
-     * Subtracts a given point from this point (doesn't modify existing points)
-     * @param other the point to subtract by
-     * @return the resulting point
-     */
-    public Point subtract(Point other) {
-        return add(other.negate());
-    }
-
-    /**
      * Multiplies two points together (doesn't modify existing points)
      * @param factor the other factor
      * @return the product of the two points
@@ -51,6 +44,7 @@ public final class Point {
         return new Point(x * factor, y * factor, rotation * factor);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "<" + x + ", " + y + ", " + rotation + ">";

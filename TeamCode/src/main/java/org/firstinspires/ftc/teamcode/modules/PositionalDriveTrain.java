@@ -14,10 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A drive train that can drive to positions
  */
 public final class PositionalDriveTrain extends DriveTrain {
-    /**
-     * The delay between each cycle of the position updater thread loop
-     */
-    public static final long POSITION_UPDATER_SLEEP_TIME = 10;
 
     /**
      * The requested changes in position, in order of time requested
@@ -150,11 +146,6 @@ public final class PositionalDriveTrain extends DriveTrain {
             }
 
             threadSafeRemainingDistance = threadSafeRemainingDistance.add(distanceOffset);
-            try { Thread.sleep(POSITION_UPDATER_SLEEP_TIME); } catch (InterruptedException e) { // TODO if we don't actually need this, remove it
-                synchronized (parent) {
-                    parent.telemetry.addData("Error in position updater thread (on Thread.sleep())", e.getMessage());
-                }
-            } // arbitrary offset
         }
     }, "Position Updater Thread");
 
@@ -167,7 +158,7 @@ public final class PositionalDriveTrain extends DriveTrain {
         super(registrar);
 
         killUpdaterThread = false;
-        positionUpdaterThread.start();
+        new Thread(() -> { synchronized (distanceQueue) { getTelemetry().addLine("hello"); getTelemetry().update(); } }).start();
     }
 
 

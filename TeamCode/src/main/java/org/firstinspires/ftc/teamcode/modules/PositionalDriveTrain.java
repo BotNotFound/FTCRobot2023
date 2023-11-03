@@ -26,7 +26,7 @@ public final class PositionalDriveTrain extends DriveTrain {
     /**
      * positionUpdaterThread ends when this is true
      */
-    private boolean killUpdaterThread;
+    private volatile boolean killUpdaterThread;
 
     /**
      * The thread that sets the motor speeds based on the remaining distance to travel

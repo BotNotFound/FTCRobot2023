@@ -220,6 +220,7 @@ public final class PositionalDriveTrain extends DriveTrain {
      */
     @Override
     public void cleanupModule() {
+        super.cleanupModule();
         killUpdaterThread = true;
         try {
             positionUpdaterThread.join();

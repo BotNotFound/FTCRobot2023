@@ -9,7 +9,7 @@ public class AutonomousMain extends OpBaseLinear {
     @Override
     public void runOpMode() {
         try {
-            driveTrain.moveAndWait(0.003, -0.002, 3);
+            driveTrain.moveAndWait(300, 200, 100);
         }
         catch (InterruptedException e) {
             telemetry.addData("ERROR waiting for movement", e.getMessage());

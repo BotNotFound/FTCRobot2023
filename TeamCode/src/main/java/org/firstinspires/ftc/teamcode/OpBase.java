@@ -58,10 +58,6 @@ public abstract class OpBase extends OpMode {
     }
 
     @Override
-    public void loop() {
-    }
-
-    @Override
     public void stop() {
         arm.cleanupModule();
         driveTrain.cleanupModule();

@@ -158,7 +158,7 @@ public final class PositionalDriveTrain extends DriveTrain {
         super(registrar);
 
         killUpdaterThread = false;
-        new Thread(() -> { synchronized (distanceQueue) { getTelemetry().addLine("hello"); getTelemetry().update(); } }).start();
+        positionUpdaterThread.start();
     }
 
 

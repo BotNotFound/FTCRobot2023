@@ -10,10 +10,5 @@ public class AutonomousMain extends OpBase {
     public void start() {
         driveTrain.moveAndRotateRobot(0.003, -0.002, 3);
     }
-
-    @Override
-    public void loop() {
-
-    }
     
 }

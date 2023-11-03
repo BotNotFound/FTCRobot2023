@@ -52,6 +52,7 @@ public abstract class OpBase extends OpMode {
         }
         catch (InterruptedException e) {
             telemetry.addData("INIT FAILED WITH MESSAGE", e.getMessage());
+            telemetry.update();
             terminateOpModeNow();
         }
     }

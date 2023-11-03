@@ -61,6 +61,6 @@ public final class Arm extends ModuleBase {
     }
 
     public boolean isRotating() {
-        return armMotor.getCurrentPosition() == armMotor.getTargetPosition();
+        return armMotor.isBusy();
     }
 }

@@ -82,6 +82,11 @@ public class DriveTrain extends ModuleBase {
     }
 
     /**
+     * the scale for our exponential scaling of motor power
+     */
+    public static final int SCALE = 5;
+
+    /**
      * Moves and rotates the robot
      * @param distX The right velocity
      * @param distY The forward velocity
@@ -110,10 +115,10 @@ public class DriveTrain extends ModuleBase {
             rightBackPower  /= max;
         }
 
-        leftFrontPower = Math.pow(leftFrontPower, 3);
-        rightFrontPower = Math.pow(rightFrontPower, 3);
-        rightBackPower = Math.pow(rightBackPower, 3);
-        leftBackPower = Math.pow(leftBackPower, 3);
+        leftFrontPower = Math.pow(leftFrontPower, SCALE);
+        rightFrontPower = Math.pow(rightFrontPower, SCALE);
+        rightBackPower = Math.pow(rightBackPower, SCALE);
+        leftBackPower = Math.pow(leftBackPower, SCALE);
 
         getTelemetry().addData("Seting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
 

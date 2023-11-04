@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Point;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -88,7 +89,7 @@ public final class PositionalDriveTrain extends DriveTrain {
      * positionUpdaterThread ends when this is true
      * @see #positionUpdaterThread
      */
-    private volatile boolean killUpdaterThread;
+    private AtomicBoolean killUpdaterThread;
 
     /**
      * The thread that sets the motor speeds based on the remaining distance to travel
@@ -97,55 +98,68 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @see #moveAndRotateRobot(double, double, double)
      */
     private final Thread positionUpdaterThread = new Thread(() -> {
-        double prevTime = parent.getRuntime(),
-                deltaTime, curRuntime;
-        Point threadSafeRemainingDistance = new Point(0,0,0),
-                distanceOffset;
+        try {
+            double prevTime = parent.getRuntime(),
+                    deltaTime, curRuntime;
+            Point threadSafeRemainingDistance = new Point(0, 0, 0),
+                    distanceOffset;
 
-        while (!killUpdaterThread) {
-            curRuntime = parent.getRuntime();
-            deltaTime = curRuntime - prevTime;
-            prevTime = curRuntime;
+            while (!killUpdaterThread.get()) {
+                curRuntime = parent.getRuntime();
+                deltaTime = curRuntime - prevTime;
+                prevTime = curRuntime;
 
-            if (threadSafeRemainingDistance.x == 0 &&
-                    threadSafeRemainingDistance.y == 0 &&
-                    threadSafeRemainingDistance.rotation == 0) {
-                synchronized (distanceQueue) {
-                    threadSafeRemainingDistance = distanceQueue.remove();
-                    distanceQueue.notify();
+                if (threadSafeRemainingDistance.x == 0 &&
+                        threadSafeRemainingDistance.y == 0 &&
+                        threadSafeRemainingDistance.rotation == 0) {
+                    synchronized (distanceQueue) {
+                        if (distanceQueue.size() == 0) {
+                            Thread.yield();
+                            continue;
+                        }
+                        threadSafeRemainingDistance = distanceQueue.remove();
+                        distanceQueue.notify();
+                    }
+                }
+
+                // rotate, then move
+                if (threadSafeRemainingDistance.rotation != 0) {
+                    double absRemainingRotation = Math.abs(threadSafeRemainingDistance.rotation);
+                    // (same w/ x & y, distance is measured in nanoseconds) if deltaTime > remaining
+                    //  distance, set motors to fractional power; otherwise, just set to full power
+                    if (threadSafeRemainingDistance.rotation < deltaTime) {
+                        setVelocity(0, 0, Math.copySign(absRemainingRotation / deltaTime, threadSafeRemainingDistance.rotation));
+                        distanceOffset = new Point(0, 0, -threadSafeRemainingDistance.rotation);
+                    } else {
+                        setVelocity(0, 0, Math.copySign(1, threadSafeRemainingDistance.rotation));
+                        distanceOffset = new Point(0, 0, -Math.copySign(deltaTime, threadSafeRemainingDistance.rotation));
+                    }
+                } else if (threadSafeRemainingDistance.x != 0 || threadSafeRemainingDistance.y != 0) {
+                    double absRemainingDistX = Math.abs(threadSafeRemainingDistance.x);
+                    double absRemainingDistY = Math.abs(threadSafeRemainingDistance.y);
+                    double powerX = Math.copySign(absRemainingDistX < deltaTime ? absRemainingDistX / deltaTime : 1, threadSafeRemainingDistance.x);
+                    double powerY = Math.copySign(absRemainingDistY < deltaTime ? absRemainingDistY / deltaTime : 1, threadSafeRemainingDistance.y);
+                    setVelocity(powerX, powerY, 0);
+                    distanceOffset = new Point(Math.copySign(Math.max(absRemainingDistX, deltaTime), threadSafeRemainingDistance.x),
+                            Math.copySign(Math.max(absRemainingDistY, deltaTime), threadSafeRemainingDistance.y),
+                            0).negate();
+                } else {
+                    setVelocity(0, 0, 0);
+                    distanceOffset = new Point(0, 0, 0);
+                }
+
+                threadSafeRemainingDistance = threadSafeRemainingDistance.add(distanceOffset);
+                //noinspection BusyWait
+                Thread.sleep(1, 0);
+            }
+        }
+        catch (Throwable th) { // NO MORE SILENT FAILURES
+            synchronized (parent) {
+                parent.telemetry.addData("ERROR in Position Updater Thread", th.getMessage());
+                for (StackTraceElement element : th.getStackTrace()) {
+                    parent.telemetry.addData("] at", element.toString());
                 }
             }
-
-            // rotate, then move
-            if (threadSafeRemainingDistance.rotation != 0) {
-                double absRemainingRotation = Math.abs(threadSafeRemainingDistance.rotation);
-                // (same w/ x & y, distance is measured in nanoseconds) if deltaTime > remaining
-                //  distance, set motors to fractional power; otherwise, just set to full power
-                if (threadSafeRemainingDistance.rotation < deltaTime) {
-                    setVelocity(0, 0, Math.copySign(absRemainingRotation / deltaTime, threadSafeRemainingDistance.rotation));
-                    distanceOffset = new Point(0,0,-threadSafeRemainingDistance.rotation);
-                }
-                else {
-                    setVelocity(0, 0, Math.copySign(1, threadSafeRemainingDistance.rotation));
-                    distanceOffset = new Point(0,0,-Math.copySign(deltaTime, threadSafeRemainingDistance.rotation));
-                }
-            }
-            else if (threadSafeRemainingDistance.x != 0 || threadSafeRemainingDistance.y != 0) {
-                double absRemainingDistX = Math.abs(threadSafeRemainingDistance.x);
-                double absRemainingDistY = Math.abs(threadSafeRemainingDistance.y);
-                double powerX = Math.copySign(absRemainingDistX < deltaTime ? absRemainingDistX / deltaTime : 1, threadSafeRemainingDistance.x);
-                double powerY = Math.copySign(absRemainingDistY < deltaTime ? absRemainingDistY / deltaTime : 1, threadSafeRemainingDistance.y);
-                setVelocity(powerX, powerY, 0);
-                distanceOffset = new Point(Math.copySign(Math.max(absRemainingDistX, deltaTime), threadSafeRemainingDistance.x),
-                        Math.copySign(Math.max(absRemainingDistY, deltaTime), threadSafeRemainingDistance.y),
-                        0).negate();
-            }
-            else {
-                setVelocity(0, 0, 0);
-                distanceOffset = new Point(0,0,0);
-            }
-
-            threadSafeRemainingDistance = threadSafeRemainingDistance.add(distanceOffset);
         }
     }, "Position Updater Thread");
 
@@ -157,7 +171,7 @@ public final class PositionalDriveTrain extends DriveTrain {
     public PositionalDriveTrain(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
 
-        killUpdaterThread = false;
+        killUpdaterThread = new AtomicBoolean(false);
         positionUpdaterThread.start();
     }
 
@@ -212,7 +226,7 @@ public final class PositionalDriveTrain extends DriveTrain {
     @Override
     public void cleanupModule() {
         super.cleanupModule();
-        killUpdaterThread = true;
+        killUpdaterThread.lazySet(true);
         try {
             positionUpdaterThread.join();
         } catch (InterruptedException e) {

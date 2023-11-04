@@ -87,8 +87,8 @@ public final class Grabber extends ModuleBase {
     public void setRotation(double rotation) {
         getTelemetry().addData("Rotating grabber to", rotation);
 
-        servo1.setPosition(isGrabbing() ? rotation : rotation - ACTIVE_SERVO_ROTATION_OFFSET);
-        servo2.setPosition(isGrabbing() ? -rotation : -rotation + ACTIVE_SERVO_ROTATION_OFFSET);
+        servo1.setPosition(isGrabbing() ? rotation - ACTIVE_SERVO_ROTATION_OFFSET : rotation + ACTIVE_SERVO_ROTATION_OFFSET);
+        servo2.setPosition(isGrabbing() ? rotation - ACTIVE_SERVO_ROTATION_OFFSET : rotation + ACTIVE_SERVO_ROTATION_OFFSET);
     }
 
     /**

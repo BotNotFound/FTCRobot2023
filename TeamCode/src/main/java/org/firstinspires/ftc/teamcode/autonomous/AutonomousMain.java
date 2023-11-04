@@ -8,9 +8,10 @@ import org.firstinspires.ftc.teamcode.OpBaseLinear;
 public class AutonomousMain extends OpBaseLinear {
 
     @Override
-    public void runOpMode() {
-
+    public void runOpMode() throws InterruptedException {
         driveTrain.setVelocity(0,1,0);
+        Thread.sleep(3000, 0);
+        driveTrain.setVelocity(0,0,0);
     }
     
 }

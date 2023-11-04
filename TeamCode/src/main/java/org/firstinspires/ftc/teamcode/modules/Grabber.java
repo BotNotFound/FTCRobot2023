@@ -71,7 +71,7 @@ public final class Grabber extends ModuleBase {
      * @param rotation The amount to rotate the grabber by
      */
     public void rotate(double rotation) {
-        getTelemetry().addData("Rotating grabber by:", rotation);
+        getTelemetry().addData("Rotating grabber to", rotation);
 
         // rotate relative to current position to preserve grab state
         servo1.setPosition(servo1.getPosition() + rotation);

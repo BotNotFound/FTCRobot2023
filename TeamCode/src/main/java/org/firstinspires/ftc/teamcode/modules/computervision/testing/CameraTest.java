@@ -7,9 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.*;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.*;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.opencv.core.Scalar;
-import org.openftc.easyopencv.OpenCvCamera;
 
-import java.util.Locale;
 import java.util.function.DoubleSupplier;
 
 @Autonomous(name="Vision Test")
@@ -18,7 +16,7 @@ public class CameraTest extends LinearOpMode {
     DoubleSupplier minArea = () -> 5;
     DoubleSupplier left = () -> 5;
     DoubleSupplier right = () -> 15;
-    private ColorMassDetectionProcessor cmdProcessor = new ColorMassDetectionProcessor(new Scalar(0, 0, 0), new Scalar(360, 100, 100), minArea, left, right);
+    private ColorMassDetectionProcessor cmdProcessor = new ColorMassDetectionProcessor(new Scalar(0, 0, 150), new Scalar(180, 72, 255), () -> 50, () -> 213, () -> 426);
     private VisionPortal portal;
 
     @Override

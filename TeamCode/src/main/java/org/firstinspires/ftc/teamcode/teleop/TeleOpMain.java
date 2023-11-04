@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.OpBase;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @TeleOp(name="Manual Control")
 public final class TeleOpMain extends OpBase {
 
@@ -19,6 +21,7 @@ public final class TeleOpMain extends OpBase {
         currentGamepad1 = new Gamepad();
         currentGamepad2 = new Gamepad();
     }
+    AtomicBoolean launchedPlane = new AtomicBoolean(false);
 
     @Override
     public void loop() {
@@ -37,17 +40,19 @@ public final class TeleOpMain extends OpBase {
         currentGamepad1.copy(gamepad1);
         currentGamepad2.copy(gamepad2);
 
-        // 1st gamepad controls movement and plane launcher
+        // 1st gamepad controls movement
         driveTrain.setVelocity(
                 gamepad1.left_stick_x,
                 -gamepad1.left_stick_y,
                 gamepad1.right_stick_x
         );
-        if (currentGamepad2.start && !previousGamepad2.start) {
+
+        telemetry.addData("Launched Plane", launchedPlane);
+
+        // 2nd gamepad controls grabbing and plane launcher
+        if (currentGamepad2.y && launchedPlane.compareAndSet(false, true)) {
             planeLauncher.launch();
         }
-
-        // 2nd gamepad controls grabbing
         arm.rotate(gamepad2.right_stick_y);
         if (currentGamepad2.a && !previousGamepad2.a) {
             grabber.toggleGrabState();

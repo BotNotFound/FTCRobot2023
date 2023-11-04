@@ -60,10 +60,7 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @see #getFirstInQueue() 
      */
     private synchronized boolean isInQueue(long id) {
-        // the distance most recently removed from the queue is the current input for the
-        // position updater thread, so this will only return false when the specified distance
-        // has been traveled
-        return id + 1 >= getFirstInQueue();
+        return id >= getFirstInQueue();
     }
 
     /**
@@ -103,6 +100,7 @@ public final class PositionalDriveTrain extends DriveTrain {
                     deltaTime, curRuntime;
             Point threadSafeRemainingDistance = new Point(0, 0, 0),
                     distanceOffset;
+            boolean consumeFirstInQueue = false;
 
             while (!killUpdaterThread.get()) {
                 curRuntime = parent.getRuntime();
@@ -113,17 +111,21 @@ public final class PositionalDriveTrain extends DriveTrain {
                         threadSafeRemainingDistance.y == 0 &&
                         threadSafeRemainingDistance.rotation == 0) {
                     synchronized (distanceQueue) {
-                        if (distanceQueue.size() == 0) {
+                        if (distanceQueue.size() == 0) { // nothing to do
                             Thread.yield();
                             continue;
                         }
-                        threadSafeRemainingDistance = distanceQueue.remove();
-                        distanceQueue.notify();
+
+                        if (consumeFirstInQueue) {
+                            distanceQueue.remove();
+                            distanceQueue.notify();
+                        }
+                        threadSafeRemainingDistance = distanceQueue.peek();
                     }
                 }
 
                 // rotate, then move
-                if (threadSafeRemainingDistance.rotation != 0) {
+                if (threadSafeRemainingDistance.rotation != 0) { getTelemetry().addLine("rotating...");
                     double absRemainingRotation = Math.abs(threadSafeRemainingDistance.rotation);
                     // (same w/ x & y, distance is measured in nanoseconds) if deltaTime > remaining
                     //  distance, set motors to fractional power; otherwise, just set to full power
@@ -134,7 +136,7 @@ public final class PositionalDriveTrain extends DriveTrain {
                         setVelocity(0, 0, Math.copySign(1, threadSafeRemainingDistance.rotation));
                         distanceOffset = new Point(0, 0, -Math.copySign(deltaTime, threadSafeRemainingDistance.rotation));
                     }
-                } else if (threadSafeRemainingDistance.x != 0 || threadSafeRemainingDistance.y != 0) {
+                } else if (threadSafeRemainingDistance.x != 0 || threadSafeRemainingDistance.y != 0) { getTelemetry().addLine("moving...");
                     double absRemainingDistX = Math.abs(threadSafeRemainingDistance.x);
                     double absRemainingDistY = Math.abs(threadSafeRemainingDistance.y);
                     double powerX = Math.copySign(absRemainingDistX < deltaTime ? absRemainingDistX / deltaTime : 1, threadSafeRemainingDistance.x);
@@ -143,9 +145,11 @@ public final class PositionalDriveTrain extends DriveTrain {
                     distanceOffset = new Point(Math.copySign(Math.max(absRemainingDistX, deltaTime), threadSafeRemainingDistance.x),
                             Math.copySign(Math.max(absRemainingDistY, deltaTime), threadSafeRemainingDistance.y),
                             0).negate();
-                } else {
+                } else { getTelemetry().addLine("idle");
                     setVelocity(0, 0, 0);
+                    threadSafeRemainingDistance = new Point(0,0,0);
                     distanceOffset = new Point(0, 0, 0);
+                    consumeFirstInQueue = true;
                 }
 
                 threadSafeRemainingDistance = threadSafeRemainingDistance.add(distanceOffset);

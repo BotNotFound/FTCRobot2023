@@ -1,10 +1,32 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
 /**
  * A point.  The coordinate system we are using is horizontal and vertical translation in a rotated
  *  XY coordinate plane, and our unit of distance is nanoseconds.
  */
 public final class Point {
+
+    public enum Axis {
+        X,
+        Y,
+        ROTATION;
+
+        public Point genPointFromAxis(double distance) {
+            switch (this) {
+                case X:
+                    return new Point(distance, 0, 0);
+                case Y:
+                    return new Point(0, distance, 0);
+                case ROTATION:
+                    return new Point(0, 0, distance);
+
+                default:
+                    throw new RuntimeException("Invalid axis!");
+            }
+        }
+    }
 
     public double x;
     public double y;
@@ -14,6 +36,10 @@ public final class Point {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
+    }
+
+    public Point() {
+        this(0,0,0);
     }
 
     /**
@@ -34,15 +60,6 @@ public final class Point {
     }
 
     /**
-     * Subtracts a given point from this point (doesn't modify existing points)
-     * @param other the point to subtract by
-     * @return the resulting point
-     */
-    public Point subtract(Point other) {
-        return add(other.negate());
-    }
-
-    /**
      * Multiplies two points together (doesn't modify existing points)
      * @param factor the other factor
      * @return the product of the two points
@@ -51,6 +68,7 @@ public final class Point {
         return new Point(x * factor, y * factor, rotation * factor);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "<" + x + ", " + y + ", " + rotation + ">";

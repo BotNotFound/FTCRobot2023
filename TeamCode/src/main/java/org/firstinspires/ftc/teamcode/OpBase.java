@@ -52,12 +52,9 @@ public abstract class OpBase extends OpMode {
         }
         catch (InterruptedException e) {
             telemetry.addData("INIT FAILED WITH MESSAGE", e.getMessage());
+            telemetry.update();
             terminateOpModeNow();
         }
-    }
-
-    @Override
-    public void loop() {
     }
 
     @Override
@@ -65,5 +62,7 @@ public abstract class OpBase extends OpMode {
         arm.cleanupModule();
         driveTrain.cleanupModule();
         grabber.cleanupModule();
+        telemetry.addLine("Cleanup done!");
+        telemetry.update();
     }
 }

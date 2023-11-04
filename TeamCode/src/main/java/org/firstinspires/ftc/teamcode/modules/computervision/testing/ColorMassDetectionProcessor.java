@@ -215,6 +215,28 @@ public class ColorMassDetectionProcessor implements VisionProcessor {
         return largestContour;
     }
 
+    /**
+     * Finds the distance of a detected object in real-world units
+     * @return Returns a double array, with how far the object is in front of the camera, how far to the side it is, and how far above it is, in that order.
+     * If there is no largestContour in the frame, null is returned.
+     */
+    public double[] Distance_finder(
+            double Focal_Length){
+        if(largestContour != null) {
+            Rect rect = Imgproc.boundingRect(largestContour);
+            // how far in front the object is from the camera
+            double distance_z = (76 * Focal_Length) / rect.width;
+            // how far to the side the object is from the camera
+            double distance_x = (distance_z / Focal_Length) *
+                    (largestContourX - 640);
+            // how far above the object is from the camera
+            double distance_y = (distance_z / Focal_Length) *
+                    (largestContourY - 360);
+            return new double[]{distance_z, distance_x, distance_y};
+        }
+        return null;
+    }
+
     public void close() {
         hierarchy.release();
     }

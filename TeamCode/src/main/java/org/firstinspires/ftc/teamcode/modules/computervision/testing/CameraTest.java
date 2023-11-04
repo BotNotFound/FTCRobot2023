@@ -13,9 +13,6 @@ import java.util.function.DoubleSupplier;
 @Autonomous(name="Vision Test")
 public class CameraTest extends LinearOpMode {
     private RedPropThreshold redPropThreshold = new RedPropThreshold(); //Create an object of the VisionProcessor Class
-    DoubleSupplier minArea = () -> 5;
-    DoubleSupplier left = () -> 5;
-    DoubleSupplier right = () -> 15;
     private ColorMassDetectionProcessor cmdProcessor = new ColorMassDetectionProcessor(new Scalar(0, 0, 150), new Scalar(180, 72, 255), () -> 50, () -> 213, () -> 426);
     private VisionPortal portal;
 

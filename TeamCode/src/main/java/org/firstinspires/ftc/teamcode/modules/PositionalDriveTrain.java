@@ -140,6 +140,9 @@ public final class PositionalDriveTrain extends DriveTrain {
                             distanceQueue.notify();
                         }
                         threadSafeRemainingDistance = distanceQueue.element();
+                        synchronized (parent) {
+                            parent.telemetry.addData("[Position Updater Thread] loaded new distance", threadSafeRemainingDistance);
+                        }
                     }
                 }
 
@@ -158,6 +161,11 @@ public final class PositionalDriveTrain extends DriveTrain {
                     threadSafeRemainingDistance = new Point(0,0,0);
                     distanceOffset = new Point(0, 0, 0);
                     consumeFirstInQueue = true;
+                }
+
+                synchronized (parent) {
+                    parent.telemetry.addData("[Position Updater Thread] moved", distanceOffset);
+                    parent.telemetry.addData("[Position Updater Thread] remaining distance", threadSafeRemainingDistance);
                 }
 
                 threadSafeRemainingDistance = threadSafeRemainingDistance.add(distanceOffset);

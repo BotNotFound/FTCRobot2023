@@ -110,10 +110,17 @@ public class DriveTrain extends ModuleBase {
             rightBackPower  /= max;
         }
 
+        leftFrontPower = Math.pow(leftFrontPower, 3);
+        rightFrontPower = Math.pow(rightFrontPower, 3);
+        rightBackPower = Math.pow(rightBackPower, 3);
+        leftBackPower = Math.pow(leftBackPower, 3);
+
+        getTelemetry().addData("Seting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+
         // Send calculated power to wheels
-        frontLeftMecanumDriver.setPower(Math.pow(leftFrontPower, 3));
-        frontRightMecanumDriver.setPower(Math.pow(rightFrontPower, 3));
-        backRightMecanumDriver.setPower(Math.pow(rightBackPower, 3));
-        backLeftMecanumDriver.setPower(Math.pow(leftBackPower, 3));
+        frontLeftMecanumDriver.setPower(leftFrontPower);
+        frontRightMecanumDriver.setPower(rightFrontPower);
+        backRightMecanumDriver.setPower(rightBackPower);
+        backLeftMecanumDriver.setPower(leftBackPower);
     }
 }

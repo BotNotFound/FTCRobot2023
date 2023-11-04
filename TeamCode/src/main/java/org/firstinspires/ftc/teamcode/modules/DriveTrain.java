@@ -111,9 +111,9 @@ public class DriveTrain extends ModuleBase {
         }
 
         // Send calculated power to wheels
-        frontLeftMecanumDriver.setPower(leftFrontPower * leftFrontPower * leftFrontPower);
-        frontRightMecanumDriver.setPower(rightFrontPower * rightFrontPower * rightFrontPower);
-        backRightMecanumDriver.setPower(rightBackPower * rightBackPower * rightBackPower);
-        backLeftMecanumDriver.setPower(leftBackPower * leftBackPower * leftBackPower);
+        frontLeftMecanumDriver.setPower(Math.pow(leftFrontPower, 3));
+        frontRightMecanumDriver.setPower(Math.pow(rightFrontPower, 3));
+        backRightMecanumDriver.setPower(Math.pow(rightBackPower, 3));
+        backLeftMecanumDriver.setPower(Math.pow(leftBackPower, 3));
     }
 }

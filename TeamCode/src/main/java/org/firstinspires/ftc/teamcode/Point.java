@@ -8,6 +8,26 @@ import androidx.annotation.NonNull;
  */
 public final class Point {
 
+    public enum Axis {
+        X,
+        Y,
+        ROTATION;
+
+        public Point genPointFromAxis(double distance) {
+            switch (this) {
+                case X:
+                    return new Point(distance, 0, 0);
+                case Y:
+                    return new Point(0, distance, 0);
+                case ROTATION:
+                    return new Point(0, 0, distance);
+
+                default:
+                    throw new RuntimeException("Invalid axis!");
+            }
+        }
+    }
+
     public double x;
     public double y;
     public double rotation;
@@ -16,6 +36,10 @@ public final class Point {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
+    }
+
+    public Point() {
+        this(0,0,0);
     }
 
     /**

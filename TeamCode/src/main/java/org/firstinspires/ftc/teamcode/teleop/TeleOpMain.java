@@ -37,12 +37,15 @@ public final class TeleOpMain extends OpBase {
         currentGamepad1.copy(gamepad1);
         currentGamepad2.copy(gamepad2);
 
-        // 1st gamepad controls movement
+        // 1st gamepad controls movement and plane launcher
         driveTrain.setVelocity(
                 gamepad1.left_stick_x,
                 -gamepad1.left_stick_y,
                 gamepad1.right_stick_x
         );
+        if (currentGamepad2.start && !previousGamepad2.start) {
+            planeLauncher.launch();
+        }
 
         // 2nd gamepad controls grabbing
         arm.rotate(gamepad2.right_stick_y);

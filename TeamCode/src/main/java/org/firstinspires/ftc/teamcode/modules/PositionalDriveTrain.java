@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -89,6 +91,23 @@ public final class PositionalDriveTrain extends DriveTrain {
     private AtomicBoolean killUpdaterThread;
 
     /**
+     * Gets the desired velocity and distance traveled from the specified distance
+     * @param remainingDistance the remaining distance to travel on this axis
+     * @param deltaTime the time since the last update
+     * @return the distance traveled (first) and the power to supply to the motor (second)
+     */
+    private Pair<Double, Double> getVelocityFromDistance(double remainingDistance, double deltaTime) {
+        double absRemainingDistance = Math.abs(remainingDistance);
+        // (same w/ x & y, distance is measured in nanoseconds) if deltaTime > remaining
+        //  distance, set motors to fractional power; otherwise, just set to full power
+        if (absRemainingDistance < deltaTime) {
+            return new Pair<>(-remainingDistance, Math.copySign(absRemainingDistance / deltaTime, remainingDistance));
+        } else {
+            return new Pair<>(-Math.copySign(deltaTime, remainingDistance), Math.copySign(1, remainingDistance));
+        }
+    }
+
+    /**
      * The thread that sets the motor speeds based on the remaining distance to travel
      * @see #distanceQueue
      * @see #killUpdaterThread
@@ -120,31 +139,20 @@ public final class PositionalDriveTrain extends DriveTrain {
                             distanceQueue.remove();
                             distanceQueue.notify();
                         }
-                        threadSafeRemainingDistance = distanceQueue.peek();
+                        threadSafeRemainingDistance = distanceQueue.element();
                     }
                 }
 
                 // rotate, then move
                 if (threadSafeRemainingDistance.rotation != 0) { getTelemetry().addLine("rotating...");
-                    double absRemainingRotation = Math.abs(threadSafeRemainingDistance.rotation);
-                    // (same w/ x & y, distance is measured in nanoseconds) if deltaTime > remaining
-                    //  distance, set motors to fractional power; otherwise, just set to full power
-                    if (threadSafeRemainingDistance.rotation < deltaTime) {
-                        setVelocity(0, 0, Math.copySign(absRemainingRotation / deltaTime, threadSafeRemainingDistance.rotation));
-                        distanceOffset = new Point(0, 0, -threadSafeRemainingDistance.rotation);
-                    } else {
-                        setVelocity(0, 0, Math.copySign(1, threadSafeRemainingDistance.rotation));
-                        distanceOffset = new Point(0, 0, -Math.copySign(deltaTime, threadSafeRemainingDistance.rotation));
-                    }
+                    Pair<Double, Double> rotAndVelo = getVelocityFromDistance(threadSafeRemainingDistance.rotation, deltaTime);
+                    setVelocity(0,0,rotAndVelo.second);
+                    distanceOffset = Point.Axis.ROTATION.genPointFromAxis(rotAndVelo.first);
                 } else if (threadSafeRemainingDistance.x != 0 || threadSafeRemainingDistance.y != 0) { getTelemetry().addLine("moving...");
-                    double absRemainingDistX = Math.abs(threadSafeRemainingDistance.x);
-                    double absRemainingDistY = Math.abs(threadSafeRemainingDistance.y);
-                    double powerX = Math.copySign(absRemainingDistX < deltaTime ? absRemainingDistX / deltaTime : 1, threadSafeRemainingDistance.x);
-                    double powerY = Math.copySign(absRemainingDistY < deltaTime ? absRemainingDistY / deltaTime : 1, threadSafeRemainingDistance.y);
-                    setVelocity(powerX, powerY, 0);
-                    distanceOffset = new Point(Math.copySign(Math.max(absRemainingDistX, deltaTime), threadSafeRemainingDistance.x),
-                            Math.copySign(Math.max(absRemainingDistY, deltaTime), threadSafeRemainingDistance.y),
-                            0).negate();
+                    Pair<Double, Double> distXAndVelo = getVelocityFromDistance(threadSafeRemainingDistance.x, deltaTime);
+                    Pair<Double, Double> distYAndVelo = getVelocityFromDistance(threadSafeRemainingDistance.y, deltaTime);
+                    setVelocity(distXAndVelo.second, distYAndVelo.second, 0);
+                    distanceOffset = Point.Axis.X.genPointFromAxis(distXAndVelo.first).add(Point.Axis.Y.genPointFromAxis(distYAndVelo.first));
                 } else { getTelemetry().addLine("idle");
                     setVelocity(0, 0, 0);
                     threadSafeRemainingDistance = new Point(0,0,0);

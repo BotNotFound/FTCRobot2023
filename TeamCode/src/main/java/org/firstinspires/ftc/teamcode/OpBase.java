@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.modules.Arm;
+import org.firstinspires.ftc.teamcode.modules.FieldCentricMovement;
 import org.firstinspires.ftc.teamcode.modules.Grabber;
 import org.firstinspires.ftc.teamcode.modules.MovementController;
 
@@ -18,6 +19,8 @@ public abstract class OpBase extends OpMode {
     protected MovementController mover;
     protected Arm arm;
     protected Grabber grabber;
+
+    protected FieldCentricMovement drive;
 
     // Global Variables
     protected Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
@@ -41,7 +44,7 @@ public abstract class OpBase extends OpMode {
         grabber = new Grabber(this);
         arm = new Arm(this);
         telemetry.addLine("Module classes created");
-
+        drive = new FieldCentricMovement();
         telemetry.addLine("Successfully initialized hardware!");
         telemetry.update();
     }

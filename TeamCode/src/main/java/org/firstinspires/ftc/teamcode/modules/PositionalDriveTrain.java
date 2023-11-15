@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Point;
+import org.firstinspires.ftc.teamcode.Movement;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -17,15 +17,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A drive train that can drive to positions
  */
 public final class PositionalDriveTrain extends DriveTrain {
-
     /**
      * The requested changes in position, in order of time requested
-     * @see #enqueueDistance(Point)
+     * @see #enqueueDistance(Movement)
      * @see #getFirstInQueue() 
      * @see #isInQueue(long) 
-     * @see #enqueueAndWait(Point)
+     * @see #enqueueAndWait(Movement)
      */
-    private final Queue<Point> distanceQueue = new LinkedList<>();
+    private final Queue<Movement> distanceQueue = new LinkedList<>();
 
     /**
      * The current ID of the last item in {@link #distanceQueue}
@@ -38,9 +37,9 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distance the distance to add
      * @return the ID of the distance added to the queue
      * @see #distanceQueue
-     * @see #enqueueAndWait(Point)
+     * @see #enqueueAndWait(Movement)
      */
-    private synchronized long enqueueDistance(Point distance) {
+    private synchronized long enqueueDistance(Movement distance) {
         distanceQueue.add(distance);
         return curId.getAndIncrement();
     }
@@ -70,9 +69,9 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distance the distance to add
      * @throws InterruptedException error in wait()
      * @see #isInQueue(long)
-     * @see #enqueueDistance(Point) 
+     * @see #enqueueDistance(Movement)
      */
-    private void enqueueAndWait(Point distance) throws InterruptedException {
+    private void enqueueAndWait(Movement distance) throws InterruptedException {
         long id = enqueueDistance(distance);
         while (true) {
             synchronized (distanceQueue) {
@@ -117,7 +116,7 @@ public final class PositionalDriveTrain extends DriveTrain {
         try {
             double prevTime = parent.getRuntime(),
                     deltaTime, curRuntime;
-            Point threadSafeRemainingDistance = new Point(0, 0, 0),
+            Movement threadSafeRemainingDistance = new Movement(0, 0, 0),
                     distanceOffset;
             boolean consumeFirstInQueue = false;
 
@@ -126,9 +125,7 @@ public final class PositionalDriveTrain extends DriveTrain {
                 deltaTime = curRuntime - prevTime;
                 prevTime = curRuntime;
 
-                if (threadSafeRemainingDistance.x == 0 &&
-                        threadSafeRemainingDistance.y == 0 &&
-                        threadSafeRemainingDistance.rotation == 0) {
+                if (threadSafeRemainingDistance.isZero()) {
                     synchronized (distanceQueue) {
                         if (distanceQueue.size() == 0) { // nothing to do
                             Thread.yield();
@@ -150,16 +147,16 @@ public final class PositionalDriveTrain extends DriveTrain {
                 if (threadSafeRemainingDistance.rotation != 0) { getTelemetry().addLine("rotating...");
                     Pair<Double, Double> rotAndVelo = getVelocityFromDistance(threadSafeRemainingDistance.rotation, deltaTime);
                     setVelocity(0,0,rotAndVelo.second);
-                    distanceOffset = Point.Axis.ROTATION.genPointFromAxis(rotAndVelo.first);
+                    distanceOffset = Movement.Axis.ROTATION.genPointFromAxis(rotAndVelo.first);
                 } else if (threadSafeRemainingDistance.x != 0 || threadSafeRemainingDistance.y != 0) { getTelemetry().addLine("moving...");
                     Pair<Double, Double> distXAndVelo = getVelocityFromDistance(threadSafeRemainingDistance.x, deltaTime);
                     Pair<Double, Double> distYAndVelo = getVelocityFromDistance(threadSafeRemainingDistance.y, deltaTime);
                     setVelocity(distXAndVelo.second, distYAndVelo.second, 0);
-                    distanceOffset = Point.Axis.X.genPointFromAxis(distXAndVelo.first).add(Point.Axis.Y.genPointFromAxis(distYAndVelo.first));
+                    distanceOffset = Movement.Axis.X.genPointFromAxis(distXAndVelo.first).add(Movement.Axis.Y.genPointFromAxis(distYAndVelo.first));
                 } else { getTelemetry().addLine("idle");
                     setVelocity(0, 0, 0);
-                    threadSafeRemainingDistance = new Point(0,0,0);
-                    distanceOffset = new Point(0, 0, 0);
+                    threadSafeRemainingDistance = new Movement(0,0,0);
+                    distanceOffset = Movement.zero();
                     consumeFirstInQueue = true;
                 }
 
@@ -201,19 +198,19 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distX the distance to move horizontally
      * @param distY the distance to move vertically
      * @param rotation the amount to rotate
-     * @see #moveAndRotateRobot(Point)
+     * @see #moveAndRotateRobot(Movement)
      */
     public void moveAndRotateRobot(double distX, double distY, double rotation) {
-        moveAndRotateRobot(new Point(distX, distY, rotation));
+        moveAndRotateRobot(new Movement(distX, distY, rotation));
     }
 
     /**
      * Moves and rotates the robot
      * @param distance The amount of distance to move
      * @see #moveAndRotateRobot(double, double, double) 
-     * @see #moveAndWait(Point) 
+     * @see #moveAndWait(Movement)
      */
-    public void moveAndRotateRobot(@NonNull Point distance) {
+    public void moveAndRotateRobot(@NonNull Movement distance) {
         enqueueDistance(distance);
     }
 
@@ -221,10 +218,10 @@ public final class PositionalDriveTrain extends DriveTrain {
      * Waits until the robot has moved the specified distance
      * @param distance the distance that the robot will move
      * @throws InterruptedException the current thread was interrupted
-     * @see #moveAndRotateRobot(Point)
+     * @see #moveAndRotateRobot(Movement)
      * @see #moveAndWait(double, double, double)
      */
-    public void moveAndWait(Point distance) throws InterruptedException {
+    public void moveAndWait(Movement distance) throws InterruptedException {
         enqueueAndWait(distance);
     }
 
@@ -234,10 +231,10 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distY the distance to move vertically
      * @param rotation the amount to rotate
      * @throws InterruptedException the current thread was interrupted
-     * @see #moveAndRotateRobot(Point)
+     * @see #moveAndRotateRobot(Movement)
      */
     public void moveAndWait(double distX, double distY, double rotation) throws InterruptedException {
-        moveAndWait(new Point(distX, distY, rotation));
+        moveAndWait(new Movement(distX, distY, rotation));
     }
 
     /**

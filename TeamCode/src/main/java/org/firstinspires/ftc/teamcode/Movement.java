@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
  * A point.  The coordinate system we are using is horizontal and vertical translation in a rotated
  *  XY coordinate plane, and our unit of distance is nanoseconds.
  */
-public final class Point {
+public final class Movement {
     public static final double EPSILON = 0.001;
 
     /**
@@ -25,10 +25,10 @@ public final class Point {
         if (obj == null) {
             return false;
         }
-        if (obj.getClass() != Point.class) {
+        if (obj.getClass() != Movement.class) {
             return false;
         }
-        return negate().add((Point)obj).isZero();
+        return negate().add((Movement)obj).isZero();
     }
 
     /**
@@ -60,14 +60,14 @@ public final class Point {
         Y,
         ROTATION;
 
-        public Point genPointFromAxis(double distance) {
+        public Movement genPointFromAxis(double distance) {
             switch (this) {
                 case X:
-                    return new Point(distance, 0, 0);
+                    return new Movement(distance, 0, 0);
                 case Y:
-                    return new Point(0, distance, 0);
+                    return new Movement(0, distance, 0);
                 case ROTATION:
-                    return new Point(0, 0, distance);
+                    return new Movement(0, 0, distance);
 
                 default:
                     throw new RuntimeException("Invalid axis!");
@@ -79,14 +79,18 @@ public final class Point {
     public double y;
     public double rotation;
 
-    public Point(double x, double y, double rotation) {
+    public Movement(double x, double y, double rotation) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
     }
 
-    public Point() {
-        this(0,0,0);
+    /**
+     * A new zeroed-out {@link Movement} object
+     * @return {@code <0,0,0>}
+     */
+    public static Movement zero() {
+        return new Movement(0,0,0);
     }
 
     /**
@@ -94,15 +98,15 @@ public final class Point {
      * @param addend the other addend
      * @return the sum of the two points
      */
-    public Point add(Point addend) {
-        return new Point(x + addend.x, y + addend.y, rotation + addend.rotation);
+    public Movement add(Movement addend) {
+        return new Movement(x + addend.x, y + addend.y, rotation + addend.rotation);
     }
 
     /**
      * Negates all coordinates in the point (doesn't modify the existing point)
      * @return the negated Point
      */
-    public Point negate() {
+    public Movement negate() {
         return multiply(-1);
     }
 
@@ -111,8 +115,8 @@ public final class Point {
      * @param factor the other factor
      * @return the product of the two points
      */
-    public Point multiply(double factor) {
-        return new Point(x * factor, y * factor, rotation * factor);
+    public Movement multiply(double factor) {
+        return new Movement(x * factor, y * factor, rotation * factor);
     }
 
     @NonNull

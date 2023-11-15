@@ -32,6 +32,9 @@ public final class Grabber extends ModuleBase {
      */
     private static final double ACTIVE_SERVO_ROTATION_OFFSET = 0.4f;
 
+    public static final double MIN_SERVO_ROTATION = -1.0f;
+    public static final double MAX_SERVO_ROTATION = 1.0f;
+
     private boolean isGrabbing;
 
     /**
@@ -57,8 +60,16 @@ public final class Grabber extends ModuleBase {
             throw new InterruptedException(e.getMessage());
         }
 
+        servo1.scaleRange(MIN_SERVO_ROTATION, MAX_SERVO_ROTATION);
+        servo2.scaleRange(MIN_SERVO_ROTATION, MAX_SERVO_ROTATION);
+
         isGrabbing = true; // release() only runs if isGrabbing isn't set to false
         release(); // in case the grabber is currently active, deactivate it
+    }
+
+    @Override
+    public void cleanupModule() {
+
     }
 
     /**
@@ -66,11 +77,18 @@ public final class Grabber extends ModuleBase {
      * @param rotation The amount to rotate the grabber by
      */
     public void rotate(double rotation) {
-        telemetry.addData("Rotating grabber by:", rotation);
+        getTelemetry().addData("Rotating grabber by", rotation);
 
         // rotate relative to current position to preserve grab state
         servo1.setPosition(servo1.getPosition() + rotation);
         servo2.setPosition(servo2.getPosition() - rotation);
+    }
+
+    public void setRotation(double rotation) {
+        getTelemetry().addData("Rotating grabber to", rotation);
+
+        servo1.setPosition(isGrabbing() ? rotation - ACTIVE_SERVO_ROTATION_OFFSET : rotation + ACTIVE_SERVO_ROTATION_OFFSET);
+        servo2.setPosition(isGrabbing() ? rotation - ACTIVE_SERVO_ROTATION_OFFSET : rotation + ACTIVE_SERVO_ROTATION_OFFSET);
     }
 
     /**
@@ -80,7 +98,7 @@ public final class Grabber extends ModuleBase {
         if (isGrabbing()) { return; }
         isGrabbing = true;
 
-        telemetry.addLine("Grabbing grabber");
+        getTelemetry().addLine("Grabbing grabber");
 
         // rotating servos in different directions to rotate the middle gear
         servo1.setPosition(servo1.getPosition() + ACTIVE_SERVO_ROTATION_OFFSET);
@@ -94,7 +112,7 @@ public final class Grabber extends ModuleBase {
         if (!isGrabbing()) { return; }
         isGrabbing = false;
 
-        telemetry.addLine("Releasing grabber");
+        getTelemetry().addLine("Releasing grabber");
 
         // rotating servos in different directions to rotate the middle gear
         servo1.setPosition(servo1.getPosition()  - ACTIVE_SERVO_ROTATION_OFFSET);

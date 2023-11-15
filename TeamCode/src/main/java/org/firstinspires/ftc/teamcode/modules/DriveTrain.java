@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public final class MovementController extends ModuleBase {
+public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the front right mecanum wheel
      */
@@ -57,7 +57,7 @@ public final class MovementController extends ModuleBase {
      * @param registrar the OpMode that will be using the module
      * @exception InterruptedException The module was unable to locate the necessary motors
      */
-    public MovementController(@NonNull OpMode registrar) throws InterruptedException {
+    public DriveTrain(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
         try {
             frontRightMecanumDriver = registrar.hardwareMap.get(DcMotor.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
@@ -76,14 +76,24 @@ public final class MovementController extends ModuleBase {
         backLeftMecanumDriver.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
+    @Override
+    public void cleanupModule() {
+
+    }
+
+    /**
+     * the scale for our exponential scaling of motor power
+     */
+    public static final int SCALE = 5;
+
     /**
      * Moves and rotates the robot
      * @param distX The right velocity
      * @param distY The forward velocity
-     * @param rotation The rotation
+     * @param rotation The rotational velocity
      */
-    public void moveAndRotateRobot(double distX, double distY, double rotation) {
-        telemetry.addData("Moving by vector:", "<%f, %f, %f>", distX, distY, rotation);
+    public void setVelocity(double distX, double distY, double rotation) {
+        getTelemetry().addData("Moving by vector:", "<%f, %f, %f>", distX, distY, rotation);
 
         // Combine the requests for each axis-motion to determine each wheel's power.
         // (formula was found on gm0)
@@ -104,6 +114,13 @@ public final class MovementController extends ModuleBase {
             leftBackPower   /= max;
             rightBackPower  /= max;
         }
+
+        leftFrontPower = Math.pow(leftFrontPower, SCALE) * 0.75;
+        rightFrontPower = Math.pow(rightFrontPower, SCALE) * 0.75;
+        rightBackPower = Math.pow(rightBackPower, SCALE) * 0.75;
+        leftBackPower = Math.pow(leftBackPower, SCALE) * 0.75;
+
+        getTelemetry().addData("Seting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
 
         // Send calculated power to wheels
         frontLeftMecanumDriver.setPower(leftFrontPower);

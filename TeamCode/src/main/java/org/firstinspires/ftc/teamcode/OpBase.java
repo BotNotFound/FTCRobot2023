@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.modules.Arm;
 import org.firstinspires.ftc.teamcode.modules.FieldCentricMovement;
 import org.firstinspires.ftc.teamcode.modules.Grabber;
-import org.firstinspires.ftc.teamcode.modules.MovementController;
+import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
+import org.firstinspires.ftc.teamcode.modules.PositionalDriveTrain;
 
 import java.util.List;
 
@@ -16,14 +16,14 @@ public abstract class OpBase extends OpMode {
     // Globally Declared Sensors
 
     // Module Classes
-    protected MovementController mover;
+    protected PositionalDriveTrain driveTrain;
     protected Arm arm;
     protected Grabber grabber;
+    protected PlaneLauncher planeLauncher;
 
     protected FieldCentricMovement drive;
 
     // Global Variables
-    protected Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
     /**
      * Initializes global hardware and module classes
@@ -40,9 +40,10 @@ public abstract class OpBase extends OpMode {
         telemetry.addLine("Independent motors registered");
         
         // Init Module classes
-        mover = new MovementController(this);
+        driveTrain = new PositionalDriveTrain(this);
         grabber = new Grabber(this);
         arm = new Arm(this);
+        planeLauncher = new PlaneLauncher(this);
         telemetry.addLine("Module classes created");
         drive = new FieldCentricMovement();
         telemetry.addLine("Successfully initialized hardware!");
@@ -51,12 +52,24 @@ public abstract class OpBase extends OpMode {
 
     @Override
     public void init() {
+        resetRuntime(); // for thread stuff
         try {
             initHardware();
         }
         catch (InterruptedException e) {
             telemetry.addData("INIT FAILED WITH MESSAGE", e.getMessage());
-            requestOpModeStop();
+            telemetry.update();
+            terminateOpModeNow();
         }
     }
-} 
+
+    @Override
+    public void stop() {
+        arm.cleanupModule();
+        driveTrain.cleanupModule();
+        grabber.cleanupModule();
+        planeLauncher.cleanupModule();
+        telemetry.addLine("Cleanup done!");
+        telemetry.update();
+    }
+}

@@ -9,11 +9,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public final class Arm extends ModuleBase {
 
     /**
-     * The encoder resolution -- amount of 'rotation' equal to 1 full revolution of the motor
-     */
-    public static final int ENCODER_RESOLUTION = ((((1+(46/17))) * (1+(46/17))) * (1+(46/17)) * 28);
-
-    /**
      * The motor moving the arm
      */
     private final DcMotor armMotor;
@@ -40,22 +35,27 @@ public final class Arm extends ModuleBase {
 
         // motor config
         armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setTargetPosition(0);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        armMotor.setTargetPosition(0);
+//        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    @Override
+    public void cleanupModule() {
+
     }
 
     public void setRotation(int rotation) {
-        telemetry.addData("Rotating arm to:", rotation);
+        getTelemetry().addData("Rotating arm to:", rotation);
 
         armMotor.setTargetPosition(rotation);
     }
 
-    public int getRotation() {
-        return armMotor.getTargetPosition();
+    public void rotate(double rotation) {
+        armMotor.setPower(rotation);
     }
 
     public boolean isRotating() {
-        return armMotor.getCurrentPosition() == armMotor.getTargetPosition();
+        return armMotor.isBusy();
     }
 }

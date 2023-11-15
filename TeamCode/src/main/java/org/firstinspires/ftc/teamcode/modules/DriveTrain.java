@@ -115,10 +115,10 @@ public class DriveTrain extends ModuleBase {
             rightBackPower  /= max;
         }
 
-        leftFrontPower = Math.pow(leftFrontPower, SCALE);
-        rightFrontPower = Math.pow(rightFrontPower, SCALE);
-        rightBackPower = Math.pow(rightBackPower, SCALE);
-        leftBackPower = Math.pow(leftBackPower, SCALE);
+        leftFrontPower = Math.pow(leftFrontPower, SCALE) * 0.75;
+        rightFrontPower = Math.pow(rightFrontPower, SCALE) * 0.75;
+        rightBackPower = Math.pow(rightBackPower, SCALE) * 0.75;
+        leftBackPower = Math.pow(leftBackPower, SCALE) * 0.75;
 
         getTelemetry().addData("Seting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
 

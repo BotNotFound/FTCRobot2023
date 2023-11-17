@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.modules.location;
 
 import org.firstinspires.ftc.teamcode.Movement;
 
+/**
+ * The default locator -- used as more of a placeholder, its coordinate system goes from <0,0>
+ *     to <1,1>
+ */
 public final class DefaultLocator implements Locator {
     @Override
     public Movement getLocation() throws LocatorException {
@@ -19,15 +23,22 @@ public final class DefaultLocator implements Locator {
     }
 
     @Override
-    public Movement convertFromOtherLocator(Movement distance, Locator other) {
+    public LocalizedMovement convertFromOtherLocator(Movement distance, Locator other) {
         if (distance == null) {
-            return Movement.zero();
+            return LocalizedMovement.construct(Movement.zero(), this);
         }
-        return distance;
+
+        Movement fieldSize = other.getFieldSize();
+        return new LocalizedMovement(
+                distance.x / fieldSize.x,
+                distance.y / fieldSize.y,
+                distance.rotation,
+                this
+        );
     }
 
     @Override
     public Movement getFieldSize() {
-        return null;
+        return new Movement(1, 1);
     }
 }

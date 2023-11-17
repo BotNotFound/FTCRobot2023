@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
  * A point.  The coordinate system we are using is horizontal and vertical translation in a rotated
  *  XY coordinate plane, and our unit of distance is nanoseconds.
  */
-public final class Movement {
+public class Movement {
     public static final double EPSILON = 0.001;
 
     /**
@@ -83,6 +83,10 @@ public final class Movement {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
+    }
+
+    public Movement(double x, double y) {
+        this(x, y, 0);
     }
 
     /**

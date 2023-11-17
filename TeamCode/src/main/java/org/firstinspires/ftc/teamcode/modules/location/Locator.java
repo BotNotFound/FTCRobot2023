@@ -35,11 +35,63 @@ public interface Locator {
      *              by {@code distance}
      * @return the point in this locator's coordinate system
      */
-    Movement convertFromOtherLocator(Movement distance, Locator other);
+    default LocalizedMovement convertFromOtherLocator(Movement distance, Locator other) {
+        if (distance == null) {
+            return LocalizedMovement.construct(Movement.zero(), this);
+        }
+        Movement otherFieldSize = other.getFieldSize();
+        Movement thisFieldSize = getFieldSize();
+        return new LocalizedMovement(
+                distance.x / otherFieldSize.x * thisFieldSize.x,
+                distance.y / otherFieldSize.y * thisFieldSize.y,
+                distance.rotation,
+                this
+        );
+    }
+
+    /**
+     * Converts a {@link LocalizedMovement} object from another coordinate system to the one used by
+     * this locator
+     * @param localizedDistance the {@link LocalizedMovement} to convert
+     * @return the point in this locator's coordinate system
+     * @see LocalizedMovement
+     */
+    default LocalizedMovement convertFromOtherLocator(LocalizedMovement localizedDistance) {
+        if (localizedDistance.getLocator().equals(this)) {
+            return localizedDistance;
+        }
+        else {
+            return convertFromOtherLocator(localizedDistance, localizedDistance.getLocator());
+        }
+    }
 
     /**
      * Gets the size of the field, in whatever units are used by this locator
      * @return The size of the field
      */
     Movement getFieldSize();
+
+    static Locator createFromFieldSize(Movement fieldSize) {
+        return new Locator() {
+            @Override
+            public Movement getLocation() throws LocatorException {
+                throw new NoAbsolutePositionException(this);
+            }
+
+            @Override
+            public boolean isActive() {
+                return false;
+            }
+
+            @Override
+            public LocatorKind getKind() {
+                return LocatorKind.NO_ABSOLUTE_POSITION;
+            }
+
+            @Override
+            public Movement getFieldSize() {
+                return fieldSize;
+            }
+        };
+    }
 }

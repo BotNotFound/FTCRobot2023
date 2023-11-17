@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Movement;
+import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
+import org.firstinspires.ftc.teamcode.modules.location.Locator;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -20,12 +22,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class PositionalDriveTrain extends DriveTrain {
     /**
      * The requested changes in position, in order of time requested
-     * @see #enqueueDistance(Movement)
+     * @see #enqueueDistance(LocalizedMovement)
      * @see #getFirstInQueue() 
      * @see #isInQueue(long) 
-     * @see #enqueueAndWait(Movement)
+     * @see #enqueueAndWait(LocalizedMovement)
      */
-    private final Queue<Movement> distanceQueue = new LinkedList<>();
+    private final Queue<LocalizedMovement> distanceQueue = new LinkedList<>();
 
     /**
      * The current ID of the last item in {@link #distanceQueue}
@@ -38,9 +40,9 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distance the distance to add
      * @return the ID of the distance added to the queue
      * @see #distanceQueue
-     * @see #enqueueAndWait(Movement)
+     * @see #enqueueAndWait(LocalizedMovement)
      */
-    private synchronized long enqueueDistance(Movement distance) {
+    private synchronized long enqueueDistance(LocalizedMovement distance) {
         distanceQueue.add(distance);
         return curId.getAndIncrement();
     }
@@ -70,9 +72,9 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distance the distance to add
      * @throws InterruptedException error in wait()
      * @see #isInQueue(long)
-     * @see #enqueueDistance(Movement)
+     * @see #enqueueDistance(LocalizedMovement)
      */
-    private void enqueueAndWait(Movement distance) throws InterruptedException {
+    private void enqueueAndWait(LocalizedMovement distance) throws InterruptedException {
         long id = enqueueDistance(distance);
         while (true) {
             synchronized (distanceQueue) {
@@ -111,13 +113,13 @@ public final class PositionalDriveTrain extends DriveTrain {
      * The thread that sets the motor speeds based on the remaining distance to travel
      * @see #distanceQueue
      * @see #killUpdaterThread
-     * @see #moveAndRotateRobot(double, double, double)
+     * @see #moveAndRotateRobot(double, double, double, Locator)
      */
     private final Thread positionUpdaterThread = new Thread(() -> {
         try {
             long deltaTime;
-            Movement threadSafeRemainingDistance = Movement.zero(),
-                    distanceOffset;
+            LocalizedMovement threadSafeRemainingDistance = LocalizedMovement.construct(Movement.zero(), null);
+            Movement distanceOffset;
             boolean consumeFirstInQueue = false;
             ElapsedTime timer = new ElapsedTime();
 
@@ -154,7 +156,7 @@ public final class PositionalDriveTrain extends DriveTrain {
                     distanceOffset = Movement.Axis.X.genPointFromAxis(distXAndVelo.first).add(Movement.Axis.Y.genPointFromAxis(distYAndVelo.first));
                 } else { getTelemetry().addLine("idle");
                     setVelocity(0, 0, 0);
-                    threadSafeRemainingDistance = new Movement(0,0,0);
+                    threadSafeRemainingDistance = LocalizedMovement.construct(Movement.zero(), threadSafeRemainingDistance.getLocator());
                     distanceOffset = Movement.zero();
                     consumeFirstInQueue = true;
                 }
@@ -198,19 +200,19 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distX the distance to move horizontally
      * @param distY the distance to move vertically
      * @param rotation the amount to rotate
-     * @see #moveAndRotateRobot(Movement)
+     * @see #moveAndRotateRobot(LocalizedMovement)
      */
-    public void moveAndRotateRobot(double distX, double distY, double rotation) {
-        moveAndRotateRobot(new Movement(distX, distY, rotation));
+    public void moveAndRotateRobot(double distX, double distY, double rotation, Locator locator) {
+        moveAndRotateRobot(new LocalizedMovement(distX, distY, rotation, locator));
     }
 
     /**
      * Moves and rotates the robot
      * @param distance The amount of distance to move
-     * @see #moveAndRotateRobot(double, double, double) 
-     * @see #moveAndWait(Movement)
+     * @see #moveAndRotateRobot(double, double, double, Locator)
+     * @see #moveAndWait(LocalizedMovement)
      */
-    public void moveAndRotateRobot(@NonNull Movement distance) {
+    public void moveAndRotateRobot(LocalizedMovement distance) {
         enqueueDistance(distance);
     }
 
@@ -218,10 +220,10 @@ public final class PositionalDriveTrain extends DriveTrain {
      * Waits until the robot has moved the specified distance
      * @param distance the distance that the robot will move
      * @throws InterruptedException the current thread was interrupted
-     * @see #moveAndRotateRobot(Movement)
-     * @see #moveAndWait(double, double, double)
+     * @see #moveAndRotateRobot(LocalizedMovement)
+     * @see #moveAndWait(double, double, double, Locator)
      */
-    public void moveAndWait(Movement distance) throws InterruptedException {
+    public void moveAndWait(LocalizedMovement distance) throws InterruptedException {
         enqueueAndWait(distance);
     }
 
@@ -231,10 +233,10 @@ public final class PositionalDriveTrain extends DriveTrain {
      * @param distY the distance to move vertically
      * @param rotation the amount to rotate
      * @throws InterruptedException the current thread was interrupted
-     * @see #moveAndRotateRobot(Movement)
+     * @see #moveAndRotateRobot(LocalizedMovement)
      */
-    public void moveAndWait(double distX, double distY, double rotation) throws InterruptedException {
-        moveAndWait(new Movement(distX, distY, rotation));
+    public void moveAndWait(double distX, double distY, double rotation, Locator locator) throws InterruptedException {
+        moveAndWait(new LocalizedMovement(distX, distY, rotation, locator));
     }
 
     /**
@@ -243,8 +245,9 @@ public final class PositionalDriveTrain extends DriveTrain {
     @Override
     public void cleanupModule() {
         super.cleanupModule();
-        killUpdaterThread.lazySet(true);
+        killUpdaterThread.set(true);
         try {
+            positionUpdaterThread.interrupt();
             positionUpdaterThread.join();
         } catch (InterruptedException e) {
             getTelemetry().addData("ERROR at position updater thread", e.getMessage());

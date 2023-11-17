@@ -25,10 +25,10 @@ public class Movement {
         if (obj == null) {
             return false;
         }
-        if (obj.getClass() != Movement.class) {
+        if (!(obj instanceof Movement)) {
             return false;
         }
-        return negate().add((Movement)obj).isZero();
+        return negate().add((Movement) obj).isZero();
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules.location;
 
+import androidx.annotation.NonNull;
+
 import org.firstinspires.ftc.teamcode.Movement;
 
 /**
@@ -27,5 +29,28 @@ public final class LocalizedMovement extends Movement {
 
     public LocalizedMovement convertToOtherLocator(Locator other) {
         return other.convertFromOtherLocator(this);
+    }
+
+    public LocalizedMovement add(LocalizedMovement other) {
+        return construct(super.add(other.convertToOtherLocator(getLocator())), getLocator());
+    }
+
+    @Override
+    public LocalizedMovement add(Movement other) {
+        return construct(super.add(other), getLocator());
+    }
+
+    public LocalizedMovement negate() {
+        return multiply(-1);
+    }
+
+    public LocalizedMovement multiply(double factor) {
+        return construct(super.multiply(factor), getLocator());
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "l" + super.toString();
     }
 }

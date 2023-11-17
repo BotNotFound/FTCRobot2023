@@ -5,6 +5,7 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Movement;
 
@@ -114,16 +115,14 @@ public final class PositionalDriveTrain extends DriveTrain {
      */
     private final Thread positionUpdaterThread = new Thread(() -> {
         try {
-            double prevTime = parent.getRuntime(),
-                    deltaTime, curRuntime;
-            Movement threadSafeRemainingDistance = new Movement(0, 0, 0),
+            long deltaTime;
+            Movement threadSafeRemainingDistance = Movement.zero(),
                     distanceOffset;
             boolean consumeFirstInQueue = false;
+            ElapsedTime timer = new ElapsedTime();
 
             while (!killUpdaterThread.get()) {
-                curRuntime = parent.getRuntime();
-                deltaTime = curRuntime - prevTime;
-                prevTime = curRuntime;
+                deltaTime = timer.nanoseconds();
 
                 if (threadSafeRemainingDistance.isZero()) {
                     synchronized (distanceQueue) {
@@ -166,6 +165,7 @@ public final class PositionalDriveTrain extends DriveTrain {
                 }
 
                 threadSafeRemainingDistance = threadSafeRemainingDistance.add(distanceOffset);
+                timer.reset();
                 //noinspection BusyWait
                 Thread.sleep(1, 0);
             }

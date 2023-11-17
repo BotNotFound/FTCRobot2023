@@ -12,7 +12,7 @@ public interface Locator {
      * @see #isActive()
      * @see #getKind()
      */
-    Movement getLocation() throws LocatorException;
+    LocalizedMovement getLocation() throws LocatorException;
 
     /**
      * {@link #getLocation()} will always throw an exception if this is false

@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Movement;
  */
 public final class DefaultLocator implements Locator {
     @Override
-    public Movement getLocation() throws LocatorException {
+    public LocalizedMovement getLocation() throws LocatorException {
         throw new NoAbsolutePositionException(this);
     }
 

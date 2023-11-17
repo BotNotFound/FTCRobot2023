@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules.location;
 
-public class LocatorException extends Exception {
+public class LocatorException extends RuntimeException {
     public static final String ERROR_MESSAGE = "Could not use locator to get location";
 
     private final Locator locator;

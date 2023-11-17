@@ -4,13 +4,14 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the front right mecanum wheel
      */
-    private final DcMotor frontRightMecanumDriver;
+    private final DcMotorEx frontRightMecanumDriver;
 
     /**
      * The default name of the front right mecanum driver
@@ -21,7 +22,7 @@ public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the front left mecanum wheel
      */
-    private final DcMotor frontLeftMecanumDriver;
+    private final DcMotorEx frontLeftMecanumDriver;
 
 
     /**
@@ -33,7 +34,7 @@ public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the back right mecanum wheel
      */
-    private final DcMotor backRightMecanumDriver;
+    private final DcMotorEx backRightMecanumDriver;
 
 
     /**
@@ -44,7 +45,7 @@ public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the back left mecanum wheel
      */
-    private final DcMotor backLeftMecanumDriver;
+    private final DcMotorEx backLeftMecanumDriver;
 
 
     /**
@@ -60,16 +61,21 @@ public class DriveTrain extends ModuleBase {
     public DriveTrain(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
         try {
-            frontRightMecanumDriver = registrar.hardwareMap.get(DcMotor.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
-            frontLeftMecanumDriver = registrar.hardwareMap.get(DcMotor.class, FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
-            backLeftMecanumDriver = registrar.hardwareMap.get(DcMotor.class, BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
-            backRightMecanumDriver = registrar.hardwareMap.get(DcMotor.class, BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+            frontRightMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+            frontLeftMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+            backLeftMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+            backRightMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
         }
         catch (IllegalArgumentException e) {
             throw new InterruptedException(e.getMessage());
         }
 
         // motor config
+        frontRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         frontRightMecanumDriver.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMecanumDriver.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeftMecanumDriver.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -115,12 +121,12 @@ public class DriveTrain extends ModuleBase {
             rightBackPower  /= max;
         }
 
-        leftFrontPower = Math.pow(leftFrontPower, SCALE) * 0.75;
+        leftFrontPower = Math.pow(leftFrontPower, SCALE) * 0.75; // TODO make this a little less jank
         rightFrontPower = Math.pow(rightFrontPower, SCALE) * 0.75;
         rightBackPower = Math.pow(rightBackPower, SCALE) * 0.75;
         leftBackPower = Math.pow(leftBackPower, SCALE) * 0.75;
 
-        getTelemetry().addData("Seting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+        getTelemetry().addData("Setting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
 
         // Send calculated power to wheels
         frontLeftMecanumDriver.setPower(leftFrontPower);

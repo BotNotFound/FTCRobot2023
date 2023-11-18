@@ -29,6 +29,19 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
     public static double KI = 0;
 
     /**
+     * The maximum power the drive train can provide.
+     * This value is used for Integrator clamping
+     */
+    public static double ABS_OUTPUT_LIMIT = 1;
+
+    static double clamp(double min, double value, double max) {
+        return Math.max(
+                Math.max(value, max),
+                min
+        );
+    }
+
+    /**
      * Attempts to initialize the module by getting motors with the default names from a hardware map
      *
      * @param registrar the OpMode that will be using the module
@@ -45,11 +58,13 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
         public double error;
         public double derivative;
         public double integralSum;
+        public double prevOutput;
 
         public MovementInfo() {
             error = 0;
             derivative = 0;
             integralSum = 0;
+            prevOutput = 0;
         }
     }
 
@@ -94,10 +109,22 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
             double targetPosition,
             MovementInfo info,
             double deltaTime) {
+        // basic PID controller
         double lastError = info.error;
         info.error = targetPosition - currentPosition;
         info.derivative = (info.error - lastError) / deltaTime;
-        info.integralSum += info.error * deltaTime;
-        return (KP * info.error) + (KI * info.integralSum) + (KD * info.derivative);
+
+        // Integral clamping
+        if (!(
+                clamp(-ABS_OUTPUT_LIMIT, info.prevOutput, ABS_OUTPUT_LIMIT) != info.prevOutput &&
+                Math.signum(info.prevOutput) != Math.signum(info.error)
+        )) {
+            info.integralSum += info.error * deltaTime;
+        }
+
+        double output = (KP * info.error) + (KI * info.integralSum) + (KD * info.derivative);
+
+        info.prevOutput = output;
+        return output;
     }
 }

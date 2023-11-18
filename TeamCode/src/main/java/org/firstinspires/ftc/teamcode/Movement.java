@@ -123,6 +123,14 @@ public class Movement {
         return new Movement(x * factor, y * factor, rotation * factor);
     }
 
+    /**
+     * Gets the magnitude of this object as if it was a vector
+     * @return the magnitude of the vector <{@link #x}, {@link #y}>
+     */
+    public double magnitude() {
+        return Math.sqrt(x*x + y*y);
+    }
+
     @NonNull
     @Override
     public String toString() {

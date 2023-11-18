@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.Movement;
+
 public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the front right mecanum wheel
@@ -133,5 +135,9 @@ public class DriveTrain extends ModuleBase {
         frontRightMecanumDriver.setPower(rightFrontPower);
         backRightMecanumDriver.setPower(rightBackPower);
         backLeftMecanumDriver.setPower(leftBackPower);
+    }
+
+    public void setVelocity(Movement velocity) {
+        setVelocity(velocity.x, velocity.y, velocity.rotation);
     }
 }

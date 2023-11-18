@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 import org.firstinspires.ftc.teamcode.modules.Grabber;
 import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
-import org.firstinspires.ftc.teamcode.modules.PositionalDriveTrain;
+import org.firstinspires.ftc.teamcode.modules.location.PIDController;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public abstract class OpBase extends OpMode {
     // Globally Declared Sensors
 
     // Module Classes
-    protected PositionalDriveTrain driveTrain;
+    protected PIDController driveTrain;
     protected Arm arm;
     protected Grabber grabber;
     protected PlaneLauncher planeLauncher;
@@ -37,7 +37,7 @@ public abstract class OpBase extends OpMode {
         telemetry.addLine("Independent motors registered");
         
         // Init Module classes
-        driveTrain = new PositionalDriveTrain(this);
+        driveTrain = new PIDController(this);
         grabber = new Grabber(this);
         arm = new Arm(this);
         planeLauncher = new PlaneLauncher(this);

@@ -8,6 +8,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.DriveTrain;
 
+/**
+ * A drive-to-position variant of {@link DriveTrain} that uses a
+ *  Proportional, Derivative, and Integral system to control the robot
+ */
 public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
     /**
      * The proportional coefficient
@@ -34,7 +38,10 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
         super(registrar);
     }
 
-    static class MovementInfo {
+    /**
+     * Internal class for PID data
+     */
+    private static final class MovementInfo {
         public double error;
         public double derivative;
         public double integralSum;
@@ -46,6 +53,10 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
         }
     }
 
+    /**
+     * Moves the robot to the target position
+     * @param target The target position
+     */
     public void driveTo(LocalizedMovement target) {
         if (target == null) { return; }
 

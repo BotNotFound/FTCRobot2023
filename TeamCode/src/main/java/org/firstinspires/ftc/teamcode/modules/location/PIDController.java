@@ -32,14 +32,14 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
      * The maximum power the drive train can provide.
      * This value is used for Integrator clamping
      */
-    public static double ABS_OUTPUT_LIMIT = 1;
+    public static double INTEGRAL_SUM_LIMIT = 1;
 
-    static double clamp(double min, double value, double max) {
-        return Math.max(
-                Math.max(value, max),
-                min
-        );
-    }
+    /**
+     * Used in the low-pass filter for the derivative term. <br />
+     * <b>MUST BE BETWEEN 0 AND 1 (exclusive)</b>
+     */
+    public static double A = 0.8;
+
 
     /**
      * Attempts to initialize the module by getting motors with the default names from a hardware map
@@ -58,13 +58,13 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
         public double error;
         public double derivative;
         public double integralSum;
-        public double prevOutput;
+        public double filterEstimate;
 
         public MovementInfo() {
             error = 0;
             derivative = 0;
             integralSum = 0;
-            prevOutput = 0;
+            filterEstimate = 0;
         }
     }
 
@@ -109,22 +109,27 @@ public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
             double targetPosition,
             MovementInfo info,
             double deltaTime) {
-        // basic PID controller
         double lastError = info.error;
         info.error = targetPosition - currentPosition;
-        info.derivative = (info.error - lastError) / deltaTime;
 
-        // Integral clamping
-        if (!(
-                clamp(-ABS_OUTPUT_LIMIT, info.prevOutput, ABS_OUTPUT_LIMIT) != info.prevOutput &&
-                Math.signum(info.prevOutput) != Math.signum(info.error)
-        )) {
-            info.integralSum += info.error * deltaTime;
+        // filter out height frequency noise to increase derivative performance
+        double errorChange = (info.error - lastError);
+        info.filterEstimate = (A * info.filterEstimate) + (1-A) * errorChange;
+
+        // rate of change of the error
+        info.derivative = info.filterEstimate / deltaTime;
+
+        // sum of all error over time
+        info.integralSum += info.error * deltaTime;
+
+        // set a limit on our integral sum
+        if (info.integralSum > INTEGRAL_SUM_LIMIT) {
+            info.integralSum = INTEGRAL_SUM_LIMIT;
+        }
+        else if (info.integralSum < -INTEGRAL_SUM_LIMIT) {
+            info.integralSum = -INTEGRAL_SUM_LIMIT;
         }
 
-        double output = (KP * info.error) + (KI * info.integralSum) + (KD * info.derivative);
-
-        info.prevOutput = output;
-        return output;
+        return (KP * info.error) + (KI * info.integralSum) + (KD * info.derivative);
     }
 }

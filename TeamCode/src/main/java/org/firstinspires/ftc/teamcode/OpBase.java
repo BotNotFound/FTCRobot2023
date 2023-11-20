@@ -4,7 +4,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.FieldCentricMovement;
 import org.firstinspires.ftc.teamcode.modules.Grabber;
 import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
 import org.firstinspires.ftc.teamcode.modules.location.PIDController;
@@ -20,8 +19,6 @@ public abstract class OpBase extends OpMode {
     protected Arm arm;
     protected Grabber grabber;
     protected PlaneLauncher planeLauncher;
-
-    protected FieldCentricMovement drive;
 
     // Global Variables
 
@@ -45,7 +42,7 @@ public abstract class OpBase extends OpMode {
         arm = new Arm(this);
         planeLauncher = new PlaneLauncher(this);
         telemetry.addLine("Module classes created");
-        drive = new FieldCentricMovement();
+
         telemetry.addLine("Successfully initialized hardware!");
         telemetry.update();
     }

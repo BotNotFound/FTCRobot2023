@@ -13,7 +13,7 @@ public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the front right mecanum wheel
      */
-    private final DcMotorEx frontRightMecanumDriver;
+    protected final DcMotorEx frontRightMecanumDriver;
 
     /**
      * The default name of the front right mecanum driver
@@ -24,7 +24,7 @@ public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the front left mecanum wheel
      */
-    private final DcMotorEx frontLeftMecanumDriver;
+    protected final DcMotorEx frontLeftMecanumDriver;
 
 
     /**
@@ -36,7 +36,7 @@ public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the back right mecanum wheel
      */
-    private final DcMotorEx backRightMecanumDriver;
+    protected final DcMotorEx backRightMecanumDriver;
 
 
     /**
@@ -47,7 +47,7 @@ public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the back left mecanum wheel
      */
-    private final DcMotorEx backLeftMecanumDriver;
+    protected final DcMotorEx backLeftMecanumDriver;
 
 
     /**

@@ -7,12 +7,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.DriveTrain;
+import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
 /**
  * A drive-to-position variant of {@link DriveTrain} that uses a
  *  Proportional, Derivative, and Integral system to control the robot
  */
-public class PIDController extends DriveTrain { // TODO TUNE THE PID CONTROLLER
+public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID CONTROLLER
     /**
      * The proportional coefficient
      */

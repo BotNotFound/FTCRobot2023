@@ -12,6 +12,7 @@ public interface Locator {
      * @see #isActive()
      * @see #getKind()
      */
+
     LocalizedMovement getLocation() throws LocatorException;
 
     /**

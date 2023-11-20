@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules.location;
 
 import org.firstinspires.ftc.teamcode.Movement;
-import org.jetbrains.annotations.Contract;
 
 public interface Locator {
     /**
@@ -13,7 +12,6 @@ public interface Locator {
      * @see #isActive()
      * @see #getKind()
      */
-    @Contract(value = "-> !null")
     LocalizedMovement getLocation() throws LocatorException;
 
     /**

@@ -47,6 +47,9 @@ public final class TeleOpMain extends OpBase {
                 -gamepad1.left_stick_y,
                 gamepad1.right_stick_x
         );
+        if (currentGamepad1.start) {
+            driveTrain.resetRotation();
+        }
 
         telemetry.addData("Launched Plane", launchedPlane);
 

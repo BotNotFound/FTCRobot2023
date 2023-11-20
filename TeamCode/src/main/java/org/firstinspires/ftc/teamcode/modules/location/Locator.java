@@ -18,7 +18,15 @@ public interface Locator {
      * {@link #getLocation()} will always throw an exception if this is false
      * @return True if the locator currently functional, otherwise false
      */
-    boolean isActive();
+    default boolean isActive() {
+        try {
+            getLocation();
+            return true;
+        }
+        catch (LocatorException e) {
+            return false;
+        }
+    }
 
     /**
      * Gets the type of the locator.  This is used to determine

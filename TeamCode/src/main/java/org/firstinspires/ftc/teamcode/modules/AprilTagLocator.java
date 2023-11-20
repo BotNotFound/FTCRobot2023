@@ -112,17 +112,6 @@ public class AprilTagLocator extends ModuleBase implements Locator {
     }
 
     @Override
-    public boolean isActive() {
-        ArrayList<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.id == tagId) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public LocatorKind getKind() {
         return LocatorKind.OBJECT_RELATIVE;
     }

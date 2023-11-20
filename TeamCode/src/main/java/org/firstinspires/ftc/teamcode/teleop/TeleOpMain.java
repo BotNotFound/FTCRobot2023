@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.OpBase;
+import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -11,6 +12,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class TeleOpMain extends OpBase {
 
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
+
+    private FieldCentricDriveTrain fieldCentricDriveTrain;
+
+    @Override
+    public void initHardware() throws InterruptedException {
+        super.initHardware();
+        fieldCentricDriveTrain = new FieldCentricDriveTrain(this);
+    }
 
     @Override
     public void start() {
@@ -42,13 +51,13 @@ public final class TeleOpMain extends OpBase {
 
 
         // 1st gamepad controls movement
-        driveTrain.setVelocity(
-                gamepad1.left_stick_x,
-                -gamepad1.left_stick_y,
+        fieldCentricDriveTrain.setVelocity(
+                -gamepad1.left_stick_x,
+                gamepad1.left_stick_y,
                 gamepad1.right_stick_x
         );
         if (currentGamepad1.start) {
-            driveTrain.resetRotation();
+            fieldCentricDriveTrain.resetRotation();
         }
 
         telemetry.addData("Launched Plane", launchedPlane);

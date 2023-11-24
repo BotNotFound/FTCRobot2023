@@ -17,7 +17,7 @@ public class Movement {
     public boolean isZero() {
         return Math.abs(x) < EPSILON &&
                 Math.abs(y) < EPSILON &&
-                Math.abs(rotation) < EPSILON;
+                Math.abs(theta) < EPSILON;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class Movement {
         // only care about equality as precise as EPSILON
         long roundedX = Math.round(x / EPSILON);
         long roundedY = Math.round(y / EPSILON);
-        long roundedRotation = Math.round(rotation / EPSILON);
+        long roundedRotation = Math.round(theta / EPSILON);
         return (int)(
                 ((roundedX & THIRD_INT_MASK) << ((2 * LENGTH_OF_AN_INTEGER) / 3)) |
                         (roundedY | THIRD_INT_MASK) << (LENGTH_OF_AN_INTEGER / 3) |
@@ -58,7 +58,7 @@ public class Movement {
     public enum Axis {
         X,
         Y,
-        ROTATION;
+        THETA;
 
         public Movement genPointFromAxis(double distance) {
             switch (this) {
@@ -66,7 +66,7 @@ public class Movement {
                     return new Movement(distance, 0, 0);
                 case Y:
                     return new Movement(0, distance, 0);
-                case ROTATION:
+                case THETA:
                     return new Movement(0, 0, distance);
 
                 default:
@@ -77,12 +77,12 @@ public class Movement {
 
     public double x;
     public double y;
-    public double rotation;
+    public double theta;
 
-    public Movement(double x, double y, double rotation) {
+    public Movement(double x, double y, double theta) {
         this.x = x;
         this.y = y;
-        this.rotation = rotation;
+        this.theta = theta;
     }
 
     public Movement(double x, double y) {
@@ -103,7 +103,7 @@ public class Movement {
      * @return the sum of the two points
      */
     public Movement add(Movement addend) {
-        return new Movement(x + addend.x, y + addend.y, rotation + addend.rotation);
+        return new Movement(x + addend.x, y + addend.y, theta + addend.theta);
     }
 
     /**
@@ -124,12 +124,12 @@ public class Movement {
     }
 
     /**
-     * Multiplies two points together (doesn't modify existing points)
+     * Multiplies this point's x, y, & theta by a given factor (doesn't modify existing points)
      * @param factor the other factor
      * @return the product of the two points
      */
     public Movement multiply(double factor) {
-        return new Movement(x * factor, y * factor, rotation * factor);
+        return new Movement(x * factor, y * factor, theta * factor);
     }
 
     /**
@@ -143,6 +143,6 @@ public class Movement {
     @NonNull
     @Override
     public String toString() {
-        return "<" + x + ", " + y + ", " + rotation + ">";
+        return "<" + x + ", " + y + ", " + theta + ">";
     }
 }

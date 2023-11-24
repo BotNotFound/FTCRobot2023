@@ -14,8 +14,8 @@ public final class LocalizedMovement extends Movement {
         return locator;
     }
 
-    public LocalizedMovement(double x, double y, double rotation, Locator locator) {
-        super(x, y, rotation);
+    public LocalizedMovement(double x, double y, double theta, Locator locator) {
+        super(x, y, theta);
         this.locator = locator;
     }
 
@@ -24,7 +24,7 @@ public final class LocalizedMovement extends Movement {
     }
 
     public static LocalizedMovement construct(Movement movement, Locator locator) {
-        return new LocalizedMovement(movement.x, movement.y, movement.rotation, locator);
+        return new LocalizedMovement(movement.x, movement.y, movement.theta, locator);
     }
 
     public LocalizedMovement convertToOtherLocator(Locator other) {

@@ -57,7 +57,7 @@ public interface Locator {
         return new LocalizedMovement(
                 distance.x / otherFieldSize.x * thisFieldSize.x,
                 distance.y / otherFieldSize.y * thisFieldSize.y,
-                distance.rotation / otherFieldSize.rotation * thisFieldSize.rotation,
+                distance.theta / otherFieldSize.theta * thisFieldSize.theta,
                 this
         ).add(thisLocation);
     }
@@ -80,7 +80,7 @@ public interface Locator {
 
     /**
      * Gets the size of the field, in whatever units are used by this locator.
-     *  The {@link Movement#rotation} field represents a full rotation in whatever unit the locator uses.
+     *  The {@link Movement#theta} field represents a full rotation in whatever unit the locator uses.
      * @return The size of the field
      */
     Movement getFieldSize();

@@ -96,8 +96,8 @@ public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID
                     target.y,
                     infoY,
                     deltaTime);
-            velocity.rotation = calcVelocity(currentPosition.rotation,
-                    target.rotation,
+            velocity.theta = calcVelocity(currentPosition.theta,
+                    target.theta,
                     infoRotation,
                     deltaTime);
             setVelocity(velocity);

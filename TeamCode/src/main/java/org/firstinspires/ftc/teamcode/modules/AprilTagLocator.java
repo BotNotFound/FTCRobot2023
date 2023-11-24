@@ -120,7 +120,8 @@ public class AprilTagLocator extends ModuleBase implements Locator {
     public Movement getFieldSize() {
         return new Movement(
                 144,
-                144
+                144,
+                360
         );
     }
 }   // end class

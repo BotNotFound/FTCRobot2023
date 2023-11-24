@@ -31,6 +31,9 @@ public abstract class OpBaseLinear extends OpBase {
         }
         catch (Throwable th) {
             telemetry.addData("ERROR running OpMode", th.getMessage());
+            for (StackTraceElement element : th.getStackTrace()) {
+                telemetry.addData("Stack Trace", element);
+            }
         }
     }
 

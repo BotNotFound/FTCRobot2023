@@ -33,6 +33,8 @@ public class AprilTagLocator extends ModuleBase implements Locator {
 
     public final int tagId;
 
+    public static final String WEBCAM_DEVICE_NAME = "Webcam 1";
+
     /**
      * Initializes the module and registers it with the specified OpMode
      *
@@ -60,7 +62,7 @@ public class AprilTagLocator extends ModuleBase implements Locator {
 
         // Create the vision portal the easy way.
             visionPortal = VisionPortal.easyCreateWithDefaults(
-                    parent.hardwareMap.get(WebcamName.class, "Webcam1"), aprilTag);
+                    parent.hardwareMap.get(WebcamName.class, WEBCAM_DEVICE_NAME), aprilTag);
     }
 
 

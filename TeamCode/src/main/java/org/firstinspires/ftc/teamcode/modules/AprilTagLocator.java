@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
 import org.firstinspires.ftc.teamcode.modules.location.Locator;
@@ -60,7 +60,7 @@ public class AprilTagLocator extends ModuleBase implements Locator {
 
         // Create the vision portal the easy way.
             visionPortal = VisionPortal.easyCreateWithDefaults(
-                    parent.hardwareMap.get(Camera.class, "Webcam1").getCameraName(), aprilTag);
+                    parent.hardwareMap.get(WebcamName.class, "Webcam1"), aprilTag);
     }
 
 

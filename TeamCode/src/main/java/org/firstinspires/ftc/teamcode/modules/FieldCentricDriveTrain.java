@@ -7,10 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Jank;
 
-@Jank
-public final class FieldCentricDriveTrain extends DriveTrain {
+public class FieldCentricDriveTrain extends DriveTrain {
 
     public static final AngleUnit ANGLE_UNIT = AngleUnit.RADIANS;
 
@@ -34,6 +32,9 @@ public final class FieldCentricDriveTrain extends DriveTrain {
 
     @Override
     public void setVelocity(double distX, double distY, double rotation) {
+        // negate these values so the algorithm works correctly
+        distX = -distX;
+        distY = -distY;
 
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT)/* - curZero*/;
 

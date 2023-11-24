@@ -115,6 +115,15 @@ public class Movement {
     }
 
     /**
+     * Subtracts the given term from this {@link Movement} object (doesn't modify existing points)
+     * @param subtrahend the value to subtract from this {@link Movement} object
+     * @return the sum of the two points
+     */
+    public Movement subtract(Movement subtrahend) {
+        return add(subtrahend.negate());
+    }
+
+    /**
      * Multiplies two points together (doesn't modify existing points)
      * @param factor the other factor
      * @return the product of the two points

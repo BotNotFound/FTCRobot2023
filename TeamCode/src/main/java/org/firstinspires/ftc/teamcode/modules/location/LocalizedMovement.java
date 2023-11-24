@@ -40,6 +40,15 @@ public final class LocalizedMovement extends Movement {
         return construct(super.add(other), getLocator());
     }
 
+    public LocalizedMovement subtract(LocalizedMovement subtrahend) {
+        return construct(super.subtract(subtrahend.convertToOtherLocator(getLocator())), getLocator());
+    }
+
+    @Override
+    public Movement subtract(Movement subtrahend) {
+        return construct(super.subtract(subtrahend), getLocator());
+    }
+
     public LocalizedMovement negate() {
         return multiply(-1);
     }

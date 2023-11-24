@@ -52,7 +52,7 @@ public interface Locator {
         LocalizedMovement otherLocation = other.getLocation();
         LocalizedMovement thisLocation = getLocation();
 
-        distance = distance.add(otherLocation.negate());
+        distance = distance.subtract(otherLocation);
 
         return new LocalizedMovement(
                 distance.x / otherFieldSize.x * thisFieldSize.x,

@@ -49,12 +49,17 @@ public interface Locator {
         }
         Movement otherFieldSize = other.getFieldSize();
         Movement thisFieldSize = getFieldSize();
+        LocalizedMovement otherLocation = other.getLocation();
+        LocalizedMovement thisLocation = getLocation();
+
+        distance = distance.add(otherLocation.negate());
+
         return new LocalizedMovement(
                 distance.x / otherFieldSize.x * thisFieldSize.x,
                 distance.y / otherFieldSize.y * thisFieldSize.y,
                 distance.rotation / otherFieldSize.rotation * thisFieldSize.rotation,
                 this
-        );
+        ).add(thisLocation);
     }
 
     /**

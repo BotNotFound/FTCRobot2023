@@ -23,10 +23,10 @@ public class FieldCentricDriveTrain extends DriveTrain {
                 RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
         imu.initialize(parameters);
+        resetRotation();
     }
 
     public void resetRotation() {
-        //curZero = imu.getRobotYawPitchRollAngles().getPitch(ANGLE_UNIT);
         imu.resetYaw();
     }
 

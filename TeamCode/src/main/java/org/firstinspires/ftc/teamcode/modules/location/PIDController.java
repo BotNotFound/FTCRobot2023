@@ -17,29 +17,29 @@ public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID
     /**
      * The proportional coefficient
      */
-    public static double KP = 1;
+    public static final double KP = 1;
 
     /**
      * The derivative coefficient
      */
-    public static double KD = 0;
+    public static final double KD = 0;
 
     /**
      * The integral coefficient
      */
-    public static double KI = 0;
+    public static final double KI = 0;
 
     /**
      * The maximum power the drive train can provide.
      * This value is used for Integrator clamping
      */
-    public static double INTEGRAL_SUM_LIMIT = 1;
+    public static final double INTEGRAL_SUM_LIMIT = 1;
 
     /**
      * Used in the low-pass filter for the derivative term. <br />
      * <b>MUST BE BETWEEN 0 AND 1 (exclusive)</b>
      */
-    public static double A = 0.8;
+    public static final double A = 0.8;
 
 
     /**
@@ -77,6 +77,10 @@ public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID
         if (target == null) { return; }
 
         Locator locator = target.getLocator();
+        if (locator.getKind() == LocatorKind.NO_ABSOLUTE_POSITION) {
+            throw new NoAbsolutePositionException(locator);
+        }
+
         MovementInfo infoX = new MovementInfo();
         MovementInfo infoY = new MovementInfo();
         MovementInfo infoRotation = new MovementInfo();
@@ -86,6 +90,10 @@ public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID
         double deltaTime;
 
         do {
+            if (!locator.isActive()) {
+                throw new RuntimeException("Provided locator was inactive!");
+            }
+
             deltaTime = timer.seconds();
             currentPosition = locator.getLocation();
             velocity.x = calcVelocity(currentPosition.x,

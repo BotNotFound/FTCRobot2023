@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+@Deprecated
 public final class Arm extends ModuleBase {
 
     /**
@@ -45,6 +46,7 @@ public final class Arm extends ModuleBase {
 
     }
 
+    @Deprecated
     public void setRotation(int rotation) {
         getTelemetry().addData("Rotating arm to:", rotation);
 
@@ -55,6 +57,7 @@ public final class Arm extends ModuleBase {
         armMotor.setPower(rotation);
     }
 
+    @SuppressWarnings("Unused")
     public boolean isRotating() {
         return armMotor.isBusy();
     }

@@ -39,7 +39,7 @@ public final class Grabber extends ModuleBase {
 
     /**
      * Is the grabber active?
-     * @return whether or not the grabber is grabbing
+     * @return whether the grabber is grabbing
      */
     public boolean isGrabbing() {
         return isGrabbing;
@@ -120,7 +120,7 @@ public final class Grabber extends ModuleBase {
     }
 
     /**
-     * Toggles whether or not the grabber is active
+     * Toggles whether the grabber is active
      */
     public void toggleGrabState() {
         if (!isGrabbing) {

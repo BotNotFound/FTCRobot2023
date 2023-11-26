@@ -19,7 +19,15 @@ public interface Locator {
      * {@link #getLocation()} will always throw an exception if this is false
      * @return True if the locator currently functional, otherwise false
      */
-    boolean isActive();
+    default boolean isActive() {
+        try {
+            getLocation();
+            return true;
+        }
+        catch (LocatorException e) {
+            return false;
+        }
+    }
 
     /**
      * Gets the type of the locator.  This is used to determine
@@ -42,12 +50,17 @@ public interface Locator {
         }
         Movement otherFieldSize = other.getFieldSize();
         Movement thisFieldSize = getFieldSize();
+        LocalizedMovement otherLocation = other.getLocation();
+        LocalizedMovement thisLocation = getLocation();
+
+        distance = distance.subtract(otherLocation);
+
         return new LocalizedMovement(
                 distance.x / otherFieldSize.x * thisFieldSize.x,
                 distance.y / otherFieldSize.y * thisFieldSize.y,
-                distance.rotation,
+                distance.theta / otherFieldSize.theta * thisFieldSize.theta,
                 this
-        );
+        ).add(thisLocation);
     }
 
     /**
@@ -67,7 +80,8 @@ public interface Locator {
     }
 
     /**
-     * Gets the size of the field, in whatever units are used by this locator
+     * Gets the size of the field, in whatever units are used by this locator.
+     *  The {@link Movement#theta} field represents a full rotation in whatever unit the locator uses.
      * @return The size of the field
      */
     Movement getFieldSize();

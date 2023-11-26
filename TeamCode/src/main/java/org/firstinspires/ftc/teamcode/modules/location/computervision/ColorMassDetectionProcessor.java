@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.modules.computervision;
+package org.firstinspires.ftc.teamcode.modules.location.computervision;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

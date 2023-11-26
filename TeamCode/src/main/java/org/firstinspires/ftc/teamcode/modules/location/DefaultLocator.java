@@ -32,7 +32,7 @@ public final class DefaultLocator implements Locator {
         return new LocalizedMovement(
                 distance.x / fieldSize.x,
                 distance.y / fieldSize.y,
-                distance.rotation,
+                distance.theta,
                 this
         );
     }

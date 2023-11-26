@@ -138,6 +138,6 @@ public class DriveTrain extends ModuleBase {
     }
 
     public void setVelocity(Movement velocity) {
-        setVelocity(velocity.x, velocity.y, velocity.rotation);
+        setVelocity(velocity.x, velocity.y, velocity.theta);
     }
 }

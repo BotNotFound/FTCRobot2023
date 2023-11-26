@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import android.util.Size;
-
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.OpBase;
-import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -17,17 +13,17 @@ public final class TeleOpMain extends OpBase {
 
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
-    private VisionPortal portal;
+    private FieldCentricDriveTrain fieldCentricDriveTrain;
+
+    @Override
+    public void initHardware() throws InterruptedException {
+        super.initHardware();
+        fieldCentricDriveTrain = new FieldCentricDriveTrain(this);
+    }
 
     @Override
     public void start() {
         super.start();
-
-        /*portal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-                .setCameraResolution(new Size(1280, 720))
-                .setCamera(BuiltinCameraDirection.BACK)
-                .build();*/
 
         previousGamepad1 = new Gamepad();
         previousGamepad2 = new Gamepad();
@@ -55,11 +51,14 @@ public final class TeleOpMain extends OpBase {
 
 
         // 1st gamepad controls movement
-        driveTrain.setVelocity(
+        fieldCentricDriveTrain.setVelocity(
                 gamepad1.left_stick_x,
                 -gamepad1.left_stick_y,
                 gamepad1.right_stick_x
         );
+        if (currentGamepad1.start) {
+            fieldCentricDriveTrain.resetRotation();
+        }
 
         telemetry.addData("Launched Plane", launchedPlane);
 

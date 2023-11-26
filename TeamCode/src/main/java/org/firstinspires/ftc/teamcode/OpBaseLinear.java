@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import java.util.logging.Logger;
+
 public abstract class OpBaseLinear extends OpBase {
 
     public OpBaseLinear() {
@@ -30,7 +32,11 @@ public abstract class OpBaseLinear extends OpBase {
             runOpMode();
         }
         catch (Throwable th) {
+            Logger.getLogger("org.firstinspires.ftc.teamcode.OpModeLinear").throwing("OpModeLinear", "start", th);
             telemetry.addData("ERROR running OpMode", th.getMessage());
+            for (StackTraceElement element : th.getStackTrace()) {
+                telemetry.addData("Stack Trace", element);
+            }
         }
     }
 

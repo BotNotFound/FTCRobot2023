@@ -10,6 +10,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class FieldCentricDriveTrain extends DriveTrain {
 
+    public static final AngleUnit ANGLE_UNIT = AngleUnit.RADIANS;
+
     private final IMU imu;
 
     public static final String IMU_NAME = "imu";
@@ -18,9 +20,10 @@ public class FieldCentricDriveTrain extends DriveTrain {
         super(registrar);
         imu = registrar.hardwareMap.get(IMU.class, IMU_NAME);
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)); // TODO when control hub is mounted, change these
+                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
         imu.initialize(parameters);
+        resetRotation();
     }
 
     public void resetRotation() {
@@ -29,11 +32,14 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     @Override
     public void setVelocity(double distX, double distY, double rotation) {
+        // negate these values so the algorithm works correctly
+        distX = -distX;
+        distY = -distY;
 
-        double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double botHeading = imu.getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT)/* - curZero*/;
 
         // Rotate the movement direction counter to the bot's rotation
-        double rotX = distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading);
+        double rotX = -(distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading));
         double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
         getTelemetry().addData("current x rotation", rotX);
         getTelemetry().addData("current y rotation", rotY);

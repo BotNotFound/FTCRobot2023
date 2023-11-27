@@ -7,13 +7,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.DriveTrain;
-import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
 /**
  * A drive-to-position variant of {@link DriveTrain} that uses a
  *  Proportional, Derivative, and Integral system to control the robot
  */
-public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID CONTROLLER
+public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
     /**
      * The proportional coefficient
      */
@@ -81,6 +80,8 @@ public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID
             throw new NoAbsolutePositionException(locator);
         }
 
+        final LocalizedMovement odomTarget = target.convertToOtherLocator(this);
+
         MovementInfo infoX = new MovementInfo();
         MovementInfo infoY = new MovementInfo();
         MovementInfo infoRotation = new MovementInfo();
@@ -89,9 +90,15 @@ public class PIDController extends FieldCentricDriveTrain { // TODO TUNE THE PID
         ElapsedTime timer = new ElapsedTime();
         double deltaTime;
 
+        resetTimer();
+
         do {
+            updateOdometery();
+
+            // if the given locator fails, default to odometery
             if (!locator.isActive()) {
-                throw new RuntimeException("Provided locator was inactive!");
+                driveTo(odomTarget);
+                return;
             }
 
             deltaTime = timer.seconds();

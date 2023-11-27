@@ -12,7 +12,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     public static final AngleUnit ANGLE_UNIT = AngleUnit.RADIANS;
 
-    private final IMU imu;
+    protected final IMU imu;
 
     public static final String IMU_NAME = "imu";
 

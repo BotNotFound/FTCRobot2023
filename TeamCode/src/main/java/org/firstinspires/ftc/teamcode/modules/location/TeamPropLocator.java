@@ -13,10 +13,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.ModuleBase;
-import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
-import org.firstinspires.ftc.teamcode.modules.location.Locator;
-import org.firstinspires.ftc.teamcode.modules.location.LocatorException;
-import org.firstinspires.ftc.teamcode.modules.location.LocatorKind;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
@@ -63,25 +59,35 @@ public class TeamPropLocator extends ModuleBase implements Locator {
 
         initTfod(hardwareMap);
 
+//        while(visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING){
+//
+//        }
+
+        sleep(5000);
+
         // Wait for the DS start button to be touched.
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
         telemetry.update();
 
-                    telemetryTfod(telemetry);
 
-                    // Push telemetry to the Driver Station.
-                    telemetry.update();
 
-                    // Save CPU resources; can resume streaming when needed.
-                    /*if (gamepad1.dpad_down) {
-                        visionPortal.stopStreaming();
-                    } else if (gamepad1.dpad_up) {
-                        visionPortal.resumeStreaming();
-                    }*/
+        telemetryTfod(telemetry);
 
-                    // Share the CPU.
-                    sleep(20);
+        // Push telemetry to the Driver Station.
+        telemetry.update();
+
+
+
+        // Save CPU resources; can resume streaming when needed.
+        /*if (gamepad1.dpad_down) {
+            visionPortal.stopStreaming();
+        } else if (gamepad1.dpad_up) {
+            visionPortal.resumeStreaming();
+        }*/
+
+        // Share the CPU.
+        sleep(20);
 
         // Save more CPU resources when camera is no longer needed.
         visionPortal.close();
@@ -116,14 +122,14 @@ public class TeamPropLocator extends ModuleBase implements Locator {
         if (USE_WEBCAM) {
             builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
         } else {
-            builder.setCamera(BuiltinCameraDirection.BACK);
+            builder.setCamera(BuiltinCameraDirection.FRONT);
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
         //builder.setCameraResolution(new Size(640, 480));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-        //builder.enableCameraMonitoring(true);
+        //builder.enableLiveView(true);
 
         // Set the stream format; MJPEG uses less bandwidth than default YUY2.
         //builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
@@ -140,7 +146,7 @@ public class TeamPropLocator extends ModuleBase implements Locator {
         visionPortal = builder.build();
 
         // Set confidence threshold for TFOD recognitions, at any time.
-        //tfod.setMinResultConfidence(0.75f);
+        tfod.setMinResultConfidence(0.5f);
 
         // Disable or re-enable the TFOD processor at any time.
         //visionPortal.setProcessorEnabled(tfod, true);

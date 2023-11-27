@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.modules;
+package org.firstinspires.ftc.teamcode.modules.location;
 
 import androidx.annotation.NonNull;
 
@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Movement;
+import org.firstinspires.ftc.teamcode.modules.ModuleBase;
 import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
 import org.firstinspires.ftc.teamcode.modules.location.Locator;
 import org.firstinspires.ftc.teamcode.modules.location.LocatorException;

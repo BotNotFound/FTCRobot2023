@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.OpBaseLinear;
-import org.firstinspires.ftc.teamcode.modules.AprilTagLocator;
+import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
 
 @Autonomous(name = "Autonomous Main (Drive To Position)")

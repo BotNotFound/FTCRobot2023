@@ -30,7 +30,7 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
         currentPosition = Movement.zero();
     }
 
-    public synchronized void updateOdometery() {
+    public synchronized void updateOdometry() {
         final double deltaTime = timer.time();
         timer.reset();
 

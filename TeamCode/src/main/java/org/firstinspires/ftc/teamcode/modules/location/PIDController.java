@@ -93,11 +93,11 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         resetTimer();
 
         do {
-            updateOdometery();
+            updateOdometry();
 
-            // if the given locator fails, default to odometery
+            // if the given locator fails, default to odometry
             if (!locator.isActive()) {
-                driveTo(odomTarget);
+                driveToOdometry(odomTarget);
                 return;
             }
 
@@ -118,6 +118,10 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
             setVelocity(velocity);
             timer.reset();
         } while (!currentPosition.equals(target));
+    }
+
+    public void driveToOdometry(Movement target) {
+        driveTo(LocalizedMovement.construct(target, this));
     }
 
     private double calcVelocity(

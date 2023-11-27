@@ -30,7 +30,7 @@ public final class TeleOpMain extends OpBase {
         currentGamepad1 = new Gamepad();
         currentGamepad2 = new Gamepad();
     }
-    AtomicBoolean launchedPlane = new AtomicBoolean(false);
+    final AtomicBoolean launchedPlane = new AtomicBoolean(false);
 
     @Override
     public void loop() {
@@ -60,29 +60,15 @@ public final class TeleOpMain extends OpBase {
             fieldCentricDriveTrain.resetRotation();
         }
 
-        telemetry.addData("Launched Plane", launchedPlane);
-
         // 2nd gamepad controls grabbing and plane launcher
         if (currentGamepad2.y && launchedPlane.compareAndSet(false, true)) {
             planeLauncher.launch();
         }
         // convert gamepad range of [-1,1] to extendTo()'s range of [0,1]
         linearSlide.extendTo(Math.max(gamepad2.right_stick_y, 0));
-        if (currentGamepad2.a && !previousGamepad2.a) {
-            grabber.toggleGrabState();
-        }
         // preset grabber positions
-        if (currentGamepad2.left_bumper) {
-            grabber.setRotation(0.5);
-        }
-        else if (currentGamepad2.right_bumper) {
-            grabber.setRotation(0.75);
-        }
-        else if (currentGamepad2.back) {
-            grabber.setRotation(0);
-        }
-        else {
-            grabber.rotate(-gamepad2.left_stick_y * 0.005);
+        if (currentGamepad2.a && !previousGamepad2.a) {
+            doubleClaw.incrementClawState();
         }
     }
     

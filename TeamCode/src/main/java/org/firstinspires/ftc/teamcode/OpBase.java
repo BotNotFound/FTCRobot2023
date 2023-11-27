@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.modules.DoubleClaw;
 import org.firstinspires.ftc.teamcode.modules.Grabber;
 import org.firstinspires.ftc.teamcode.modules.LinearSlide;
 import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
@@ -17,7 +18,7 @@ public abstract class OpBase extends OpMode {
     // Module Classes
     protected PIDController driveTrain;
     protected LinearSlide linearSlide;
-    protected Grabber grabber;
+    protected DoubleClaw doubleClaw;
     protected PlaneLauncher planeLauncher;
 
     // Global Variables
@@ -38,7 +39,7 @@ public abstract class OpBase extends OpMode {
         
         // Init Module classes
         driveTrain = new PIDController(this);
-        grabber = new Grabber(this);
+        doubleClaw = new DoubleClaw(this);
         linearSlide = new LinearSlide(this);
         planeLauncher = new PlaneLauncher(this);
         telemetry.addLine("Module classes created");
@@ -64,7 +65,7 @@ public abstract class OpBase extends OpMode {
     public void stop() {
         linearSlide.cleanupModule();
         driveTrain.cleanupModule();
-        grabber.cleanupModule();
+        doubleClaw.cleanupModule();
         planeLauncher.cleanupModule();
         telemetry.addLine("Cleanup done!");
         telemetry.update();

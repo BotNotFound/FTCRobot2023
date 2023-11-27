@@ -11,6 +11,6 @@ public class AutonomousMainReal extends OpBaseLinear {
     @Override
     public void runOpMode() {
         AprilTagLocator aprilTagLocator = new AprilTagLocator(this, 5);
-        driveTrain.driveTo(new LocalizedMovement(1,1,0,aprilTagLocator));
+        driveTrain.driveTo(new LocalizedMovement(1,0,0, driveTrain));
     }
 }

@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
 public class Odometry extends FieldCentricDriveTrain implements Locator {
     /**
-     * The radius of the mecanum wheels in milimeters
+     * The radius of the mecanum wheels in millimeters
      */
     public static final double WHEEL_RADIUS = 48;
 

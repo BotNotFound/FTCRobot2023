@@ -28,6 +28,9 @@ public final class LocalizedMovement extends Movement {
     }
 
     public LocalizedMovement convertToOtherLocator(Locator other) {
+        if (other.equals(locator)) {
+            return this; // so we don't get stuck in unnecessary infinite recursion
+        }
         return other.convertFromOtherLocator(this);
     }
 

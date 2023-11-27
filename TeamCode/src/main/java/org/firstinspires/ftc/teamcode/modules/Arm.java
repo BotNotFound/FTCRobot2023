@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import org.jetbrains.annotations.NotNull;
 
 public final class Arm extends LinearSlide {
 
@@ -21,7 +20,7 @@ public final class Arm extends LinearSlide {
      *
      * @param registrar The OpMode initializing the module
      */
-    public Arm(@NonNull @NotNull OpMode registrar) throws InterruptedException {
+    public Arm(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
         try {
             jointMotor = parent.hardwareMap.get(DcMotorEx.class, JOINT_MOTOR_NAME);

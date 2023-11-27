@@ -66,7 +66,8 @@ public final class TeleOpMain extends OpBase {
         if (currentGamepad2.y && launchedPlane.compareAndSet(false, true)) {
             planeLauncher.launch();
         }
-        arm.rotate(gamepad2.right_stick_y);
+        // convert gamepad range of [-1,1] to extendTo()'s range of [0,1]
+        linearSlide.extendTo(Math.max(gamepad2.right_stick_y, 0));
         if (currentGamepad2.a && !previousGamepad2.a) {
             grabber.toggleGrabState();
         }

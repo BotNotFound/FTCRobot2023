@@ -32,7 +32,7 @@ public class AprilTagLocator extends ModuleBase implements Locator {
      */
     private VisionPortal visionPortal;
 
-    public final int tagId;
+    public int tagId;
 
     public static final String WEBCAM_DEVICE_NAME = "Webcam 1";
 
@@ -44,6 +44,14 @@ public class AprilTagLocator extends ModuleBase implements Locator {
     public AprilTagLocator(@NonNull OpMode registrar, int tagId) {
         super(registrar);
         initAprilTag();
+        this.tagId = tagId;
+    }
+
+    public AprilTagLocator(@NonNull OpMode registrar) {
+        this(registrar, 0);
+    }
+
+    public void setTagId(int tagId) {
         this.tagId = tagId;
     }
 
@@ -123,5 +131,13 @@ public class AprilTagLocator extends ModuleBase implements Locator {
                 144,
                 360
         );
+    }
+
+    @Override
+    public boolean isActive() {
+        if (tagId < 1) {
+            return false;
+        }
+        return Locator.super.isActive();
     }
 }   // end class

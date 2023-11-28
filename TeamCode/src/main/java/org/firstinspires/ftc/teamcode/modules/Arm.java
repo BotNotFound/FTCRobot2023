@@ -14,6 +14,14 @@ public final class Arm extends LinearSlide {
     private final DcMotorEx jointMotor;
 
     public static final String JOINT_MOTOR_NAME = "Joint Motor";
+    
+    public static abstract class Presets {
+        public static final double FACING_GROUND = 0.0;
+        
+        public static final double FACING_BACKDROP = Math.PI / 6;
+
+        public static final double IDLE = FACING_GROUND;
+    }
 
     /**
      * Initializes the module and registers it with the specified OpMode

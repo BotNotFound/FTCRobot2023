@@ -61,6 +61,8 @@ public class LinearSlide extends ModuleBase {
          * Fully extends the linear slides
          */
         public static final double FULL_EXTENSION = 1;
+        
+        public static final double IDLE = NO_EXTENSION;
     }
 
     /**

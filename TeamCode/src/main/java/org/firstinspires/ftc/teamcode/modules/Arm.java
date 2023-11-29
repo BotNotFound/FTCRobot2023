@@ -4,12 +4,16 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.Movement;
+import org.firstinspires.ftc.teamcode.modules.location.PIDController;
 
 public final class Arm extends LinearSlide {
 
     public static double ENCODER_RESOLUTION = ((((1+(46.0/17))) * (1+(46.0/17))) * (1+(46.0/17)) * 28);
 
-    public static double ONE_REVOLUTION_RADIANS = 2 * Math.PI;
+    public static double ONE_REVOLUTION_DEGREES = 360;
 
     private final DcMotorEx jointMotor;
 
@@ -37,12 +41,38 @@ public final class Arm extends LinearSlide {
             throw new InterruptedException(e.getMessage());
         }
 
-        jointMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        jointMotor.setTargetPosition(0);
-        jointMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        jointMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        jointMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jointMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void rotateJoint(double rotation) {
-        jointMotor.setTargetPosition((int)Math.round(rotation / ONE_REVOLUTION_RADIANS * ENCODER_RESOLUTION));
+        final int targetPosition = (int)Math.round(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION);
+        int currentPosition;
+
+        final PIDController.PIDConfig config = new PIDController.PIDConfig(
+            1,
+                0,
+                0,
+                1,
+                0.8
+        );
+        final PIDController.MovementInfo info = new PIDController.MovementInfo();
+
+        ElapsedTime timer = new ElapsedTime();
+
+        do {
+            double deltaTime = timer.time();
+            timer.reset();
+
+            currentPosition = jointMotor.getCurrentPosition();
+            jointMotor.setPower(PIDController.calcVelocity(
+                    config,
+                    currentPosition,
+                    targetPosition,
+                    info,
+                    deltaTime
+            ));
+        } while (currentPosition != targetPosition);
     }
 }

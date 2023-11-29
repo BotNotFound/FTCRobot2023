@@ -13,6 +13,25 @@ import org.firstinspires.ftc.teamcode.modules.DriveTrain;
  *  Proportional, Derivative, and Integral system to control the robot
  */
 public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
+    public static final class PIDConfig {
+        public final double proportionalCoefficient;
+        public final double integralCoefficient;
+        public final double derivativeCoefficient;
+        public final double integralSumLimit;
+        public final double lowPassFilter;
+
+        public PIDConfig(double p, double i, double d, double integralSumLimit, double lowPassFilter) {
+            proportionalCoefficient = p;
+            integralCoefficient = i;
+            derivativeCoefficient = d;
+            this.integralSumLimit = integralSumLimit;
+            if (lowPassFilter <= 0 || lowPassFilter >= 1) {
+                throw new RuntimeException("Low Pass must be > 0 and < 1!");
+            }
+            this.lowPassFilter = lowPassFilter;
+        }
+    }
+
     /**
      * The proportional coefficient
      */
@@ -54,7 +73,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
     /**
      * Internal class for PID data
      */
-    private static final class MovementInfo {
+    public static final class MovementInfo {
         public double error;
         public double derivative;
         public double integralSum;
@@ -74,6 +93,14 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
      */
     public void driveTo(LocalizedMovement target) {
         if (target == null) { return; }
+
+        final PIDConfig config = new PIDConfig(
+                KP,
+                KI,
+                KD,
+                INTEGRAL_SUM_LIMIT,
+                A
+        );
 
         Locator locator = target.getLocator();
         if (locator.getKind() == LocatorKind.NO_ABSOLUTE_POSITION) {
@@ -103,15 +130,18 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
 
             deltaTime = timer.seconds();
             currentPosition = locator.getLocation();
-            velocity.x = calcVelocity(currentPosition.x,
+            velocity.x = calcVelocity(config,
+                    currentPosition.x,
                     target.x,
                     infoX,
                     deltaTime);
-            velocity.y = calcVelocity(currentPosition.y,
+            velocity.y = calcVelocity(config,
+                    currentPosition.y,
                     target.y,
                     infoY,
                     deltaTime);
-            velocity.theta = calcVelocity(currentPosition.theta,
+            velocity.theta = calcVelocity(config,
+                    currentPosition.theta,
                     target.theta,
                     infoRotation,
                     deltaTime);
@@ -124,7 +154,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         driveTo(LocalizedMovement.construct(target, this));
     }
 
-    private double calcVelocity(
+    public static double calcVelocity(PIDConfig config,
             double currentPosition,
             double targetPosition,
             MovementInfo info,
@@ -134,7 +164,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
 
         // filter out height frequency noise to increase derivative performance
         double errorChange = (info.error - lastError);
-        info.filterEstimate = (A * info.filterEstimate) + (1-A) * errorChange;
+        info.filterEstimate = (A * info.filterEstimate) + (1-config.lowPassFilter) * errorChange;
 
         // rate of change of the error
         info.derivative = info.filterEstimate / deltaTime;
@@ -143,13 +173,13 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         info.integralSum += info.error * deltaTime;
 
         // set a limit on our integral sum
-        if (info.integralSum > INTEGRAL_SUM_LIMIT) {
-            info.integralSum = INTEGRAL_SUM_LIMIT;
+        if (info.integralSum > config.integralSumLimit) {
+            info.integralSum = config.integralSumLimit;
         }
-        else if (info.integralSum < -INTEGRAL_SUM_LIMIT) {
-            info.integralSum = -INTEGRAL_SUM_LIMIT;
+        else if (info.integralSum < -config.integralSumLimit) {
+            info.integralSum = -config.integralSumLimit;
         }
 
-        return (KP * info.error) + (KI * info.integralSum) + (KD * info.derivative);
+        return (config.proportionalCoefficient * info.error) + (config.integralCoefficient * info.integralSum) + (config.derivativeCoefficient * info.derivative);
     }
 }

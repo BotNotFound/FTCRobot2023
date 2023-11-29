@@ -18,7 +18,7 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
 
-public class TeamPropLocator extends ModuleBase implements Locator {
+public abstract class TeamPropLocator extends ModuleBase implements Locator {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
 

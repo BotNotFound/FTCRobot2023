@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.OpBaseLinear;
-import org.firstinspires.ftc.teamcode.modules.location.TeamPropLocator;
+import org.firstinspires.ftc.teamcode.modules.location.*;
 
 @Autonomous(name = "TensorFlow Testing")
 public class AutonomousMainTFTesting extends OpBaseLinear {
@@ -23,6 +23,6 @@ public class AutonomousMainTFTesting extends OpBaseLinear {
         super.initHardware();
 
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        teamPropLocator = new TeamPropLocator(this);
+        teamPropLocator = new RedPropLocator(this);
     }
 }

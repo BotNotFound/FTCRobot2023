@@ -35,7 +35,7 @@ public final class AutonomousMainReal extends OpBaseLinear {
         driveTrain.driveToOdometry(new Movement(0, 5, 0)); // TODO Vision locator goes here
 
         driveTrain.driveToOdometry(new Movement(0, 0, Math.PI / 2)); // rotate so we can see the AprilTags
-        // AprilTagLocator only works if we can see the April Tag, So we convert it's location to a more reliable locator
+        // AprilTagLocator only works if we can see the April Tag, So we convert its location to a more reliable locator
         LocalizedMovement aprilTagLoc_odom = new LocalizedMovement(0, 1, aprilTagLocator).convertToOtherLocator(driveTrain);
         if (side == Side.RIGHT) {
             // TODO don't run into the team prop

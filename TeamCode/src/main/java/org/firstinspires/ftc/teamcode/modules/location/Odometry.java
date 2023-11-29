@@ -25,8 +25,6 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 
     private Movement currentPosition;
 
-    public static final double PRECISION = 0.0000001;
-
     public static final double MIN_UPDATE_INTERVAL = 1;
 
     public Odometry(@NonNull OpMode registrar) throws InterruptedException {
@@ -61,11 +59,6 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
         currentPosition.x += (yV*deltaTime)/TICKS_TO_MM; // <-- Tick to inch conversion factor
         currentPosition.y += (xV*deltaTime)/TICKS_TO_MM;
         currentPosition.theta = angle;
-
-        // round floats
-        currentPosition.x = Math.round(currentPosition.x / PRECISION) * PRECISION;
-        currentPosition.y = Math.round(currentPosition.y / PRECISION) * PRECISION;
-        currentPosition.theta = Math.round(currentPosition.theta / PRECISION) * PRECISION;
     }
 
     protected synchronized void resetTimer() {
@@ -74,6 +67,7 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 
     @Override
     public synchronized LocalizedMovement getLocation() throws LocatorException {
+        updateOdometry();
         return LocalizedMovement.construct(currentPosition, this);
     }
 

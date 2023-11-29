@@ -69,6 +69,7 @@ public class Claw extends ModuleBase {
         }
     }
 
+    @Override
     public void log() {
         getTelemetry().addData(clawServo.getDeviceName() + " pos", clawServo.getPosition());
     }

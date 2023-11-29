@@ -73,8 +73,6 @@ public final class TeleOpMain extends OpBase {
         if (currentGamepad2.a && !previousGamepad2.a) {
             doubleClaw.incrementClawState();
         }
-
-        telemetry.addData("Current Position", driveTrain.getLocation());
     }
     
 }

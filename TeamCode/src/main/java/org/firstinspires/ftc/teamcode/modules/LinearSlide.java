@@ -98,11 +98,20 @@ public class LinearSlide extends ModuleBase {
         slideMotor.setTargetPosition((int)targetRotation_ticks); // double rounds to long, but setTargetPosition takes an int
     }
 
+    public double getCurrentExtension() {
+        return slideMotor.getCurrentPosition();
+    }
+
     /**
      * Cleans up the module
      */
     @Override
     public void cleanupModule() {
 
+    }
+
+    @Override
+    public void log() {
+        getTelemetry().addData("[Linear Slides] Current extension", getCurrentExtension());
     }
 }

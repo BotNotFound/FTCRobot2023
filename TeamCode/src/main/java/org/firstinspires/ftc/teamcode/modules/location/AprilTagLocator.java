@@ -78,7 +78,8 @@ public class AprilTagLocator extends ModuleBase implements Locator {
     /**
      * Add telemetry about AprilTag detections.
      */
-    private void telemetryAprilTag() {
+    @Override
+    public void log() {
         List<org.firstinspires.ftc.vision.apriltag.AprilTagDetection> currentDetections = aprilTag.getDetections();
         getTelemetry().addData("# AprilTags Detected", currentDetections.size());
 

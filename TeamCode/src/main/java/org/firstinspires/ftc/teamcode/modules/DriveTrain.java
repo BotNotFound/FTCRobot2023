@@ -89,6 +89,11 @@ public class DriveTrain extends ModuleBase {
 
     }
 
+    @Override
+    public void log() {
+        // nothing to log
+    }
+
     /**
      * the scale for our exponential scaling of motor power
      */

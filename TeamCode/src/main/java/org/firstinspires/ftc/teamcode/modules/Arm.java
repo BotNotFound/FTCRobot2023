@@ -46,6 +46,11 @@ public final class Arm extends LinearSlide {
         jointMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+    @Override
+    public void log() {
+        getTelemetry().addData("[Arm] current rotation", getRotation());
+    }
+
     public void rotateJoint(double rotation) {
         final int targetPosition = (int)Math.round(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION);
         int currentPosition;
@@ -74,5 +79,9 @@ public final class Arm extends LinearSlide {
                     deltaTime
             ));
         } while (currentPosition != targetPosition);
+    }
+
+    public double getRotation() {
+        return jointMotor.getCurrentPosition();
     }
 }

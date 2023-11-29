@@ -72,6 +72,11 @@ public final class Grabber extends ModuleBase {
 
     }
 
+    @Override
+    public void log() {
+
+    }
+
     /**
      * Rotates the grabber by the specified amount
      * @param rotation The amount to rotate the grabber by

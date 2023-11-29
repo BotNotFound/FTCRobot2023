@@ -38,6 +38,7 @@ public class DoubleClaw extends ModuleBase {
         return clawState;
     }
 
+    @Override
     public void log() {
         getTelemetry().addData("Claw state", getClawState());
         inner.log();

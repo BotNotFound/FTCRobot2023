@@ -34,6 +34,12 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
         currentPosition = Movement.zero();
     }
 
+    @Override
+    public void log() {
+        super.log();
+        getTelemetry().addData("[Odometry] Current Position", getLocation());
+    }
+
     synchronized void updateOdometry() {
         final double deltaTime = timer.time();
         if (deltaTime < MIN_UPDATE_INTERVAL) {

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class DoubleClaw extends ModuleBase {
-    enum ClawState {
+    public enum ClawState {
         BOTH_GRABBED,
         ONE_GRABBED,
         BOTH_RELEASED
@@ -26,8 +26,8 @@ public class DoubleClaw extends ModuleBase {
      */
     public DoubleClaw(OpMode registrar) {
         super(registrar);
-        outer = new Claw(registrar, OUTER_CLAW_SERVO_NAME);
-        inner = new Claw(registrar, INNER_CLAW_SERVO_NAME);
+        outer = new Claw(registrar, OUTER_CLAW_SERVO_NAME, 1-Claw.DEFAULT_GRABBING_SERVO_POSITION, 1-Claw.DEFAULT_RELEASED_SERVO_POSITION);
+        inner = new Claw(registrar, INNER_CLAW_SERVO_NAME, +Claw.DEFAULT_GRABBING_SERVO_POSITION, +Claw.DEFAULT_RELEASED_SERVO_POSITION);
 
         inner.grab();
         outer.grab();
@@ -36,6 +36,12 @@ public class DoubleClaw extends ModuleBase {
 
     public ClawState getClawState() {
         return clawState;
+    }
+
+    public void log() {
+        getTelemetry().addData("Claw state", getClawState());
+        inner.log();
+        outer.log();
     }
 
     public ClawState incrementClawState() {

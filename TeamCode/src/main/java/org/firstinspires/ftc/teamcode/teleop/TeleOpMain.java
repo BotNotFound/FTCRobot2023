@@ -65,9 +65,9 @@ public final class TeleOpMain extends OpBase {
             planeLauncher.launch();
         }
         // convert gamepad range of [-1,1] to extendTo()'s range of [0,1]
-        arm.extendTo(Math.max(gamepad2.right_stick_y, 0));
+//        arm.extendTo(Math.max(gamepad2.right_stick_y, 0));
 
-        arm.rotateJoint(gamepad2.left_stick_y + 1 * Math.PI);
+//        arm.rotateJoint(gamepad2.left_stick_y + 1 * Math.PI);
 
         // preset grabber positions
         if (currentGamepad2.a && !previousGamepad2.a) {

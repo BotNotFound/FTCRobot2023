@@ -18,17 +18,25 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         public final double integralCoefficient;
         public final double derivativeCoefficient;
         public final double integralSumLimit;
+        public final boolean useIntegralSumLimit;
         public final double lowPassFilter;
+        public final boolean useLowPassFilter;
 
         public PIDConfig(double p, double i, double d, double integralSumLimit, double lowPassFilter) {
             proportionalCoefficient = p;
             integralCoefficient = i;
             derivativeCoefficient = d;
             this.integralSumLimit = integralSumLimit;
-            if (lowPassFilter <= 0 || lowPassFilter >= 1) {
+            useIntegralSumLimit = integralSumLimit != 0;
+            if (lowPassFilter < 0 || lowPassFilter >= 1) {
                 throw new RuntimeException("Low Pass must be > 0 and < 1!");
             }
             this.lowPassFilter = lowPassFilter;
+            useLowPassFilter = this.lowPassFilter != 0.0;
+        }
+
+        public PIDConfig(double p, double i, double d) {
+            this(p, i, d, 0, 0); // disable fancy functions
         }
     }
 
@@ -162,22 +170,28 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         double lastError = info.error;
         info.error = targetPosition - currentPosition;
 
-        // filter out height frequency noise to increase derivative performance
-        double errorChange = (info.error - lastError);
-        info.filterEstimate = (A * info.filterEstimate) + (1-config.lowPassFilter) * errorChange;
+        if (config.useLowPassFilter) {
+            // filter out height frequency noise to increase derivative performance
+            double errorChange = (info.error - lastError);
+            info.filterEstimate = (config.lowPassFilter * info.filterEstimate) + (1 - config.lowPassFilter) * errorChange;
 
-        // rate of change of the error
-        info.derivative = info.filterEstimate / deltaTime;
+            // rate of change of the error
+            info.derivative = info.filterEstimate / deltaTime;
+        }
+        else {
+            info.derivative = (info.error - lastError) / deltaTime;
+        }
 
         // sum of all error over time
         info.integralSum += info.error * deltaTime;
 
-        // set a limit on our integral sum
-        if (info.integralSum > config.integralSumLimit) {
-            info.integralSum = config.integralSumLimit;
-        }
-        else if (info.integralSum < -config.integralSumLimit) {
-            info.integralSum = -config.integralSumLimit;
+        if (config.useIntegralSumLimit) {
+            // set a limit on our integral sum
+            if (info.integralSum > config.integralSumLimit) {
+                info.integralSum = config.integralSumLimit;
+            } else if (info.integralSum < -config.integralSumLimit) {
+                info.integralSum = -config.integralSumLimit;
+            }
         }
 
         return (config.proportionalCoefficient * info.error) + (config.integralCoefficient * info.integralSum) + (config.derivativeCoefficient * info.derivative);

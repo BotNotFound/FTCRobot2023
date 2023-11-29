@@ -25,7 +25,7 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 
     private Movement currentPosition;
 
-    public static final double PRECISION = 0.001;
+    public static final double PRECISION = 0.0000001;
 
     public static final double MIN_UPDATE_INTERVAL = 1;
 

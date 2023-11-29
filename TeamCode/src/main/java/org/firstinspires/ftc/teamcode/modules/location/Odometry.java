@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
+import java.util.concurrent.TimeUnit;
+
 public class Odometry extends FieldCentricDriveTrain implements Locator {
     /**
      * The radius of the mecanum wheels in millimeters
@@ -21,7 +23,11 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 
     private final ElapsedTime timer;
 
-    private final Movement currentPosition;
+    private Movement currentPosition;
+
+    public static final double PRECISION = 0.001;
+
+    public static final double MIN_UPDATE_INTERVAL = 1;
 
     public Odometry(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
@@ -30,8 +36,11 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
         currentPosition = Movement.zero();
     }
 
-    public synchronized void updateOdometry() {
+    synchronized void updateOdometry() {
         final double deltaTime = timer.time();
+        if (deltaTime < MIN_UPDATE_INTERVAL) {
+            return; // to avoid floating point shenanigans
+        }
         timer.reset();
 
         final double angle = imu.getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
@@ -49,9 +58,14 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
         xV = nx; yV = nY;
 
         // integrate velocity over time
-        currentPosition.x +=(yV*deltaTime)/TICKS_TO_MM; // <-- Tick to inch conversion factor
-        currentPosition.y +=(xV*deltaTime)/TICKS_TO_MM;
+        currentPosition.x += (yV*deltaTime)/TICKS_TO_MM; // <-- Tick to inch conversion factor
+        currentPosition.y += (xV*deltaTime)/TICKS_TO_MM;
         currentPosition.theta = angle;
+
+        // round floats
+        currentPosition.x = Math.round(currentPosition.x / PRECISION) * PRECISION;
+        currentPosition.y = Math.round(currentPosition.y / PRECISION) * PRECISION;
+        currentPosition.theta = Math.round(currentPosition.theta / PRECISION) * PRECISION;
     }
 
     protected synchronized void resetTimer() {

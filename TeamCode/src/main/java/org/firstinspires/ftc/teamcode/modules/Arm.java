@@ -5,9 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.Movement;
-import org.firstinspires.ftc.teamcode.modules.location.PIDController;
 
 public final class Arm extends LinearSlide {
 
@@ -18,13 +15,15 @@ public final class Arm extends LinearSlide {
     private final DcMotorEx jointMotor;
 
     public static final String JOINT_MOTOR_NAME = "Joint Motor";
+
+    public static final double JOINT_MOTOR_POWER = 0.3;
     
     public static abstract class Presets {
-        public static final double FACING_GROUND = 0.0;
+        public static final double READY_FOR_INTAKE = -175.0;
         
-        public static final double FACING_BACKDROP = Math.PI / 6;
+        public static final double READY_FOR_SCORE = -95.0;
 
-        public static final double IDLE = FACING_GROUND;
+        public static final double IDLE = -1.0;
     }
 
     /**
@@ -42,8 +41,12 @@ public final class Arm extends LinearSlide {
         }
 
         jointMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        jointMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         jointMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        jointMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jointMotor.setTargetPosition(0);
+        jointMotor.setPower(JOINT_MOTOR_POWER);
+        jointMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     @Override
@@ -51,37 +54,11 @@ public final class Arm extends LinearSlide {
         getTelemetry().addData("[Arm] current rotation", getRotation());
     }
 
-    public void rotateJoint(double rotation) {
-        final int targetPosition = (int)Math.round(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION);
-        int currentPosition;
-
-        final PIDController.PIDConfig config = new PIDController.PIDConfig(
-            1,
-                0,
-                0,
-                1,
-                0.8
-        );
-        final PIDController.MovementInfo info = new PIDController.MovementInfo();
-
-        ElapsedTime timer = new ElapsedTime();
-
-        do {
-            double deltaTime = timer.time();
-            timer.reset();
-
-            currentPosition = jointMotor.getCurrentPosition();
-            jointMotor.setPower(PIDController.calcVelocity(
-                    config,
-                    currentPosition,
-                    targetPosition,
-                    info,
-                    deltaTime
-            ));
-        } while (currentPosition != targetPosition);
+    public double getRotation() {
+        return (double)jointMotor.getCurrentPosition() * ONE_REVOLUTION_DEGREES / ENCODER_RESOLUTION;
     }
 
-    public double getRotation() {
-        return jointMotor.getCurrentPosition();
+    public void rotateJoint(double rotation) {
+        jointMotor.setTargetPosition((int)(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION));
     }
 }

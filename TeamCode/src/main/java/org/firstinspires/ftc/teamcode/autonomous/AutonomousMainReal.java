@@ -56,7 +56,7 @@ public class AutonomousMainReal extends OpBaseLinear {
         driveTrain.driveTo(aprilTagLoc_odom);
 
         arm.extendTo(LinearSlide.Presets.ONE_SLIDE_USED);
-        arm.rotateJoint(Arm.Presets.FACING_BACKDROP);
+        arm.rotateJoint(Arm.Presets.READY_FOR_SCORE);
         doubleClaw.incrementClawState();
 
         park();

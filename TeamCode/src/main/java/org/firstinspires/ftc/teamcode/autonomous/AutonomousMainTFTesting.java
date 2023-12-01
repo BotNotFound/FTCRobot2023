@@ -23,6 +23,6 @@ public class AutonomousMainTFTesting extends OpBaseLinear {
         super.initHardware();
 
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        teamPropLocator = new RedPropLocator(this);
+        teamPropLocator = new BluePropLocator(this);
     }
 }

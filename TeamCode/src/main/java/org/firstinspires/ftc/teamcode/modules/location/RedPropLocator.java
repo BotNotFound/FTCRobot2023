@@ -4,16 +4,13 @@ import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-public class RedPropLocator extends TeamPropLocator {
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
-    /**
-     * Name of the model used, stored in FtcRobotController/src/main/assets
-     */
-    private static final String TFOD_MODEL_ASSET = "RedProp.tflite";
+public class RedPropLocator extends TeamPropLocator {
 
     // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
-            "RedProp",
+            "BlueProp", "RedProp",
     };
 
     /**
@@ -23,5 +20,24 @@ public class RedPropLocator extends TeamPropLocator {
      */
     public RedPropLocator(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
+    }
+
+    public Recognition getStrongestRecognition() throws LocatorException{
+        float highestConfidence = 0f;
+        Recognition currentStrongest = null;
+        for(Recognition recognition : currentRecognitions) {
+            if(recognition.getLabel().equals("RedProp")) {
+                float confidence = recognition.getConfidence();
+                if (confidence > highestConfidence) {
+                    currentStrongest = recognition;
+                }
+            }
+        }
+
+        if(currentStrongest != null) {
+            return currentStrongest;
+        } else {
+            throw new LocatorException(this, "No objects have been detected.");
+        }
     }
 }

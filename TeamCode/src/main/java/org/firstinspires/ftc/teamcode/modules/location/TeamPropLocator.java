@@ -35,7 +35,7 @@ public abstract class TeamPropLocator extends ModuleBase implements Locator {
     /**
      * Name of the model used, stored in FtcRobotController/src/main/assets
      */
-    private static final String TFOD_MODEL_ASSET = "CenterStage.tflite";
+    private static final String TFOD_MODEL_ASSET = "model.tflite";
 
     // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
@@ -228,6 +228,22 @@ public abstract class TeamPropLocator extends ModuleBase implements Locator {
         return new LocalizedMovement(distance_x, distance_z, 0, this);
     }
 
+    public PROP_LOCATION getSimpleLocation() {
+        Recognition recognition = getStrongestRecognition();
+
+        double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
+
+        if(x < 426) {
+            return PROP_LOCATION.LEFT;
+        } else if (x < 853) {
+            return PROP_LOCATION.CENTER;
+        } else if (x <= 1280) {
+            return  PROP_LOCATION.RIGHT;
+        }
+
+        return PROP_LOCATION.UNKNOWN;
+    }
+
     @Override
     public boolean isActive() {
         return false;
@@ -250,4 +266,8 @@ public abstract class TeamPropLocator extends ModuleBase implements Locator {
                 3657.6
         );
     }
+}
+
+enum PROP_LOCATION {
+    LEFT, CENTER, RIGHT, UNKNOWN
 }

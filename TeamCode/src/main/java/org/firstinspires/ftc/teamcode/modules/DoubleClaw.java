@@ -26,8 +26,8 @@ public class DoubleClaw extends ModuleBase {
      */
     public DoubleClaw(OpMode registrar) {
         super(registrar);
-        outer = new Claw(registrar, OUTER_CLAW_SERVO_NAME, 1-Claw.DEFAULT_GRABBING_SERVO_POSITION, 1-Claw.DEFAULT_RELEASED_SERVO_POSITION);
-        inner = new Claw(registrar, INNER_CLAW_SERVO_NAME, +Claw.DEFAULT_GRABBING_SERVO_POSITION, +Claw.DEFAULT_RELEASED_SERVO_POSITION);
+        outer = new Claw(registrar, OUTER_CLAW_SERVO_NAME, 0.4, 0.8);
+        inner = new Claw(registrar, INNER_CLAW_SERVO_NAME, 0.5, 0.8);
 
         inner.grab();
         outer.grab();
@@ -45,7 +45,7 @@ public class DoubleClaw extends ModuleBase {
         outer.log();
     }
 
-    public ClawState incrementClawState() {
+    public void incrementClawState() {
         switch (clawState) {
             case BOTH_GRABBED:
                 outer.release();
@@ -61,7 +61,6 @@ public class DoubleClaw extends ModuleBase {
                 clawState = ClawState.BOTH_GRABBED;
                 break;
         }
-        return getClawState();
     }
 
     @Override

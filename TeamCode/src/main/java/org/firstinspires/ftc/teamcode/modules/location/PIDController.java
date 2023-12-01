@@ -27,16 +27,22 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
             integralCoefficient = i;
             derivativeCoefficient = d;
             this.integralSumLimit = integralSumLimit;
-            useIntegralSumLimit = integralSumLimit != 0;
-            if (lowPassFilter < 0 || lowPassFilter >= 1) {
+            useIntegralSumLimit = true;
+            if (lowPassFilter <= 0 || lowPassFilter >= 1) {
                 throw new RuntimeException("Low Pass must be > 0 and < 1!");
             }
             this.lowPassFilter = lowPassFilter;
-            useLowPassFilter = this.lowPassFilter != 0.0;
+            useLowPassFilter = true;
         }
 
         public PIDConfig(double p, double i, double d) {
-            this(p, i, d, 0, 0); // disable fancy functions
+            proportionalCoefficient = p;
+            integralCoefficient = i;
+            derivativeCoefficient = d;
+            integralSumLimit = 0;
+            lowPassFilter = 0;
+            useIntegralSumLimit = false;
+            useLowPassFilter = false;
         }
     }
 

@@ -31,7 +31,7 @@ public final class TeleOpMain extends OpBase {
         currentGamepad1 = new Gamepad();
         currentGamepad2 = new Gamepad();
     }
-    final AtomicBoolean launchedPlane = new AtomicBoolean(false);
+    private final AtomicBoolean launchedPlane = new AtomicBoolean(false);
 
     @Override
     public void loop() {

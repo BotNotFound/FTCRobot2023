@@ -19,11 +19,11 @@ public final class Arm extends LinearSlide {
     public static final double JOINT_MOTOR_POWER = 0.3;
     
     public static abstract class Presets {
-        public static final double READY_FOR_INTAKE = -175.0;
+        public static final double READY_FOR_INTAKE = 208.0;
         
-        public static final double READY_FOR_SCORE = -95.0;
+        public static final double READY_FOR_SCORE = 144.0;
 
-        public static final double IDLE = -1.0;
+        public static final double IDLE = 5.0;
     }
 
     /**
@@ -44,9 +44,10 @@ public final class Arm extends LinearSlide {
         jointMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         jointMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        jointMotor.setTargetPosition(0);
-        jointMotor.setPower(JOINT_MOTOR_POWER);
-        jointMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        jointMotor.setTargetPosition(0);
+//        jointMotor.setPower(JOINT_MOTOR_POWER);
+//        jointMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        jointMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
@@ -55,7 +56,7 @@ public final class Arm extends LinearSlide {
     }
 
     public double getRotation() {
-        return (double)jointMotor.getCurrentPosition() * ONE_REVOLUTION_DEGREES / ENCODER_RESOLUTION;
+        return (double)(jointMotor.getCurrentPosition()) * ONE_REVOLUTION_DEGREES / ENCODER_RESOLUTION;
     }
 
     public void rotateJoint(double rotation) {

@@ -85,6 +85,9 @@ public final class TeleOpMain extends OpBase {
                 arm.rotateJoint(Arm.Presets.READY_FOR_INTAKE);
             }
         }
+        else if (Math.abs(gamepad2.left_stick_y) < 0.1) {
+            arm.rotateJoint(Math.cos((arm.getRotation() / 180 * Math.PI) - (Math.PI / 6)) * 0.2);
+        }
         else {
             arm.rotateJoint(-(gamepad2.left_stick_y));
         }

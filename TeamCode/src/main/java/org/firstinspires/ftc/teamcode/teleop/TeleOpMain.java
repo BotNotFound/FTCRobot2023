@@ -78,7 +78,7 @@ public final class TeleOpMain extends OpBase {
             }
         }
         else {
-            arm.rotateJoint(-(gamepad2.left_stick_y * gamepad2.left_stick_y * gamepad2.left_stick_y));
+            arm.rotateJoint(-(gamepad2.left_stick_y));
         }
 //        if (currentGamepad2.back && !previousGamepad2.back) {
 //            arm.setUsePIDFLoop(!arm.isUsingPIDFLoop());

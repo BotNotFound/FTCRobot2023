@@ -14,12 +14,9 @@ public final class TeleOpMain extends OpBase {
 
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
-    private FieldCentricDriveTrain fieldCentricDriveTrain;
-
     @Override
     public void initHardware() throws InterruptedException {
         super.initHardware();
-        fieldCentricDriveTrain = new FieldCentricDriveTrain(this);
     }
 
     @Override
@@ -52,13 +49,13 @@ public final class TeleOpMain extends OpBase {
 
 
         // 1st gamepad controls movement
-        fieldCentricDriveTrain.setVelocity(
+        driveTrain.setVelocity(
                 gamepad1.left_stick_x,
                 -gamepad1.left_stick_y,
                 gamepad1.right_stick_x
         );
         if (currentGamepad1.start) {
-            fieldCentricDriveTrain.resetRotation();
+            driveTrain.resetRotation();
         }
 
         // 2nd gamepad controls grabbing and plane launcher

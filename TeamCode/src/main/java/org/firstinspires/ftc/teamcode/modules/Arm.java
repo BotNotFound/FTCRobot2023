@@ -34,18 +34,6 @@ public final class Arm extends LinearSlide {
 
     private final Timer updateLoop;
 
-    private final TimerTask updatePIDFTask = new TimerTask() {
-        @Override
-        public void run() {
-            double power;
-            synchronized (controller) {
-                controller.setPIDF(kP, kI, kD, kF);
-                power = controller.calculate(jointMotor.getCurrentPosition(), targetPosTicks.get());
-            }
-            jointMotor.setPower(power);
-        }
-    };
-    
     public static abstract class Presets {
         public static final double READY_FOR_INTAKE = 208.0;
         
@@ -77,6 +65,17 @@ public final class Arm extends LinearSlide {
         jointMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         updateLoop = new Timer("Arm PIDF update loop", true);
+        TimerTask updatePIDFTask = new TimerTask() {
+            @Override
+            public void run() {
+                double power;
+                synchronized (controller) {
+                    controller.setPIDF(kP, kI, kD, kF);
+                    power = controller.calculate(jointMotor.getCurrentPosition(), targetPosTicks.get());
+                }
+                jointMotor.setPower(power);
+            }
+        };
         updateLoop.scheduleAtFixedRate(updatePIDFTask, 0, 10);
     }
 

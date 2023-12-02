@@ -10,10 +10,11 @@ import org.firstinspires.ftc.teamcode.modules.DriveTrain;
 public class AutonomousMain extends OpBaseLinear {
     @Override
     public void runOpMode() throws InterruptedException {
-        ((DriveTrain)driveTrain).setVelocity(0,-1,0);
+        driveTrain.resetRotation();
+        driveTrain.setVelocity(0,1,0);
         Thread.sleep(1000, 0);
         driveTrain.setVelocity(0,0,0);
-        while (doubleClaw.getClawState() != DoubleClaw.ClawState.BOTH_RELEASED) doubleClaw.incrementClawState();
+//        while (doubleClaw.getClawState() != DoubleClaw.ClawState.BOTH_RELEASED) doubleClaw.incrementClawState();
     }
     
 }

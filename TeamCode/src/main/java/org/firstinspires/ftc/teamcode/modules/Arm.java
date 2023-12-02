@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Config
@@ -30,7 +31,16 @@ public final class Arm extends LinearSlide {
                         kD = 0,
                         kF = 0;
 
-    public AtomicInteger targetPosTicks = new AtomicInteger(0);
+    private final AtomicInteger targetPosTicks = new AtomicInteger(0);
+
+    private final AtomicBoolean usePIDFLoop = new AtomicBoolean(false);
+
+    public void setUsePIDFLoop(boolean use) {
+        usePIDFLoop.set(use);
+    }
+    public boolean isUsingPIDFLoop() {
+        return usePIDFLoop.get();
+    }
 
     private final Timer updateLoop;
 
@@ -68,6 +78,8 @@ public final class Arm extends LinearSlide {
         TimerTask updatePIDFTask = new TimerTask() {
             @Override
             public void run() {
+                if (!usePIDFLoop.get()) { return; }
+
                 double power;
                 synchronized (controller) {
                     controller.setPIDF(kP, kI, kD, kF);
@@ -90,7 +102,12 @@ public final class Arm extends LinearSlide {
     }
 
     public void rotateJoint(double rotation) {
-        jointMotor.setTargetPosition((int)(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION));
+        if (usePIDFLoop.get()) {
+            targetPosTicks.set((int)(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION));
+        }
+        else {
+            jointMotor.setPower(rotation);
+        }
     }
 
     @Override

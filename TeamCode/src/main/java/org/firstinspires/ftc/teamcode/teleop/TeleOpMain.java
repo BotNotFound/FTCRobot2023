@@ -68,14 +68,20 @@ public final class TeleOpMain extends OpBase {
         // convert gamepad range of [-1,1] to extendTo()'s range of [0,1]
 //        arm.extendTo(Math.max(gamepad2.right_stick_y, 0));
 
-        if (gamepad2.dpad_left) {
-            arm.rotateJoint(Arm.Presets.IDLE);
+        if (arm.isUsingPIDFLoop()) {
+            if (gamepad2.dpad_left) {
+                arm.rotateJoint(Arm.Presets.IDLE);
+            } else if (gamepad2.dpad_up) {
+                arm.rotateJoint(Arm.Presets.READY_FOR_SCORE);
+            } else if (gamepad2.dpad_right) {
+                arm.rotateJoint(Arm.Presets.READY_FOR_INTAKE);
+            }
         }
-        else if (gamepad2.dpad_up) {
-            arm.rotateJoint(Arm.Presets.READY_FOR_SCORE);
+        else {
+            arm.rotateJoint(gamepad2.left_stick_y);
         }
-        else if (gamepad2.dpad_right) {
-            arm.rotateJoint(Arm.Presets.READY_FOR_INTAKE);
+        if (currentGamepad2.back && !previousGamepad2.back) {
+            arm.setUsePIDFLoop(!arm.isUsingPIDFLoop());
         }
 
         // preset grabber positions

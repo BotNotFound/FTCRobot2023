@@ -73,10 +73,10 @@ public class DriveTrain extends ModuleBase {
         }
 
         // motor config
-        frontRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         frontRightMecanumDriver.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMecanumDriver.setDirection(DcMotorSimple.Direction.FORWARD);

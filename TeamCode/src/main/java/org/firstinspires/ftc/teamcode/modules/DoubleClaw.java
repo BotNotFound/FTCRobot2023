@@ -26,7 +26,7 @@ public class DoubleClaw extends ModuleBase {
      */
     public DoubleClaw(OpMode registrar) {
         super(registrar);
-        outer = new Claw(registrar, OUTER_CLAW_SERVO_NAME, 0.45, 0.65);
+        outer = new Claw(registrar, OUTER_CLAW_SERVO_NAME, 0.4, 0.65);
         inner = new Claw(registrar, INNER_CLAW_SERVO_NAME, 0.45, 0.65);
 
         inner.grab();

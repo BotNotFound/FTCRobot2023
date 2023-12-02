@@ -47,7 +47,7 @@ public final class TeleOpMain extends OpBase {
         driveTrain.setVelocity(
                 gamepad1.left_stick_x,
                 -gamepad1.left_stick_y,
-                gamepad1.right_stick_x
+                gamepad1.right_stick_x * 0.5
         );
         if (currentGamepad1.start) {
             driveTrain.resetRotation();

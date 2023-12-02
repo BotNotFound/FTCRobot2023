@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class PlaneLauncher extends ModuleBase {
 
-    private static final double SERVO_POSITION_LAUNCHED = 0.5;
+    private static final double SERVO_POSITION_LAUNCHED = 0;
     public static final String LAUNCHER_SERVO_NAME = "Launcher Servo";
 
     /**
@@ -37,7 +37,7 @@ public class PlaneLauncher extends ModuleBase {
             return;
         }
         getTelemetry().addLine("Launching plane");
-        launcherServo.setPosition(launcherServo.getPosition() - SERVO_POSITION_LAUNCHED);
+        launcherServo.setPosition(SERVO_POSITION_LAUNCHED);
     }
 
     @Override

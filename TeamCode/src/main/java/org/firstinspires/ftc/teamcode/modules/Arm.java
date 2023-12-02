@@ -106,7 +106,7 @@ public final class Arm extends LinearSlide {
             targetPosTicks.set((int)(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION));
         }
         else {
-            jointMotor.setPower(rotation);
+            jointMotor.setPower(rotation * 0.4);
         }
     }
 

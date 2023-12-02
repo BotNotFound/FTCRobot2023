@@ -44,7 +44,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT)/* - curZero*/;
 
         // Rotate the movement direction counter to the bot's rotation
-        double rotX = -(distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading));
+        double rotX = (distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading));
         double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
         getTelemetry().addData("current x rotation", rotX);
         getTelemetry().addData("current y rotation", rotY);

@@ -29,4 +29,9 @@ public abstract class ModuleBase {
      * Ran by parent OpMode in its stop() method
      */
     public abstract void cleanupModule();
+
+    /**
+     * Logs data about the module to telemetry
+     */
+    public abstract void log();
 }

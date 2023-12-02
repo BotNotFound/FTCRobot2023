@@ -44,4 +44,9 @@ public class PlaneLauncher extends ModuleBase {
     public void cleanupModule() {
 
     }
+
+    @Override
+    public void log() {
+
+    }
 }

@@ -1,61 +1,64 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public final class Arm extends ModuleBase {
+public final class Arm extends LinearSlide {
+
+    public static double ENCODER_RESOLUTION = ((((1+(46.0/17))) * (1+(46.0/17))) * (1+(46.0/17)) * 28);
+
+    public static double ONE_REVOLUTION_DEGREES = 360;
+
+    private final DcMotorEx jointMotor;
+
+    public static final String JOINT_MOTOR_NAME = "Joint Motor";
+
+    public static final double JOINT_MOTOR_POWER = 0.3;
+    
+    public static abstract class Presets {
+        public static final double READY_FOR_INTAKE = -175.0;
+        
+        public static final double READY_FOR_SCORE = -95.0;
+
+        public static final double IDLE = -1.0;
+    }
 
     /**
-     * The motor moving the arm
-     */
-    private final DcMotor armMotor;
-
-    /**
-     * Default name for the armMotor
-     */
-    public static final String ARM_MOTOR_DEFAULT_NAME = "Arm Motor";
-
-
-    /**
-     * Given an OpMode, initializes the module with the default motor (one with the module's default motor name)
+     * Initializes the module and registers it with the specified OpMode
+     *
      * @param registrar The OpMode initializing the module
-     * @exception InterruptedException The module was unable to locate the necessary motors
      */
     public Arm(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
         try {
-            this.armMotor = registrar.hardwareMap.get(DcMotor.class, ARM_MOTOR_DEFAULT_NAME);
+            jointMotor = parent.hardwareMap.get(DcMotorEx.class, JOINT_MOTOR_NAME);
         }
         catch (IllegalArgumentException e) {
             throw new InterruptedException(e.getMessage());
         }
 
-        // motor config
-        armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-//        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        armMotor.setTargetPosition(0);
-//        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        jointMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        jointMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        jointMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jointMotor.setTargetPosition(0);
+        jointMotor.setPower(JOINT_MOTOR_POWER);
+        jointMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     @Override
-    public void cleanupModule() {
-
+    public void log() {
+        getTelemetry().addData("[Arm] current rotation", getRotation());
     }
 
-    public void setRotation(int rotation) {
-        getTelemetry().addData("Rotating arm to:", rotation);
-
-        armMotor.setTargetPosition(rotation);
+    public double getRotation() {
+        return (double)jointMotor.getCurrentPosition() * ONE_REVOLUTION_DEGREES / ENCODER_RESOLUTION;
     }
 
-    public void rotate(double rotation) {
-        armMotor.setPower(rotation);
-    }
-
-    public boolean isRotating() {
-        return armMotor.isBusy();
+    public void rotateJoint(double rotation) {
+        jointMotor.setTargetPosition((int)(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION));
     }
 }

@@ -14,14 +14,25 @@ public class Claw extends ModuleBase {
 
     /* TODO when claws get added to the robot, change these values to ones that actually make the
             claw grab and release */
-    public static final double CLAW_SERVO_POSITION_GRABBING = 1;
-    public static final double CLAW_SERVO_POSITION_RELEASED = 0;
+    public static final double DEFAULT_GRABBING_SERVO_POSITION = 1.0;
+    public static final double DEFAULT_RELEASED_SERVO_POSITION = 0.5;
+
+    public final double grabbingServoPosition;
+    public final double releasedServoPosition;
+
+    public Claw(OpMode registrar, String servoName, double grabbingServoPosition, double releasedServoPosition) {
+        super(registrar);
+        getTelemetry().addLine("[" + servoName +"] grab pos: " + grabbingServoPosition);
+        getTelemetry().addLine("[" + servoName +"] release pos: " + releasedServoPosition);
+        this.grabbingServoPosition = (grabbingServoPosition % 1 == 0 && grabbingServoPosition != 0) ? 1 : (1 + grabbingServoPosition) % 1;
+        this.releasedServoPosition = (releasedServoPosition % 1 == 0 && releasedServoPosition != 0) ? 1 : (1 + releasedServoPosition) % 1;
+        clawServo = registrar.hardwareMap.get(Servo.class, servoName);
+        clawServo.setPosition(this.releasedServoPosition);
+        isGrabbing = new AtomicBoolean(false);
+    }
 
     public Claw(OpMode registrar, String servoName) {
-        super(registrar);
-        clawServo = registrar.hardwareMap.get(Servo.class, servoName);
-        clawServo.setPosition(CLAW_SERVO_POSITION_RELEASED);
-        isGrabbing = new AtomicBoolean(false);
+        this(registrar, servoName, DEFAULT_GRABBING_SERVO_POSITION, DEFAULT_RELEASED_SERVO_POSITION);
     }
 
     /**
@@ -33,15 +44,19 @@ public class Claw extends ModuleBase {
         this(registrar, CLAW_SERVO_DEFAULT_NAME);
     }
 
+    public boolean getGrabState() {
+        return isGrabbing.get();
+    }
+
     public void grab() {
         if (isGrabbing.compareAndSet(false, true)) {
-            clawServo.setPosition(CLAW_SERVO_POSITION_GRABBING);
+            clawServo.setPosition(grabbingServoPosition);
         }
     }
 
     public void release() {
         if (isGrabbing.compareAndSet(true, false)) {
-            clawServo.setPosition(CLAW_SERVO_POSITION_RELEASED);
+            clawServo.setPosition(releasedServoPosition);
         }
     }
 
@@ -52,6 +67,11 @@ public class Claw extends ModuleBase {
         else {
             grab();
         }
+    }
+
+    @Override
+    public void log() {
+        getTelemetry().addData(clawServo.getDeviceName() + " pos", clawServo.getPosition());
     }
 
     @Override

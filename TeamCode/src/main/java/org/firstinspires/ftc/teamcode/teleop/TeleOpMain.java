@@ -14,13 +14,9 @@ public final class TeleOpMain extends OpBase {
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
     @Override
-    public void initHardware() throws InterruptedException {
-        super.initHardware();
-    }
-
-    @Override
     public void start() {
         super.start();
+        driveTrain.resetRotation();
 
         previousGamepad1 = new Gamepad();
         previousGamepad2 = new Gamepad();

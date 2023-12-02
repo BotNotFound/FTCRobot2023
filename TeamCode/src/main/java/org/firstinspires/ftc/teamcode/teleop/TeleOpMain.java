@@ -11,7 +11,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @TeleOp(name="Manual Control")
 public final class TeleOpMain extends OpBase {
 
+    private boolean checkFailsafe() {
+        if (gamepad1.guide || gamepad1.ps || gamepad2.guide || gamepad2.ps) {
+            terminateOpModeNow();
+            return true;
+        }
+        return false;
+    }
+
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
+
+    @Override
+    public void init_loop() {
+        super.init_loop();
+        checkFailsafe();
+    }
 
     @Override
     public void start() {
@@ -27,6 +41,8 @@ public final class TeleOpMain extends OpBase {
 
     @Override
     public void loop() {
+        if (checkFailsafe()) return;
+
         // Store the gamepad values from the previous loop iteration in
         // previousGamepad1/2 to be used in this loop iteration.
         // This is equivalent to doing this at the end of the previous

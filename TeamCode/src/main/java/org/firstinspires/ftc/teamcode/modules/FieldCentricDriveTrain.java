@@ -37,14 +37,11 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     @Override
     public void setVelocity(double distX, double distY, double rotation) {
-        // negate these values so the algorithm works correctly
-        distX = -distX;
-        distY = -distY;
 
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT)/* - curZero*/;
 
         // Rotate the movement direction counter to the bot's rotation
-        double rotX = -(distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading));
+        double rotX = (distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading));
         double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
         getTelemetry().addData("current x rotation", rotX);
         getTelemetry().addData("current y rotation", rotY);

@@ -5,36 +5,44 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.OpBase;
 import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @TeleOp(name="Manual Control")
 public final class TeleOpMain extends OpBase {
 
+    private boolean checkFailsafe() {
+        if (gamepad1.guide || gamepad1.ps || gamepad2.guide || gamepad2.ps) {
+            terminateOpModeNow();
+            return true;
+        }
+        return false;
+    }
+
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
-    private FieldCentricDriveTrain fieldCentricDriveTrain;
-
     @Override
-    public void initHardware() throws InterruptedException {
-        super.initHardware();
-        fieldCentricDriveTrain = new FieldCentricDriveTrain(this);
+    public void init_loop() {
+        super.init_loop();
+        checkFailsafe();
     }
 
     @Override
     public void start() {
         super.start();
+        driveTrain.resetRotation();
 
         previousGamepad1 = new Gamepad();
         previousGamepad2 = new Gamepad();
         currentGamepad1 = new Gamepad();
         currentGamepad2 = new Gamepad();
     }
-    final AtomicBoolean launchedPlane = new AtomicBoolean(false);
+    private final AtomicBoolean launchedPlane = new AtomicBoolean(false);
 
     @Override
     public void loop() {
+        if (checkFailsafe()) return;
+
         // Store the gamepad values from the previous loop iteration in
         // previousGamepad1/2 to be used in this loop iteration.
         // This is equivalent to doing this at the end of the previous
@@ -52,13 +60,13 @@ public final class TeleOpMain extends OpBase {
 
 
         // 1st gamepad controls movement
-        fieldCentricDriveTrain.setVelocity(
-                gamepad1.left_stick_x,
-                -gamepad1.left_stick_y,
-                gamepad1.right_stick_x
+        driveTrain.setVelocity(
+                gamepad1.left_stick_x * 0.5,
+                -gamepad1.left_stick_y * 0.5,
+                gamepad1.right_stick_x * 0.5
         );
         if (currentGamepad1.start) {
-            fieldCentricDriveTrain.resetRotation();
+            driveTrain.resetRotation();
         }
 
         // 2nd gamepad controls grabbing and plane launcher
@@ -68,15 +76,24 @@ public final class TeleOpMain extends OpBase {
         // convert gamepad range of [-1,1] to extendTo()'s range of [0,1]
 //        arm.extendTo(Math.max(gamepad2.right_stick_y, 0));
 
-        if (gamepad2.dpad_left) {
-            arm.rotateJoint(Arm.Presets.IDLE);
+        if (arm.isUsingPIDFLoop()) {
+            if (gamepad2.dpad_left) {
+                arm.rotateJoint(Arm.Presets.IDLE);
+            } else if (gamepad2.dpad_up) {
+                arm.rotateJoint(Arm.Presets.READY_FOR_SCORE);
+            } else if (gamepad2.dpad_right) {
+                arm.rotateJoint(Arm.Presets.READY_FOR_INTAKE);
+            }
         }
-        else if (gamepad2.dpad_up) {
-            arm.rotateJoint(Arm.Presets.READY_FOR_SCORE);
+        else if (Math.abs(gamepad2.left_stick_y) < 0.1) {
+            arm.rotateJoint(Math.cos((arm.getRotation() / 180 * Math.PI) - (Math.PI / 6)) * 0.2);
         }
-        else if (gamepad2.dpad_right) {
-            arm.rotateJoint(Arm.Presets.READY_FOR_INTAKE);
+        else {
+            arm.rotateJoint(-(gamepad2.left_stick_y));
         }
+//        if (currentGamepad2.back && !previousGamepad2.back) {
+//            arm.setUsePIDFLoop(!arm.isUsingPIDFLoop());
+//        }
 
         // preset grabber positions
         if (currentGamepad2.a && !previousGamepad2.a) {

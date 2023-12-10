@@ -26,11 +26,6 @@ public class FieldCentricDriveTrain extends DriveTrain {
         resetRotation();
     }
 
-    @Override
-    public void log() {
-
-    }
-
     public void resetRotation() {
         imu.resetYaw();
     }

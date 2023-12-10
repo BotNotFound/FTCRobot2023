@@ -20,7 +20,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
         super(registrar);
         imu = registrar.hardwareMap.get(IMU.class, IMU_NAME);
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
         imu.initialize(parameters);
         resetRotation();

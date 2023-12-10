@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.modules.detection;
 
-import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import org.firstinspires.ftc.teamcode.modules.ModuleBase;
-import org.jetbrains.annotations.NotNull;
 
 public class PropDetector extends ModuleBase {
     private final ColorRangeSensor sensor;

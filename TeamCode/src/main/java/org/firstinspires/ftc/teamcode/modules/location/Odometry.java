@@ -3,12 +3,9 @@ package org.firstinspires.ftc.teamcode.modules.location;
 import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
-
-import java.util.concurrent.TimeUnit;
 
 public class Odometry extends FieldCentricDriveTrain implements Locator {
     /**
@@ -59,7 +56,7 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 	
 	final double fowardDistance = ((frontLeftPos + frontRightPos + backLeftPos + backRightPos) / 4) * TICKS_TO_MM;
 	final double strafeDistance = ((frontLeftPos + frontRightPos - backLeftPos - backRightPos) / 4) * TICKS_TO_MM;
-	final double rotation = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+	final double rotation = imu.getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
 
 	return new LocalizedMovement(fowardDistance, strafeDistance, rotation, this);
     }
@@ -76,6 +73,6 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 
     @Override
     public Movement getFieldSize() {
-        return new Movement(3657.6, 3657.6, 360);
+        return new Movement(3657.6, 3657.6, ANGLE_UNIT.getUnnormalized().fromDegrees(360));
     }
 }

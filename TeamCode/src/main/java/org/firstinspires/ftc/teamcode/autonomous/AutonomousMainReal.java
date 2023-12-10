@@ -11,8 +11,14 @@ import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
 
 @Autonomous(name = "Autonomous Main (Drive To Position)")
 public class AutonomousMainReal extends OpBaseLinear {
+    /**
+     * Used to get where to place the 2nd pixel
+     */
     private AprilTagLocator aprilTagLocator;
 
+    /**
+     * The distance to the '|_|' shape where the team prop will be
+     */
     public static final double DISTANCE_TO_TEAM_PROP_U = 50.0;
 
     @Override

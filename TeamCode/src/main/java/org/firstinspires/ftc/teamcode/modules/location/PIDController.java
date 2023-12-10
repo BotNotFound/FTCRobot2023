@@ -131,11 +131,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         ElapsedTime timer = new ElapsedTime();
         double deltaTime;
 
-        resetTimer();
-
         do {
-            updateOdometry();
-
             // if the given locator fails, default to odometry
             if (!locator.isActive()) {
                 driveToOdometry(odomTarget);

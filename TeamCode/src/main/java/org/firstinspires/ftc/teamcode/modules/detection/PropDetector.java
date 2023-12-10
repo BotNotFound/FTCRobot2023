@@ -17,7 +17,7 @@ public class PropDetector extends ModuleBase {
      *
      * @param registrar The OpMode initializing the module
      */
-    public PropDetector(@NonNull @NotNull OpMode registrar) {
+    public PropDetector(OpMode registrar) {
         super(registrar);
         sensor = parent.hardwareMap.get(ColorRangeSensor.class, SENSOR_NAME);
     }

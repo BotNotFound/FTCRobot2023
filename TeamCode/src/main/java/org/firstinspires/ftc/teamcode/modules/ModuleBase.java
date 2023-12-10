@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+/**
+ * The base class for hardware modules
+ * Used to interface with hardware elements
+ */
 public abstract class ModuleBase {
 
     public final OpMode parent;
@@ -27,6 +31,7 @@ public abstract class ModuleBase {
 
     /**
      * Ran by parent OpMode in its stop() method
+     * Cleans up items like backgound threads
      */
     public abstract void cleanupModule();
 

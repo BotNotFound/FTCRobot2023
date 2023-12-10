@@ -15,7 +15,7 @@ public class BluePropLocator extends TeamPropLocator {
 
     // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
-            "BlueProp",
+            "BlueProp", "RedProp", "NoProp",
     };
 
     /**
@@ -27,7 +27,12 @@ public class BluePropLocator extends TeamPropLocator {
         super(registrar);
     }
 
-    public Recognition getStrongestRecognition() throws LocatorException{
+    @Override
+    public void log() {
+
+    }
+
+    /*public Recognition getStrongestRecognition() throws LocatorException{
         float highestConfidence = 0f;
         Recognition currentStrongest = null;
         for(Recognition recognition : currentRecognitions) {
@@ -44,5 +49,5 @@ public class BluePropLocator extends TeamPropLocator {
         } else {
             throw new LocatorException(this, "No objects have been detected.");
         }
-    }
+    }*/
 }

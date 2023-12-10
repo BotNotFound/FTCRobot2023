@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.modules.location;
 
 import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Movement;
@@ -32,6 +33,15 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 
     public Odometry(@NonNull OpMode registrar) throws InterruptedException {
         super(registrar);
+        frontRightMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeftMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontRightMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeftMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRightMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeftMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override

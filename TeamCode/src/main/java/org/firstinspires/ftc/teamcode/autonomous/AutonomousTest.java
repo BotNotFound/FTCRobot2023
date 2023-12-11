@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.OpBaseLinear;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
-import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
 
 @Autonomous(name = "Autonomous Test")
 public final class AutonomousTest extends OpBaseLinear {
@@ -19,9 +17,7 @@ public final class AutonomousTest extends OpBaseLinear {
 
     @Override
     public void runOpMode() {
-        arm.rotateJoint(30);
-//        aprilTagLocator.setTagId(5);
-//        driveTrain.driveToOdometry(new Movement(0, AutonomousMainReal.DISTANCE_TO_TEAM_PROP_U));
+        driveTrain.driveToOdometry(Movement.Axis.X.genPointFromAxis(5));
     }
 
     @Override

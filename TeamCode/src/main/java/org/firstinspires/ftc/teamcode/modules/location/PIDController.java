@@ -53,7 +53,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
     /**
      * The proportional coefficient
      */
-    public static final double KP = 1;
+    public static final double KP = 0.1;
 
     /**
      * The derivative coefficient
@@ -82,6 +82,10 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
      */
     public static final double A = 0.8;
 
+    @Override
+    public void log() {
+        super.log();
+    }
 
     /**
      * Attempts to initialize the module by getting motors with the default names from a hardware map

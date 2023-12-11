@@ -4,8 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.OpBaseLinear;
-import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.LinearSlide;
 import org.firstinspires.ftc.teamcode.modules.detection.Prop;
 import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;

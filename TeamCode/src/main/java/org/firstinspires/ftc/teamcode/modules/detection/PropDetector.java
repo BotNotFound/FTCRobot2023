@@ -6,8 +6,14 @@ import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import org.firstinspires.ftc.teamcode.modules.ModuleBase;
 
 public class PropDetector extends ModuleBase {
+    /**
+     * The sensor used to detect the prop
+     */
     private final ColorRangeSensor sensor;
 
+    /**
+     * The name of the color sensor in the robot's configuration
+     */
     public static final String SENSOR_NAME = "Color Sensor";
 
     /**
@@ -20,13 +26,12 @@ public class PropDetector extends ModuleBase {
         sensor = parent.hardwareMap.get(ColorRangeSensor.class, SENSOR_NAME);
     }
 
+    /**
+     * Returns whether the prop is there, based on which RGB value (Red, Green, or Blue) is most present in the sensor's view
+     * @param prop This is the prop type to look for
+     * @return Whether the prop is there or not as a boolean
+     */
     public boolean isPropDetected(Prop prop) {
-        /*float[] currentHSV = new float[3];
-        Color.RGBToHSV(sensor.red(), sensor.green(), sensor.blue(), currentHSV);
-        Color.RGBToHSV(prop.redChannel(), prop.greenChannel(), prop.blueChannel(), testHSV);
-        if(currentHSV[1] >= testHSV[1] && currentHSV[0] >= testHSV[0] - colorPreciseness && currentHSV[0] <= testHSV[0] + colorPreciseness) {
-            return true;
-        }*/
         switch (prop) {
             case RED_TEAM_PROP:
                 return sensor.red() > sensor.green() && sensor.red() > sensor.blue();

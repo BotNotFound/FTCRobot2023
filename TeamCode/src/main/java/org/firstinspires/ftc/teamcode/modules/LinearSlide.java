@@ -41,7 +41,7 @@ public class LinearSlide extends ModuleBase {
      * Presets for linear slide extension
      * @see #extendTo(double)
      */
-    public static abstract class Presets {
+    public static final class SlidePresets extends Presets {
         /**
          * Fully retracts the linear slides
          */
@@ -87,7 +87,7 @@ public class LinearSlide extends ModuleBase {
     /**
      * Extends the linear slide to the specified height
      * @param height A value in the range [0,1], where 0 fully retracts the linear slide and 1 fully extends it
-     * @see Presets
+     * @see SlidePresets
      */
     public void extendTo(double height) {
         final double ONE_REVOLUTION_RADIANS = 2 * Math.PI;

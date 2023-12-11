@@ -8,15 +8,37 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public final class Arm extends ModuleBase {
     public static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;
 
-    public static final class ArmPresets extends Presets {
+    public static final class ArmPresets extends Presets { // TODO these values are untested
+        /**
+         * Rotates the arm so that the robot can collect pixels
+         */
         public static final double READY_TO_INTAKE = 0.0;
+
+        /**
+         * Rotates the arm so that the robot can deposit pixels on the floor behind the active intake
+         */
         public static final double DEPOSIT_ON_FLOOR = 180.0;
+
+        /**
+         * Rotates the arm so that the robot can deposit pixels on the backdrop behind the active intake
+         */
         public static final double DEPOSIT_ON_BACKDROP = 135.0;
     }
 
-    public static final class WristPresets extends Presets {
+    public static final class WristPresets extends Presets { // TODO these presets are untested
+        /**
+         * Rotates the wrist so that the robot can collect pixels
+         */
         public static final double READY_TO_INTAKE = 30.0;
+
+        /**
+         * Rotates the wrist so that the robot can deposit pixels on the floor behind the active intake
+         */
         public static final double DEPOSIT_ON_FLOOR = 180.0;
+
+        /**
+         * Rotates the wrist so that the robot can deposit pixels on the backdrop behind the active intake
+         */
         public static final double DEPOSIT_ON_BACKDROP = 90.0;
     }
 

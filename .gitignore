@@ -79,3 +79,10 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+# vim
+**/.*.swp
+
+# eclipse
+.classpath
+.project

@@ -22,10 +22,13 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         public final double lowPassFilter;
         public final boolean useLowPassFilter;
 
-        public PIDConfig(double p, double i, double d, double integralSumLimit, double lowPassFilter) {
+        public final double minimumAbsPower;
+
+        public PIDConfig(double p, double i, double d, double minimumAbsPower, double integralSumLimit, double lowPassFilter) {
             proportionalCoefficient = p;
             integralCoefficient = i;
             derivativeCoefficient = d;
+            this.minimumAbsPower = minimumAbsPower;
             this.integralSumLimit = integralSumLimit;
             useIntegralSumLimit = true;
             if (lowPassFilter <= 0 || lowPassFilter >= 1) {
@@ -35,10 +38,11 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
             useLowPassFilter = true;
         }
 
-        public PIDConfig(double p, double i, double d) {
+        public PIDConfig(double p, double i, double d, double minimumAbsPower) {
             proportionalCoefficient = p;
             integralCoefficient = i;
             derivativeCoefficient = d;
+            this.minimumAbsPower = minimumAbsPower;
             integralSumLimit = 0;
             lowPassFilter = 0;
             useIntegralSumLimit = false;
@@ -60,6 +64,11 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
      * The integral coefficient
      */
     public static final double KI = 0;
+
+    /**
+     * The minimum power that will actually rotate the motor
+     */
+    public static final double MINIMUM_ABS_POWER = 0.1;
 
     /**
      * The maximum power the drive train can provide.
@@ -112,6 +121,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
                 KP,
                 KI,
                 KD,
+                MINIMUM_ABS_POWER,
                 INTEGRAL_SUM_LIMIT,
                 A
         );
@@ -131,11 +141,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         ElapsedTime timer = new ElapsedTime();
         double deltaTime;
 
-        resetTimer();
-
         do {
-            updateOdometry();
-
             // if the given locator fails, default to odometry
             if (!locator.isActive()) {
                 driveToOdometry(odomTarget);
@@ -161,7 +167,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
                     deltaTime);
             setVelocity(velocity);
             timer.reset();
-        } while (!currentPosition.equals(target));
+        } while (!velocity.isZero());
     }
 
     public void driveToOdometry(Movement target) {
@@ -200,6 +206,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
             }
         }
 
-        return (config.proportionalCoefficient * info.error) + (config.integralCoefficient * info.integralSum) + (config.derivativeCoefficient * info.derivative);
+        double power = (config.proportionalCoefficient * info.error) + (config.integralCoefficient * info.integralSum) + (config.derivativeCoefficient * info.derivative);
+        return Math.abs(power) < config.minimumAbsPower ? 0 : power;
     }
 }

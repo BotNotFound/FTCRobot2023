@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.trajectorysequence;
+package org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence;
 
 import androidx.annotation.Nullable;
 
@@ -17,13 +17,13 @@ import com.acmerobotics.roadrunner.trajectory.TrajectoryMarker;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.SequenceSegment;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TrajectorySegment;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TurnSegment;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.WaitSegment;
-import org.firstinspires.ftc.teamcode.util.DashboardUtil;
-import org.firstinspires.ftc.teamcode.util.LogFiles;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.sequencesegment.SequenceSegment;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.sequencesegment.TrajectorySegment;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.sequencesegment.TurnSegment;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.sequencesegment.WaitSegment;
+import org.firstinspires.ftc.teamcode.roadrunner.util.DashboardUtil;
+import org.firstinspires.ftc.teamcode.roadrunner.util.LogFiles;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,9 +60,12 @@ public class TrajectorySequenceRunner {
     private final FtcDashboard dashboard;
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
 
-    private VoltageSensor voltageSensor;
+    private final VoltageSensor voltageSensor;
 
-    private List<Integer> lastDriveEncPositions, lastDriveEncVels, lastTrackingEncPositions, lastTrackingEncVels;
+    private final List<Integer> lastDriveEncPositions;
+    private final List<Integer> lastDriveEncVels;
+    private final List<Integer> lastTrackingEncPositions;
+    private final List<Integer> lastTrackingEncVels;
 
     public TrajectorySequenceRunner(
             TrajectoryFollower follower, PIDCoefficients headingPIDCoefficients, VoltageSensor voltageSensor,

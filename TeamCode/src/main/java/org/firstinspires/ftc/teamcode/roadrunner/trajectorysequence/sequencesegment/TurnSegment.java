@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment;
+package org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.sequencesegment;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
@@ -26,11 +26,11 @@ public final class TurnSegment extends SequenceSegment {
         this.motionProfile = motionProfile;
     }
 
-    public final double getTotalRotation() {
+    public double getTotalRotation() {
         return this.totalRotation;
     }
 
-    public final MotionProfile getMotionProfile() {
+    public MotionProfile getMotionProfile() {
         return this.motionProfile;
     }
 }

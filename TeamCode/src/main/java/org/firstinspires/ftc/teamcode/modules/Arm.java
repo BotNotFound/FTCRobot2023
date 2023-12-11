@@ -1,119 +1,147 @@
 package org.firstinspires.ftc.teamcode.modules;
 
-import androidx.annotation.NonNull;
-import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+public final class Arm extends ModuleBase {
+    public static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;
 
-@Config
-public final class Arm extends LinearSlide {
-
-    public static final double ENCODER_RESOLUTION = ((((1+(46.0/17))) * (1+(46.0/17))) * (1+(46.0/17)) * 28);
-
-    public static final double ONE_REVOLUTION_DEGREES = 360;
-
-    private final DcMotorEx jointMotor;
-
-    public static final String JOINT_MOTOR_NAME = "Joint Motor";
-
-    private final PIDFController controller;
-
-    public static double kP = 0,
-                        kI = 0,
-                        kD = 0,
-                        kF = 0;
-
-    private final AtomicInteger targetPosTicks = new AtomicInteger(0);
-
-    private final AtomicBoolean usePIDFLoop = new AtomicBoolean(false);
-
-    public void setUsePIDFLoop(boolean use) {
-        usePIDFLoop.set(use);
-    }
-    public boolean isUsingPIDFLoop() {
-        return usePIDFLoop.get();
+    public static final class ArmPresets extends Presets {
+        public static final double READY_TO_INTAKE = 0.0;
+        public static final double DEPOSIT_ON_FLOOR = 180.0;
+        public static final double DEPOSIT_ON_BACKDROP = 135.0;
     }
 
-    private final Timer updateLoop;
-
-    public static abstract class Presets {
-        public static final double READY_FOR_INTAKE = 208.0;
-        
-        public static final double READY_FOR_SCORE = 144.0;
-
-        public static final double IDLE = 5.0;
+    public static final class WristPresets extends Presets {
+        public static final double READY_TO_INTAKE = 30.0;
+        public static final double DEPOSIT_ON_FLOOR = 180.0;
+        public static final double DEPOSIT_ON_BACKDROP = 90.0;
     }
+
+    private boolean isFlapOpen;
+
+    /**
+     * The motor that rotates the arm
+     */
+    private final DcMotor armMotor;
+
+    /**
+     * The name of the arm motor on the hardware map
+     */
+    public static final String ARM_MOTOR_NAME = "Arm Motor";
+
+    /**
+     * The servo that rotates the wrist
+     */
+    private final Servo wristServo;
+
+    /**
+     * The name of the wrist servo on the hardware map
+     */
+    public static final String WRIST_SERVO_NAME = "Wrist Servo";
+
+    /**
+     * The servo that opens/closes the flap
+     */
+    private final Servo flapServo;
+
+    /**
+     * The name of the flap servo on the hardware map
+     */
+    public static final String FLAP_SERVO_NAME = "Flap Servo";
 
     /**
      * Initializes the module and registers it with the specified OpMode
      *
      * @param registrar The OpMode initializing the module
      */
-    public Arm(@NonNull OpMode registrar) throws InterruptedException {
+    public Arm(OpMode registrar) throws InterruptedException {
         super(registrar);
-        try {
-            jointMotor = parent.hardwareMap.get(DcMotorEx.class, JOINT_MOTOR_NAME);
+        armMotor = parent.hardwareMap.get(DcMotor.class, ARM_MOTOR_NAME);
+        wristServo = parent.hardwareMap.get(Servo.class, WRIST_SERVO_NAME);
+        flapServo = parent.hardwareMap.get(Servo.class, FLAP_SERVO_NAME);
+
+        isFlapOpen = true;
+        closeFlap();
+    }
+
+    /**
+     * Rotates the arm to the specified rotation
+     * @param rotation The target rotation
+     * @param angleUnit The unit of rotation used
+     * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
+     */
+    public void rotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
+        rotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
+
+        throw new RuntimeException("Not implemented!"); // TODO
+    }
+
+    /**
+     * Rotates the arm to the specified rotation, WITHOUT preserving wrist rotation
+     * @param rotation The target rotation
+     * @param angleUnit The unit of rotation used
+     */
+    public void rotateArmTo(double rotation, AngleUnit angleUnit) {
+        rotateArmTo(rotation, angleUnit, false);
+    }
+
+    /**
+     * Rotates the wrist to the specified rotation
+     * @param rotation The target rotation
+     * @param angleUnit The unit of rotation used
+     */
+    public void rotateWristTo(double rotation, AngleUnit angleUnit) {
+        rotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
+
+        throw new RuntimeException("Not implemented!"); // TODO
+    }
+
+    /**
+     * Opens the flap, if the flap is not already open
+     */
+    public void openFlap() {
+        if (isFlapOpen) {
+            return;
         }
-        catch (IllegalArgumentException e) {
-            throw new InterruptedException(e.getMessage());
+        isFlapOpen = false;
+
+        throw new RuntimeException("Not implemented!"); // TODO
+    }
+
+    /**
+     * Closes the flap, if the flap is not already closed
+     */
+    public void closeFlap() {
+        if (!isFlapOpen) {
+            return;
         }
+        isFlapOpen = true;
 
-        controller = new PIDFController(kP, kI, kD, kF);
-
-        jointMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        jointMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        jointMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        jointMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        updateLoop = new Timer("Arm PIDF update loop", true);
-        TimerTask updatePIDFTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (!usePIDFLoop.get()) { return; }
-
-                double power;
-                synchronized (controller) {
-                    controller.setPIDF(kP, kI, kD, kF);
-                    power = controller.calculate(jointMotor.getCurrentPosition(), targetPosTicks.get());
-                }
-                jointMotor.setPower(power);
-            }
-        };
-        updateLoop.scheduleAtFixedRate(updatePIDFTask, 0, 10);
+        throw new RuntimeException("Not implemented!");
     }
 
-    @Override
-    public void log() {
-        getTelemetry().addData("[Arm] current rotation", getRotation());
-        getTelemetry().addData("[Arm] target rotation", (double)(targetPosTicks.get()) / ENCODER_RESOLUTION * ONE_REVOLUTION_DEGREES);
-    }
-
-    public double getRotation() {
-        return (double)(jointMotor.getCurrentPosition()) * ONE_REVOLUTION_DEGREES / ENCODER_RESOLUTION;
-    }
-
-    public void rotateJoint(double rotation) {
-        if (usePIDFLoop.get()) {
-            targetPosTicks.set((int)(rotation / ONE_REVOLUTION_DEGREES * ENCODER_RESOLUTION));
+    /**
+     * If the flap is open, close it.  Otherwise, open the flap
+     */
+    public void toggleFlap() {
+        if (isFlapOpen) {
+            closeFlap();
         }
         else {
-            jointMotor.setPower(rotation * 0.4);
+            openFlap();
         }
     }
 
     @Override
     public void cleanupModule() {
-        super.cleanupModule();
-        updateLoop.cancel();
-        updateLoop.purge();
+
+    }
+
+    @Override
+    public void log() {
+
     }
 }

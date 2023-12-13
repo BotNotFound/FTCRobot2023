@@ -38,7 +38,6 @@ public abstract class OpBase extends OpMode {
         
         // Init Module classes
         driveTrain = new PIDController(this);
-        doubleClaw = new DoubleClaw(this);
         arm = new Arm(this);
         planeLauncher = new PlaneLauncher(this);
         telemetry.addLine("Module classes created");

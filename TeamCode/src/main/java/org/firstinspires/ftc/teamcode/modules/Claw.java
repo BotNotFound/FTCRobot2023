@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Claw extends ModuleBase {
-    private final Servo clawServo;
+    private final ConditionalHardwareDevice<Servo> clawServo;
 
     private final AtomicBoolean isGrabbing;
 
@@ -22,13 +22,17 @@ public class Claw extends ModuleBase {
 
     public Claw(OpMode registrar, String servoName, double grabbingServoPosition, double releasedServoPosition) {
         super(registrar);
+
         getTelemetry().addLine("[" + servoName +"] grab pos: " + grabbingServoPosition);
         getTelemetry().addLine("[" + servoName +"] release pos: " + releasedServoPosition);
+
         this.grabbingServoPosition = (grabbingServoPosition % 1 == 0 && grabbingServoPosition != 0) ? 1 : (1 + grabbingServoPosition) % 1;
         this.releasedServoPosition = (releasedServoPosition % 1 == 0 && releasedServoPosition != 0) ? 1 : (1 + releasedServoPosition) % 1;
-        clawServo = registrar.hardwareMap.get(Servo.class, servoName);
-        clawServo.setPosition(this.releasedServoPosition);
-        isGrabbing = new AtomicBoolean(false);
+
+        clawServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, servoName);
+
+        isGrabbing = new AtomicBoolean(true);
+        release();
     }
 
     public Claw(OpMode registrar, String servoName) {
@@ -49,15 +53,19 @@ public class Claw extends ModuleBase {
     }
 
     public void grab() {
-        if (isGrabbing.compareAndSet(false, true)) {
-            clawServo.setPosition(grabbingServoPosition);
-        }
+        clawServo.runIfAvailable(claw -> {
+            if (isGrabbing.compareAndSet(false, true)) {
+                claw.setPosition(grabbingServoPosition);
+            }
+        });
     }
 
     public void release() {
-        if (isGrabbing.compareAndSet(true, false)) {
-            clawServo.setPosition(releasedServoPosition);
-        }
+        clawServo.runIfAvailable(claw -> {
+            if (isGrabbing.compareAndSet(true, false)) {
+                claw.setPosition(releasedServoPosition);
+            }
+        });
     }
 
     public void toggleGrabState() {
@@ -71,7 +79,7 @@ public class Claw extends ModuleBase {
 
     @Override
     public void log() {
-        getTelemetry().addData(clawServo.getDeviceName() + " pos", clawServo.getPosition());
+        clawServo.runIfAvailable(claw -> getTelemetry().addData(claw.getDeviceName() + " pos", claw.getPosition()));
     }
 
     @Override

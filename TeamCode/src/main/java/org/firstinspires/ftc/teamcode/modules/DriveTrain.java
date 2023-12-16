@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
 import org.firstinspires.ftc.teamcode.Movement;
 
 public class DriveTrain extends ModuleBase {

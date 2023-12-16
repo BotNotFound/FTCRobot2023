@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.modules.location;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.DriveTrain;
+
+import java.util.function.BiFunction;
 
 /**
  * A drive-to-position variant of {@link DriveTrain} that uses a
@@ -17,6 +17,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         public final double proportionalCoefficient;
         public final double integralCoefficient;
         public final double derivativeCoefficient;
+        public final BiFunction<Double, Double, Double> feedForwardSupplier;
         public final double integralSumLimit;
         public final boolean useIntegralSumLimit;
         public final double lowPassFilter;
@@ -24,10 +25,11 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
 
         public final double minimumAbsPower;
 
-        public PIDConfig(double p, double i, double d, double minimumAbsPower, double integralSumLimit, double lowPassFilter) {
+        public PIDConfig(double p, double i, double d, BiFunction<Double, Double, Double> feedForwardSupplier, double minimumAbsPower, double integralSumLimit, double lowPassFilter) {
             proportionalCoefficient = p;
             integralCoefficient = i;
             derivativeCoefficient = d;
+            this.feedForwardSupplier = feedForwardSupplier;
             this.minimumAbsPower = minimumAbsPower;
             this.integralSumLimit = integralSumLimit;
             useIntegralSumLimit = true;
@@ -37,16 +39,23 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
             this.lowPassFilter = lowPassFilter;
             useLowPassFilter = true;
         }
+        public PIDConfig(double p, double i, double d, double minimumAbsPower, double integralSumLimit, double lowPassFilter) {
+            this(p, i, d, (a, b) -> 0.0, minimumAbsPower, integralSumLimit, lowPassFilter);
+        }
 
-        public PIDConfig(double p, double i, double d, double minimumAbsPower) {
+        public PIDConfig(double p, double i, double d, BiFunction<Double, Double, Double> feedForwardSupplier, double minimumAbsPower) {
             proportionalCoefficient = p;
             integralCoefficient = i;
             derivativeCoefficient = d;
+            this.feedForwardSupplier = feedForwardSupplier;
             this.minimumAbsPower = minimumAbsPower;
             integralSumLimit = 0;
             lowPassFilter = 0;
             useIntegralSumLimit = false;
             useLowPassFilter = false;
+        }
+        public PIDConfig(double p, double i, double d, double minimumAbsPower) {
+            this(p, i, d, (a, b) -> 0.0, minimumAbsPower);
         }
     }
 
@@ -210,7 +219,9 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
             }
         }
 
-        double power = (config.proportionalCoefficient * info.error) + (config.integralCoefficient * info.integralSum) + (config.derivativeCoefficient * info.derivative);
-        return Math.abs(power) < config.minimumAbsPower ? 0 : power;
+        final double ff = config.feedForwardSupplier.apply(currentPosition, targetPosition);
+
+        double power = (config.proportionalCoefficient * info.error) + (config.integralCoefficient * info.integralSum) + (config.derivativeCoefficient * info.derivative) + ff;
+        return Math.abs(power - ff) < config.minimumAbsPower ? ff : power;
     }
 }

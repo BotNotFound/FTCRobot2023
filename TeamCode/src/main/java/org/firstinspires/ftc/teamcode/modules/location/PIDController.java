@@ -100,9 +100,8 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
      * Attempts to initialize the module by getting motors with the default names from a hardware map
      *
      * @param registrar the OpMode that will be using the module
-     * @throws InterruptedException The module was unable to locate the necessary motors
      */
-    public PIDController(@NonNull OpMode registrar) throws InterruptedException {
+    public PIDController(@NonNull OpMode registrar) {
         super(registrar);
     }
 

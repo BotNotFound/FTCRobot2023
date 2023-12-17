@@ -24,7 +24,7 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
     public static final double ENCODER_RESOLUTION = ((((1+(46.0/17))) * (1+(46.0/11))) * 28);
 
     /**
-     * Used convert from motor position (in ticks) to distance (in milimeters)
+     * Used convert from motor position (in ticks) to distance (in millimeters)
      */
     public static final double TICKS_TO_MM = ENCODER_RESOLUTION / (WHEEL_RADIUS * 360);
 

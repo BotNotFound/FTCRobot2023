@@ -155,8 +155,9 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
         double deltaTime;
 
         do {
-            // if the given locator fails, default to odometry
-            if (!locator.isActive()) {
+            if (!locator.isActive() // if the given locator fails, default to odometry
+                    && !locator.equals(this) // if odometry is failing, let getLocation() fail so we pass the error on
+            ) {
                 driveToOdometry(odomTarget);
                 return;
             }

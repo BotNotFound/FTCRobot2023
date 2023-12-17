@@ -28,17 +28,19 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
      */
     public static final double TICKS_TO_MM = ENCODER_RESOLUTION / (WHEEL_RADIUS * 360);
 
-    public Odometry(@NonNull OpMode registrar) throws InterruptedException {
+    public Odometry(@NonNull OpMode registrar) {
         super(registrar);
-        frontRightMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeftMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeftMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRightMecanumDriver.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hardwareDevices.executeIfAllAreAvailable(() -> {
+            getFrontRightMecanumDriver().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            getFrontLeftMecanumDriver().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            getBackLeftMecanumDriver().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            getBackRightMecanumDriver().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        frontRightMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontLeftMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftMecanumDriver.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            getFrontRightMecanumDriver().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            getFrontLeftMecanumDriver().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            getBackRightMecanumDriver().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            getBackLeftMecanumDriver().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        });
     }
 
     @Override
@@ -49,21 +51,25 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
 
     @Override
     public synchronized LocalizedMovement getLocation() throws LocatorException {
-	final double frontLeftPos = frontLeftMecanumDriver.getCurrentPosition();
-	final double frontRightPos = frontRightMecanumDriver.getCurrentPosition();
-	final double backLeftPos = backLeftMecanumDriver.getCurrentPosition();
-	final double backRightPos = backLeftMecanumDriver.getCurrentPosition();
-	
-	final double fowardDistance = ((frontLeftPos + frontRightPos + backLeftPos + backRightPos) / 4) * TICKS_TO_MM;
-	final double strafeDistance = ((frontLeftPos + frontRightPos - backLeftPos - backRightPos) / 4) * TICKS_TO_MM;
-	final double rotation = imu.getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
+        if (!hardwareDevices.areAllDevicesAvailable()) {
+            throw new LocatorException(this, "Module does not have the necessary hardware devices!");
+        }
 
-	return new LocalizedMovement(fowardDistance, strafeDistance, rotation, this);
+        final double frontLeftPos = getFrontLeftMecanumDriver().getCurrentPosition();
+        final double frontRightPos = getFrontRightMecanumDriver().getCurrentPosition();
+        final double backLeftPos = getBackLeftMecanumDriver().getCurrentPosition();
+        final double backRightPos = getBackLeftMecanumDriver().getCurrentPosition();
+
+        final double forwardDistance = ((frontLeftPos + frontRightPos + backLeftPos + backRightPos) / 4) * TICKS_TO_MM;
+        final double strafeDistance = ((frontLeftPos + frontRightPos - backLeftPos - backRightPos) / 4) * TICKS_TO_MM;
+        final double rotation = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
+
+        return new LocalizedMovement(forwardDistance, strafeDistance, rotation, this);
     }
 
     @Override
     public boolean isActive() {
-        return true;
+        return hardwareDevices.areAllDevicesAvailable();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.modules;
+package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -38,7 +38,7 @@ public final class ConditionalHardwareDevice<T extends HardwareDevice> {
      * @return A {@link ConditionalHardwareDevice} object with the retrieved hardware device, if it can be retrieved
      * @param <U> The type of the hardware device
      */
-    public static <U extends HardwareDevice> ConditionalHardwareDevice<U> tryGetHardwareDevice(HardwareMap hardwareMap, Class<U> deviceClass, String deviceName) {
+    public static <U extends HardwareDevice> ConditionalHardwareDevice<U> tryGetHardwareDevice(HardwareMap hardwareMap, Class<? extends U> deviceClass, String deviceName) {
         try {
             return new ConditionalHardwareDevice<>(hardwareMap.get(deviceClass, deviceName));
         }

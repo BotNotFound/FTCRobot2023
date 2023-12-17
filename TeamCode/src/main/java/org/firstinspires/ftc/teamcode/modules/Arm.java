@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.hardware.GearRatio;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Config
 public final class Arm extends ModuleBase {
     /**
      * One full rotation of the arm motor in encoder ticks.<br />

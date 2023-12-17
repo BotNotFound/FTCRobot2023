@@ -74,7 +74,7 @@ public final class ConditionalHardwareDevice<T extends HardwareDevice> {
      * @param it The code to run
      */
     public void runIfAvailable(Consumer<T> it) {
-        runIfAvailable(it, us -> {}); // do nothing if the device is unavailable
+        runIfAvailable(it, () -> {}); // do nothing if the device is unavailable
     }
 
     /**
@@ -82,12 +82,12 @@ public final class ConditionalHardwareDevice<T extends HardwareDevice> {
      * @param runnable The code to run
      * @param onUnavailable A function to run if the device is unavailable
      */
-    public void runIfAvailable(Consumer<T> runnable, Consumer<ConditionalHardwareDevice<T>> onUnavailable) {
+    public void runIfAvailable(Consumer<T> runnable, Runnable onUnavailable) {
         if (isAvailable()) {
             runnable.accept(device);
         }
         else {
-            onUnavailable.accept(this);
+            onUnavailable.run();
         }
     }
 }

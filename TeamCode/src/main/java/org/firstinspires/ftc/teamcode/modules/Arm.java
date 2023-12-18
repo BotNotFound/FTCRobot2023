@@ -50,12 +50,12 @@ public final class Arm extends ConcurrentModule {
         /**
          * Rotates the arm so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static final double DEPOSIT_ON_FLOOR = 180.0;
+        public static final double DEPOSIT_ON_FLOOR = 200.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 135.0;
+        public static final double DEPOSIT_ON_BACKDROP = 115.0;
     }
 
     public static final class WristPresets extends Presets { // TODO these presets are untested
@@ -154,9 +154,11 @@ public final class Arm extends ConcurrentModule {
     private static class ArmPositionUpdaterThread extends ModuleThread<Arm> {
         public static final String THREAD_NAME = "Arm Position Updater";
 
-        public static double kP = 0.02;
-        public static double kI = 0.0003;
-        public static double kD = 0.01;
+        public static final double kP = 0.000945;
+        public static final double kI = 0.001;
+        public static final double kD = 0;
+
+        public static final double INTEGRAL_MAX_POWER = 0.05;
 
         /**
          * Initializes the thread
@@ -186,11 +188,17 @@ public final class Arm extends ConcurrentModule {
                 while (host.getState().isRunning()) {
                     if (host.armData.isDirty.compareAndSet(true, false)) {
                         curTarget = host.armData.getTargetPosition();
+
+                        // if we never made it to the target (i.e. we're tuning the PID controller and kI has been 0 for
+                        //  a while), we don't want a potentially massive error total to roll over to our new position
+                        //  and potentially be detrimental/dangerous
+                        errorTotal = 0;
                     }
+
                     error = arm.getCurrentPosition() - curTarget;
                     errorChange = error - prevError;
                     errorTotal += error;
-                    errorTotal = (int)(Math.min(Math.abs(errorTotal), 1 / kI) * Math.signum(errorTotal)); // integral sum limit
+                    errorTotal = (int)(Math.min(Math.abs(errorTotal), INTEGRAL_MAX_POWER / kI) * Math.signum(errorTotal)); // integral sum limit (errorTotal * kI <= INTEGRAL_MAX_POWER)
 
                     power = error == 0 ? 0 : (error * kP) + (errorChange * kD) + (errorTotal * kI);
                     arm.setPower(power);
@@ -246,12 +254,10 @@ public final class Arm extends ConcurrentModule {
      * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
      */
     public void rotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
-        if (preserveWristRotation) {
-            throw new UnsupportedOperationException("Not Implemented!"); // TODO
-        }
-
         final double normalizedAngle = normalizeAngleOurWay(rotation, angleUnit);
-        if (normalizedAngle > ONE_REVOLUTION_OUR_ANGLE_UNIT / 2) {
+
+        // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
+        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE) {
             return; // don't rotate the arm into the floor
         }
 
@@ -260,6 +266,11 @@ public final class Arm extends ConcurrentModule {
                         * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
                         / ONE_REVOLUTION_OUR_ANGLE_UNIT
         ));
+
+        if (preserveWristRotation) {
+            // use normalizedAngle instead of getArmRotation() because the arm probably hasn't finished rotating yet
+            rotateWristTo(getWristRotation() - normalizedAngle, ANGLE_UNIT);
+        }
     }
 
     /**
@@ -271,10 +282,7 @@ public final class Arm extends ConcurrentModule {
     public static double normalizeAngleOurWay(double angle, AngleUnit unitUsed) {
         angle = ANGLE_UNIT.getUnnormalized().fromUnit(unitUsed.getUnnormalized(), angle);
 
-        angle = angle % ONE_REVOLUTION_OUR_ANGLE_UNIT; // normalize from no rotation up to 1 full revolution
-        if (angle < 0) {
-            angle += ONE_REVOLUTION_OUR_ANGLE_UNIT; // ensure everything is positive so the arm never rotates into the robot
-        }
+        angle = angle % ONE_REVOLUTION_OUR_ANGLE_UNIT; // normalize from 1 full negative revolution up to 1 full positive revolution
 
         return angle;
     }
@@ -324,6 +332,15 @@ public final class Arm extends ConcurrentModule {
      */
     public double getWristRotation() {
         return wristServo.requireDevice().getPosition() * (ONE_REVOLUTION_OUR_ANGLE_UNIT / 2); // servo can only rotate up to 180 degrees (1/2 of a full rotation)
+    }
+
+    /**
+     * Gets the rotation of the wrist
+     * @param angleUnit The unit of rotation to use
+     * @return The wrist's rotation in the unit specified
+     */
+    public double getWristRotation(AngleUnit angleUnit) {
+        return angleUnit.fromUnit(ANGLE_UNIT, getWristRotation());
     }
 
     /**
@@ -379,8 +396,10 @@ public final class Arm extends ConcurrentModule {
     @Override
     public void log() {
         getTelemetry().addData("[Arm] module state", getState());
-        armMotor.runIfAvailable(arm -> getTelemetry().addData("[Arm] (arm motor) current rotation", getArmRotation(AngleUnit.DEGREES)));
-        wristServo.runIfAvailable(wrist -> getTelemetry().addData("[Arm] (wrist servo) current rotation", getWristRotation()));
+        armMotor.runIfAvailable(arm -> getTelemetry().addData( "[Arm] (arm motor) current rotation",
+                Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 ));
+        wristServo.runIfAvailable(wrist -> getTelemetry().addData( "[Arm] (wrist servo) current rotation",
+                Math.rint(getWristRotation(AngleUnit.DEGREES) * 100) / 100 ));
         flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap open", isFlapOpen()));
     }
 }

@@ -103,7 +103,9 @@ public class DriveTrain extends ModuleBase {
             getBackRightMecanumDriver().setDirection(DcMotorSimple.Direction.FORWARD);
             getFrontLeftMecanumDriver().setDirection(DcMotorSimple.Direction.REVERSE);
             getBackLeftMecanumDriver().setDirection(DcMotorSimple.Direction.REVERSE);
-        });
+
+            getTelemetry().addLine("[Drive Train] Found all drive motors");
+        }, () -> getTelemetry().addLine("[Drive Train] Could not find all drive motors!"));
     }
 
     @Override

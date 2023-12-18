@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import androidx.annotation.Nullable;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -89,5 +90,31 @@ public final class ConditionalHardwareDevice<T extends HardwareDevice> {
         else {
             onUnavailable.run();
         }
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (super.equals(obj)) {
+            return true; // we are comparing the same memory address
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof ConditionalHardwareDevice)) {
+            return false;
+        }
+        ConditionalHardwareDevice<?> otherDevice = ((ConditionalHardwareDevice<?>) obj);
+        if (!isAvailable()) {
+            return !otherDevice.isAvailable();
+        }
+        return requireDevice().equals(otherDevice.requireDevice());
+    }
+
+    @Override
+    public int hashCode() {
+        if (!isAvailable()) {
+            return 0;
+        }
+        return requireDevice().hashCode();
     }
 }

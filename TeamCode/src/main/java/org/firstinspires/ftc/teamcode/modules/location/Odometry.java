@@ -46,7 +46,9 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
     @Override
     public void log() {
         super.log();
-        getTelemetry().addData("[Odometry] Current Position", getLocation());
+        hardwareDevices.executeIfAllAreAvailable(() ->
+            getTelemetry().addData("[Odometry] Current Position", getLocation())
+        );
     }
 
     @Override

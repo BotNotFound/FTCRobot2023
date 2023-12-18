@@ -37,6 +37,12 @@ public final class Arm extends ConcurrentModule {
 
     public static final class ArmPresets extends Presets {
         /**
+         * Rotates the arm to the position it was in at the start of execution.  This should be parallel to the ground,
+         *  with the end of the arm closest to the active intake.
+         */
+        public static final double START_POS = 0.0;
+
+        /**
          * Rotates the arm so that the robot can collect pixels
          */
         public static final double READY_TO_INTAKE = -25.0;
@@ -111,6 +117,20 @@ public final class Arm extends ConcurrentModule {
         armMotor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, DcMotor.class, ARM_MOTOR_NAME);
         wristServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, WRIST_SERVO_NAME);
         flapServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, FLAP_SERVO_NAME);
+
+        // status update
+        armMotor.runIfAvailable(
+                device -> getTelemetry().addLine("[Arm] found arm motor of type " + device.getDeviceName() + " on port " + device.getPortNumber()),
+                () -> getTelemetry().addLine("[Arm] could not find arm motor!")
+        );
+        wristServo.runIfAvailable(
+                device -> getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber()),
+                () -> getTelemetry().addLine("[Arm] could not find wrist servo!")
+        );
+        flapServo.runIfAvailable(
+                device -> getTelemetry().addLine("[Arm] found flap servo of type " + device.getDeviceName() + " on port " + device.getPortNumber()),
+                () -> getTelemetry().addLine("[Arm] could not find flap servo!")
+        );
 
         armMotor.runIfAvailable((arm) -> {
             arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -346,6 +366,11 @@ public final class Arm extends ConcurrentModule {
         }
     }
 
+    public boolean isFlapOpen() {
+        flapServo.requireDevice();
+        return isFlapOpen;
+    }
+
     @Override
     protected void registerModuleThreads() {
         registerAsyncOperation(new ArmPositionUpdaterThread(this));
@@ -353,6 +378,9 @@ public final class Arm extends ConcurrentModule {
 
     @Override
     public void log() {
-
+        getTelemetry().addData("[Arm] module state", getState());
+        armMotor.runIfAvailable(arm -> getTelemetry().addData("[Arm] (arm motor) current rotation", getArmRotation(AngleUnit.DEGREES)));
+        wristServo.runIfAvailable(wrist -> getTelemetry().addData("[Arm] (wrist servo) current rotation", getWristRotation()));
+        flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap open", isFlapOpen()));
     }
 }

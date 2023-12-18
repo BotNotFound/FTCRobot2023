@@ -32,6 +32,10 @@ public class PlaneLauncher extends ModuleBase {
         }, () -> getTelemetry().addLine("[Plane Launcher] No servo to activate!"));
     }
 
+    public boolean hasLaunched() {
+        return launcherServo.requireDevice().getPosition() == SERVO_POSITION_LAUNCHED;
+    }
+
     @Override
     public void cleanupModule() {
 
@@ -39,6 +43,6 @@ public class PlaneLauncher extends ModuleBase {
 
     @Override
     public void log() {
-
+        launcherServo.runIfAvailable(launcher -> getTelemetry().addData("[Plane Launcher] has launched", hasLaunched()));
     }
 }

@@ -26,15 +26,18 @@ public class FieldCentricDriveTrain extends DriveTrain {
         super(registrar);
         hardwareDevices.tryLoadDevice(parent.hardwareMap, IMU.class, IMU_NAME);
 
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-        getIMU().initialize(parameters);
-        resetRotation();
+        hardwareDevices.executeIfAllAreAvailable(() -> {
+            IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                    RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
+            getIMU().initialize(parameters);
+            resetRotation();
+            getTelemetry().addLine("[Field Centric Drive Train] Found IMU");
+        }, () -> getTelemetry().addLine("[Field Centric Drive Train] Couldn't find IMU!"));
     }
 
     public void resetRotation() {
-        getIMU().resetYaw();
+        hardwareDevices.executeIfAllAreAvailable(getIMU()::resetYaw);
     }
 
     @Override
@@ -45,9 +48,9 @@ public class FieldCentricDriveTrain extends DriveTrain {
             // Rotate the movement direction counter to the robot's rotation
             double rotX = (distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading));
             double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
-            getTelemetry().addData("current x rotation", rotX);
-            getTelemetry().addData("current y rotation", rotY);
-            getTelemetry().addData("bot heading value", botHeading);
+            getTelemetry().addData("[Field Centric Drive Train] current x rotation", rotX);
+            getTelemetry().addData("[Field Centric Drive Train] current y rotation", rotY);
+            getTelemetry().addData("[Field Centric Drive Train] bot heading value", botHeading);
             rotX = rotX * 1.1;  // Counteract imperfect strafing
 
             // Denominator is the largest motor power (absolute value) or 1

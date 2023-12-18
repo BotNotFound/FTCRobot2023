@@ -16,7 +16,7 @@ public final class ConditionalHardwareDeviceGroup {
      * Each device is saved with the name used by the hardware map to retrieve it (its key).
      * @see com.qualcomm.robotcore.hardware.HardwareMap#get(Class, String)
      */
-    private final Hashtable<String, HardwareDevice> devices;
+    private final Hashtable<String, ConditionalHardwareDevice<?>> devices;
 
     /**
      * Is every device in this group available?
@@ -51,7 +51,7 @@ public final class ConditionalHardwareDeviceGroup {
         final boolean deviceExists = maybeDevice.isAvailable();
 
         allAreAccessible.compareAndSet(true, deviceExists); // if this is already false, no need to set it to something else
-        devices.put(deviceName, deviceExists ? maybeDevice.requireDevice() : null);
+        devices.put(deviceName, maybeDevice);
     }
 
     /**
@@ -74,11 +74,26 @@ public final class ConditionalHardwareDeviceGroup {
      * @param deviceName The name of the device
      * @return The device if it is available, loaded into this group, and has the expected type; otherwise null
      * @param <T> The expected type of the hardware device
+     * @throws NullPointerException The hardware device is inaccessible
      * @throws ClassCastException The retrieved device is not of the expected type, and no cast can be made to convert it to said class
      */
     public <T extends HardwareDevice> T getLoadedDevice(Class<? extends T> expectedClass,String deviceName) {
-        final HardwareDevice maybeDevice = devices.get(deviceName);
-        return expectedClass.cast(maybeDevice);
+        final ConditionalHardwareDevice<?> maybeDevice = devices.get(deviceName);
+        return expectedClass.cast(maybeDevice.requireDevice());
+    }
+
+    /**
+     * Executes the given code only if all devices in this group are available
+     * @param runnable The code to run.
+     * @param onUnavailable A function to run if the devices are unavailable
+     */
+    public void executeIfAllAreAvailable(Runnable runnable, Runnable onUnavailable) {
+        if (areAllDevicesAvailable()) {
+            runnable.run();
+        }
+        else {
+            onUnavailable.run();
+        }
     }
 
     /**
@@ -86,8 +101,6 @@ public final class ConditionalHardwareDeviceGroup {
      * @param runnable The code to run.
      */
     public void executeIfAllAreAvailable(Runnable runnable) {
-        if (areAllDevicesAvailable()) {
-            runnable.run();
-        }
+        executeIfAllAreAvailable(runnable, () -> {});
     }
 }

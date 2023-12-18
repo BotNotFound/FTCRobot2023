@@ -21,6 +21,10 @@ public abstract class ModuleThread<T extends ConcurrentModule> extends Thread {
                 }
             }
 
+            if (host.getState().isTerminated()) {
+                return; // no point running if the module is already terminated
+            }
+
             execute();
         }
         catch (InterruptedException e) {

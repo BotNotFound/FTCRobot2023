@@ -122,6 +122,9 @@ public final class Arm extends ConcurrentModule {
 
         isFlapOpen = true;
         closeFlap();
+
+        exitSetup();
+
     }
 
     /**
@@ -130,9 +133,6 @@ public final class Arm extends ConcurrentModule {
     @Config("Arm (Position Updater Thread)")
     private static class ArmPositionUpdaterThread extends ModuleThread<Arm> {
         public static final String THREAD_NAME = "Arm Position Updater";
-
-        private final ConditionalHardwareDevice<DcMotor> couldBeArmMotor;
-        private final ArmData data;
 
         public static double kP = 0.02;
         public static double kI = 0.0003;
@@ -144,20 +144,18 @@ public final class Arm extends ConcurrentModule {
          */
         public ArmPositionUpdaterThread(Arm arm) {
             super(arm, THREAD_NAME);
-            couldBeArmMotor = arm.armMotor;
-            data = arm.armData;
         }
 
         @Override
-        public void run() {
-            couldBeArmMotor.runIfAvailable(arm -> { // this thread does nothing if there is no arm motor to update
-                while (host.getState().isInInit()) {
-                    if (host.getState().isTerminated()) {
-                        return; // if OpMode ends in init, end the thread
-                    }
-                    Thread.yield(); // wait until OpMode starts before moving the motor
+        public void execute() {
+            while (host.getState().isInInit()) {
+                if (host.getState().isTerminated()) {
+                    return; // if OpMode ends in init, end the thread
                 }
+                Thread.yield(); // wait until OpMode starts before moving the motor
+            }
 
+            host.armMotor.runIfAvailable(arm -> { // this thread does nothing if there is no arm motor to update
                 int curTarget = 0;
                 int error,
                         prevError = 0,
@@ -166,8 +164,8 @@ public final class Arm extends ConcurrentModule {
                 double power;
 
                 while (host.getState().isRunning()) {
-                    if (data.isDirty.compareAndSet(true, false)) {
-                        curTarget = data.getTargetPosition();
+                    if (host.armData.isDirty.compareAndSet(true, false)) {
+                        curTarget = host.armData.getTargetPosition();
                     }
                     error = arm.getCurrentPosition() - curTarget;
                     errorChange = error - prevError;

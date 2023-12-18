@@ -16,6 +16,11 @@ public enum ModuleRunState {
     NEW,
 
     /**
+     * The module has completed thread initialization, but is still within its constructor.  Child classes should call
+     */
+    SETUP,
+
+    /**
      * The method {@link ConcurrentModule#startThreads()} has not been called yet.  Typically, this signifies that the
      * parent OpMode is still in init.
      * @apiNote Module threads should NOT use the hardware map to get references to hardware devices.  All hardware
@@ -49,11 +54,19 @@ public enum ModuleRunState {
     }
 
     /**
+     * Is the module still in its constructor?
+     * @return True if the state is {@link #NEW} or {@link #SETUP}, otherwise false
+     */
+    public boolean isInConstructor() {
+        return this == NEW || this == SETUP;
+    }
+
+    /**
      * Is the module in the initialization phase?
-     * @return True if the state is {@link #NEW} or {@link #INIT}, otherwise false
+     * @return True if {@link #isInConstructor()} is true or the state is {@link #INIT}, otherwise false
      */
     public boolean isInInit() {
-        return this == NEW || this == INIT;
+        return isInConstructor() || this == INIT;
     }
 
     /**

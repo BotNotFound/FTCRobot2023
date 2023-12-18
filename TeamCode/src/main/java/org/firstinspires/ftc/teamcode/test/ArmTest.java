@@ -47,16 +47,37 @@ public final class ArmTest extends OpMode {
         public static AngleUnit angleUnit = AngleUnit.DEGREES;
     }
 
+    private boolean checkFailsafe() {
+        if (failsafeEngaged) {
+            return true; // no need to terminate multiple times
+        }
+
+        if (gamepad1.a || gamepad1.back) {
+            failsafeEngaged = true;
+            arm.interrupt();
+            terminateOpModeNow(); // failsafe
+            arm.cleanupModule();
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean failsafeEngaged;
+
     private Arm arm;
 
     @Override
     public void init() {
+        failsafeEngaged = false;
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         arm = new Arm(this);
     }
 
     @Override
     public void init_loop() {
+        if (checkFailsafe()) return;
+
         telemetry.addData("curPos", 0);
         telemetry.addData("tPos", 0);
         telemetry.addData("s", arm.getState());
@@ -70,12 +91,7 @@ public final class ArmTest extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.a || gamepad1.back) {
-            arm.interrupt();
-            terminateOpModeNow(); // failsafe
-            arm.cleanupModule();
-            return;
-        }
+        if (checkFailsafe()) return;
 
         if (gamepad1.y) {
             ArmTestConfig.targetPosition = ArmTestConfig.angleUnit.fromDegrees(90);

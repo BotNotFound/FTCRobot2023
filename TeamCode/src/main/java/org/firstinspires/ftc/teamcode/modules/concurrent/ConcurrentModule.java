@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.modules.concurrent;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.teamcode.modules.ModuleBase;
 
 /**
@@ -23,7 +24,7 @@ public abstract class ConcurrentModule extends ModuleBase {
      * @implNote The last time this was updated, the robot's internal robot stuck detector would wait 10000 ms before
      *  force quitting the OpMode.  This should be less than that
      */
-    public static final double MODULE_THREAD_TERMINATION_TIMEOUT_MILLIS = 500;
+    public static final long MODULE_THREAD_TERMINATION_TIMEOUT_MILLIS = 500;
 
     /**
      * Gets the current state of the module
@@ -41,6 +42,22 @@ public abstract class ConcurrentModule extends ModuleBase {
     /* package-private */ final ThreadGroup moduleThreadGroup;
 
     /**
+     * Used to notify all module threads that the module's state has transitioned from {@link ModuleRunState#NEW} to
+     * {@link ModuleRunState#INIT}
+     */
+    private final Object threadStartNotifier = new Object();
+
+    /**
+     * Retrieves the module's thread start notifier
+     * @return The notifier
+     * @implNote Set to package-private so that it can be accessed by {@link ModuleThread#run()}, but not by any child classes
+     *  of this or {@link ModuleThread}
+     */
+    /* package-private */ final Object getThreadStartNotifier() {
+        return threadStartNotifier;
+    }
+
+    /**
      * Initializes the module and registers it with the specified OpMode
      *
      * @param registrar The OpMode initializing the module
@@ -51,7 +68,23 @@ public abstract class ConcurrentModule extends ModuleBase {
         moduleThreadGroup = new ThreadGroup(threadGroupName);
         state = ModuleRunState.NEW;
         registerModuleThreads();
-        state = ModuleRunState.INIT;
+        state = ModuleRunState.SETUP;
+        // we used to notify module threads to begin execution here.  However, this would lead to the threads attempting
+        //  to access fields that the child constructor had not yet initialized.  Now, we leave the notification to exitSetup()
+        //  (or startThreads() if exitSetup() is never called)
+    }
+
+    /**
+     * Signals to module threads that the module has finished setting up the necessary fields for them to function.  This
+     *  method should only be called within the constructor (typically at the very end)
+     */
+    protected final void exitSetup() {
+        if (state == ModuleRunState.SETUP) {
+            state = ModuleRunState.INIT;
+        }
+        synchronized (threadStartNotifier) {
+            threadStartNotifier.notifyAll();
+        }
     }
 
     /**
@@ -72,16 +105,23 @@ public abstract class ConcurrentModule extends ModuleBase {
             throw new IllegalStateException("Cannot register module threads outside of constructor!");
         }
 
-        if (thread.host == this) {
-            throw new IllegalArgumentException("Module threads may only be registered by their host module!");
+        if (thread.host != this) {
+            throw new IllegalArgumentException("Attempted to register a module thread with designated host " + thread.host + " to a separate module " + this);
         }
+
+        thread.start();
     }
 
     /**
      * Signals to this module's threads that the parent {@link OpMode} has entered its main execution loop
      */
     public final void startThreads() {
-        state = ModuleRunState.RUNNING;
+        if (!state.isTerminated()) {
+            state = ModuleRunState.RUNNING;
+        }
+        synchronized (threadStartNotifier) {
+            threadStartNotifier.notifyAll(); // in case exitSetup() was never called
+        }
     }
 
     /**
@@ -90,24 +130,31 @@ public abstract class ConcurrentModule extends ModuleBase {
      */
     private void endThreads() {
         state = ModuleRunState.TERMINATED;
+        moduleThreadGroup.interrupt();
+
         ElapsedTime timer = new ElapsedTime();
-        while (timer.milliseconds() < MODULE_THREAD_TERMINATION_TIMEOUT_MILLIS) {
-            if (moduleThreadGroup.activeCount() == 0) {
-                moduleThreadGroup.destroy();
-                return; // we don't have to wait the entire time if all threads end gracefully
-            }
+        while (timer.milliseconds() < MODULE_THREAD_TERMINATION_TIMEOUT_MILLIS &&
+                moduleThreadGroup.activeCount() > 0 // we don't have to wait the entire time if all threads end gracefully
+        ) {
             Thread.yield(); // give the threads a chance to exit gracefully
         }
 
         // We have to kill all threads before the robot thinks we're stuck and dies painfully
-        moduleThreadGroup.interrupt();
-        moduleThreadGroup.destroy();
+        try {
+            moduleThreadGroup.interrupt(); // last ditch effort for any threads that may just be stuck waiting
+            moduleThreadGroup.destroy();
+        }
+        catch (IllegalThreadStateException e) {
+            // There isn't much we can do here, apart from recording the error
+            RobotLog.ee(ConcurrentModule.class.getSimpleName(), "Module threads of module " + getClass().getCanonicalName() + " have persisted past termination of the module itself!");
+        }
     }
 
     /**
-     * Interrupts this module's threads
+     * Interrupts this module's threads.  This method is a failsafe, and should be used as such in {@link OpMode}s.
+     *  However, it makes no guarantee that the threads will actually shut down.
      */
-    public void interrupt() {
+    public final void interrupt() {
         moduleThreadGroup.interrupt();
     }
 

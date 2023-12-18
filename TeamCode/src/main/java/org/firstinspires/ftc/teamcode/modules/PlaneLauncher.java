@@ -26,10 +26,7 @@ public class PlaneLauncher extends ModuleBase {
     }
 
     public void launch() {
-        launcherServo.runIfAvailable(launcher -> {
-            getTelemetry().addLine("Launching plane");
-            launcher.setPosition(SERVO_POSITION_LAUNCHED);
-        }, () -> getTelemetry().addLine("[Plane Launcher] No servo to activate!"));
+        launcherServo.runIfAvailable(launcher -> launcher.setPosition(SERVO_POSITION_LAUNCHED));
     }
 
     public boolean hasLaunched() {

@@ -59,19 +59,19 @@ public final class ArmTest extends OpMode {
     public void init_loop() {
         telemetry.addData("curPos", 0);
         telemetry.addData("tPos", 0);
-        telemetry.addData("s", arm.getArmThreadState());
+        telemetry.addData("s", arm.getState());
     }
 
     @Override
     public void start() {
         super.start();
-        arm.startModule();
+        arm.startThreads();
     }
 
     @Override
     public void loop() {
         if (gamepad1.a || gamepad1.back) {
-            arm.pleaseStopTheArmThreadBeforeSomethingBreaks();
+            arm.interrupt();
             terminateOpModeNow(); // failsafe
             arm.cleanupModule();
             return;
@@ -86,7 +86,7 @@ public final class ArmTest extends OpMode {
 
         telemetry.addData("curPos", arm.getArmMotorPosition());
         telemetry.addData("tPos", arm.getArmMotorTarget());
-        telemetry.addData("s", arm.getArmThreadState());
+        telemetry.addData("s", arm.getState());
     }
 
     @Override

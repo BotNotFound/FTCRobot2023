@@ -5,14 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.GearRatio;
+import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
+import org.firstinspires.ftc.teamcode.modules.concurrent.ModuleThread;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class Arm extends ModuleBase {
+public final class Arm extends ConcurrentModule {
     /**
      * One full rotation of the arm motor in encoder ticks.<br />
      * Taken from <a href="https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-50-9-1-ratio-24mm-length-8mm-rex-shaft-117-rpm-3-3-5v-encoder/">GoBilda</a>
@@ -106,7 +107,7 @@ public final class Arm extends ModuleBase {
      * @param registrar The OpMode initializing the module
      */
     public Arm(OpMode registrar) {
-        super(registrar);
+        super(registrar, "Arm Module Threads");
         armMotor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, DcMotor.class, ARM_MOTOR_NAME);
         wristServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, WRIST_SERVO_NAME);
         flapServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, FLAP_SERVO_NAME);
@@ -118,26 +119,16 @@ public final class Arm extends ModuleBase {
             arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         });
         armData = new ArmData();
-        armPositionUpdaterThread = new ArmPositionUpdaterThread(this);
-        armPositionUpdaterThread.start();
 
         isFlapOpen = true;
         closeFlap();
-    }
-
-    public void pleaseStopTheArmThreadBeforeSomethingBreaks() {
-        armPositionUpdaterThread.interrupt();
-    }
-
-    public void startModule() {
-        armData.startUpdateLoop.set(true);
     }
 
     /**
      * A thread that keeps the arm motor at the target position
      */
     @Config("Arm (Position Updater Thread)")
-    private static class ArmPositionUpdaterThread extends Thread {
+    private static class ArmPositionUpdaterThread extends ModuleThread<Arm> {
         public static final String THREAD_NAME = "Arm Position Updater";
 
         private final ConditionalHardwareDevice<DcMotor> couldBeArmMotor;
@@ -152,7 +143,7 @@ public final class Arm extends ModuleBase {
          * @param arm The arm to use
          */
         public ArmPositionUpdaterThread(Arm arm) {
-            super(THREAD_NAME);
+            super(arm, THREAD_NAME);
             couldBeArmMotor = arm.armMotor;
             data = arm.armData;
         }
@@ -160,8 +151,8 @@ public final class Arm extends ModuleBase {
         @Override
         public void run() {
             couldBeArmMotor.runIfAvailable(arm -> { // this thread does nothing if there is no arm motor to update
-                while (!data.startUpdateLoop.get()) {
-                    if (!data.keepThreadAlive.get()) {
+                while (host.getState().isInInit()) {
+                    if (host.getState().isTerminated()) {
                         return; // if OpMode ends in init, end the thread
                     }
                     Thread.yield(); // wait until OpMode starts before moving the motor
@@ -174,7 +165,7 @@ public final class Arm extends ModuleBase {
                         errorTotal = 0;
                 double power;
 
-                while (data.keepThreadAlive.get()) {
+                while (host.getState().isRunning()) {
                     if (data.isDirty.compareAndSet(true, false)) {
                         curTarget = data.getTargetPosition();
                     }
@@ -190,15 +181,7 @@ public final class Arm extends ModuleBase {
                 arm.setPower(0.0); // this probably does something
             });
         }
-
-        /**
-         * Politely asks the thread to stop.  It may just ignore the request
-         */
-        public void askToStop() {
-            data.keepThreadAlive.set(false);
-        }
     }
-    private final ArmPositionUpdaterThread armPositionUpdaterThread;
 
     private static class ArmData {
         public final AtomicBoolean isDirty = new AtomicBoolean(true);
@@ -219,8 +202,6 @@ public final class Arm extends ModuleBase {
                 isDirty.set(true);
             }
         }
-        public final AtomicBoolean keepThreadAlive = new AtomicBoolean(true);
-        public final AtomicBoolean startUpdateLoop = new AtomicBoolean(false);
     }
     private final ArmData armData;
 
@@ -238,14 +219,6 @@ public final class Arm extends ModuleBase {
      */
     public int getArmMotorTarget() {
         return armData.getTargetPosition();
-    }
-
-    /**
-     * Gets the state of the arm motor's PID loop thread
-     * @return The thread's state
-     */
-    public Thread.State getArmThreadState() {
-        return armPositionUpdaterThread.getState();
     }
 
     /**
@@ -271,6 +244,12 @@ public final class Arm extends ModuleBase {
         ));
     }
 
+    /**
+     * Normalizes the given angle so that it is within one positive rotation (0-360 degrees, or 0-2pi radians)
+     * @param angle The angle to normalize
+     * @param unitUsed The unit of the given angle
+     * @return The normalized angle
+     */
     public static double normalizeAngleOurWay(double angle, AngleUnit unitUsed) {
         angle = ANGLE_UNIT.getUnnormalized().fromUnit(unitUsed.getUnnormalized(), angle);
 
@@ -309,7 +288,7 @@ public final class Arm extends ModuleBase {
      * @return The arm's rotation in the unit specified by {@link #ANGLE_UNIT}
      */
     public double getArmRotation() {
-        return ((double)armMotor.requireDevice().getCurrentPosition() * ONE_REVOLUTION_OUR_ANGLE_UNIT / ONE_REVOLUTION_ENCODER_TICKS);
+        return ((double)getArmMotorPosition() * ONE_REVOLUTION_OUR_ANGLE_UNIT / ONE_REVOLUTION_ENCODER_TICKS);
     }
 
     /**
@@ -370,32 +349,8 @@ public final class Arm extends ModuleBase {
     }
 
     @Override
-    public void cleanupModule() {
-        armPositionUpdaterThread.askToStop(); // I have no clue if this actually works
-        ElapsedTime t = new ElapsedTime();
-        while (t.seconds() < 1.5) {
-            parent.telemetry.addLine("[Arm] thread is still alive");
-            parent.telemetry.update();
-            switch (armPositionUpdaterThread.getState()) {
-                case BLOCKED:
-                case WAITING:
-                case TIMED_WAITING:
-                    t.reset(); // thread is waiting for something
-                    break;
-                case TERMINATED:
-                    parent.telemetry.addLine("[Arm] Thread stopped");
-                    parent.telemetry.update();
-                    parent.telemetry.speak("The arm position updater thread has exited gracefully.", "en", "us");
-                    return; // thread is done
-                default:
-                    break; // thread is doing something
-            }
-        }
-        armPositionUpdaterThread.interrupt(); // just kill it if it takes this long
-
-        parent.telemetry.addLine("[Arm] Thread was interrupted");
-        parent.telemetry.update();
-        parent.telemetry.speak("The arm position updater thread has taken too long to exit, and has been forcefully interrupted.  Be careful when starting the next operating mode.", "en", "us");
+    protected void registerModuleThreads() {
+        registerAsyncOperation(new ArmPositionUpdaterThread(this));
     }
 
     @Override

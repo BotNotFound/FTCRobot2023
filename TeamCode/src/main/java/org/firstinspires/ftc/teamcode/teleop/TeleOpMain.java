@@ -70,19 +70,19 @@ public final class TeleOpMain extends OpBase {
         driveTrain.log();
 
         // 2nd gamepad controls grabbing and plane launcher
-        if (currentGamepad2.y && launchedPlane.compareAndSet(false, true)) {
+        if (currentGamepad2.start && launchedPlane.compareAndSet(false, true)) {
             planeLauncher.launch();
         }
         planeLauncher.log();
 
-        if (gamepad2.dpad_left) {
+        if (gamepad2.x) {
             arm.rotateArmTo(Arm.ArmPresets.START_POS, Arm.ANGLE_UNIT);
-        } else if (gamepad2.dpad_up) {
+        } else if (gamepad2.y) {
             arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT);
-        } else if (gamepad2.dpad_right) {
+        } else if (gamepad2.b) {
             arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.ANGLE_UNIT);
         }
-        else if (gamepad2.dpad_down) {
+        else if (gamepad2.a) {
             arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
         }
         arm.log();

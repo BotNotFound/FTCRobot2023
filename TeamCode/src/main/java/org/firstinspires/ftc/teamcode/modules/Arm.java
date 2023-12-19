@@ -22,6 +22,16 @@ public final class Arm extends ModuleBase {
      */
     public static final double ONE_ROTATION = ANGLE_UNIT.fromDegrees(360.0);
 
+    /**
+     * Rotate flap to open position
+     */
+    public static final double FLAP_OPEN = 0;
+
+    /**
+     * Rotate flap to closed position
+     */
+    public static final double FLAP_CLOSED = 1;
+
     public static final class ArmPresets extends Presets { // TODO these values are untested
         /**
          * Rotates the arm so that the robot can collect pixels
@@ -93,11 +103,14 @@ public final class Arm extends ModuleBase {
      *
      * @param registrar The OpMode initializing the module
      */
-    public Arm(OpMode registrar) throws InterruptedException {
+    public Arm(OpMode registrar) {
         super(registrar);
         armMotor = parent.hardwareMap.get(DcMotor.class, ARM_MOTOR_NAME);
         wristServo = parent.hardwareMap.get(Servo.class, WRIST_SERVO_NAME);
         flapServo = parent.hardwareMap.get(Servo.class, FLAP_SERVO_NAME);
+
+        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         isFlapOpen = true;
         closeFlap();
@@ -158,9 +171,9 @@ public final class Arm extends ModuleBase {
         if (isFlapOpen) {
             return;
         }
-        isFlapOpen = false;
+        flapServo.setPosition(FLAP_OPEN);
+        isFlapOpen = true;
 
-        throw new RuntimeException("Not implemented!"); // TODO
     }
 
     /**
@@ -170,9 +183,8 @@ public final class Arm extends ModuleBase {
         if (!isFlapOpen) {
             return;
         }
-        isFlapOpen = true;
-
-        throw new RuntimeException("Not implemented!");
+        flapServo.setPosition(FLAP_CLOSED);
+        isFlapOpen = false;
     }
 
     /**

@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
 
 public class DriveTrain extends ModuleBase {
@@ -194,13 +193,5 @@ public class DriveTrain extends ModuleBase {
             getBackRightMecanumDriver().setPower(rightBackPower);
             getBackLeftMecanumDriver().setPower(leftBackPower);
         });
-    }
-
-    /**
-     * Moves and rotates the robot
-     * @param velocity The desired robot
-     */
-    public void setVelocity(Movement velocity) {
-        setVelocity(velocity.x, velocity.y, velocity.theta);
     }
 }

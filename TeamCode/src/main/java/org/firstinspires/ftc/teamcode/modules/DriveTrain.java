@@ -94,10 +94,10 @@ public class DriveTrain extends ModuleBase {
         hardwareDevices.executeIfAllAreAvailable(() -> {
 
             // motor config
-            getFrontRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            getBackRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            getFrontLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            getBackLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            getFrontRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getBackRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getFrontLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getBackLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             configureMotorDirections(
                     getFrontLeftMecanumDriver(),
@@ -124,6 +124,7 @@ public class DriveTrain extends ModuleBase {
         assert frontRight.getDeviceName().equals(FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
         assert backLeft.getDeviceName().equals(BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
         assert backRight.getDeviceName().equals(BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);

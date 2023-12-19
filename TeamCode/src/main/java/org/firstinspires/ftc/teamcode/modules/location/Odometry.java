@@ -57,16 +57,28 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
             throw new LocatorException(this, "Module does not have the necessary hardware devices!");
         }
 
-        final double frontLeftPos = getFrontLeftMecanumDriver().getCurrentPosition();
-        final double frontRightPos = getFrontRightMecanumDriver().getCurrentPosition();
-        final double backLeftPos = getBackLeftMecanumDriver().getCurrentPosition();
-        final double backRightPos = getBackLeftMecanumDriver().getCurrentPosition();
+        final double frontLeftPos = getMotorPosition(getFrontLeftMecanumDriver());
+        final double frontRightPos = getMotorPosition(getFrontRightMecanumDriver());
+        final double backLeftPos = getMotorPosition(getBackLeftMecanumDriver());
+        final double backRightPos = getMotorPosition(getBackLeftMecanumDriver());
 
         final double forwardDistance = ((frontLeftPos + frontRightPos + backLeftPos + backRightPos) / 4) * TICKS_TO_MM;
         final double strafeDistance = ((frontLeftPos + frontRightPos - backLeftPos - backRightPos) / 4) * TICKS_TO_MM;
         final double rotation = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
 
         return new LocalizedMovement(forwardDistance, strafeDistance, rotation, this);
+    }
+
+    private static double getMotorPosition(DcMotor motor) {
+        switch (motor.getDirection()) {
+            case FORWARD:
+                return motor.getCurrentPosition();
+            case REVERSE:
+                return -motor.getCurrentPosition();
+            default:
+                // there is no reason for anyone to make a new member for the Direction enum, so if we get here, just panic
+                throw new IllegalStateException("HOW");
+        }
     }
 
     @Override

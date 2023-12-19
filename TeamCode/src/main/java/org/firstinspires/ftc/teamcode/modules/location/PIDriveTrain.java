@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
  * A drive-to-position variant of {@link DriveTrain} that uses a
  *  Proportional, Derivative, and Integral system to control the robot
  */
-public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
+public class PIDriveTrain extends Odometry { // TODO TUNE THE PID CONTROLLER
     public static final class PIDConfig {
         public final double proportionalCoefficient;
         public final double integralCoefficient;
@@ -101,7 +101,7 @@ public class PIDController extends Odometry { // TODO TUNE THE PID CONTROLLER
      *
      * @param registrar the OpMode that will be using the module
      */
-    public PIDController(@NonNull OpMode registrar) {
+    public PIDriveTrain(@NonNull OpMode registrar) {
         super(registrar);
     }
 

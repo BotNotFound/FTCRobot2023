@@ -136,7 +136,7 @@ public class DriveTrain extends ModuleBase {
      */
     public void setVelocity(double distX, double distY, double rotation) {
         hardwareDevices.executeIfAllAreAvailable(() -> {
-            getTelemetry().addData("Moving by vector:", "<%f, %f, %f>", distX, distY, rotation);
+            getTelemetry().addData("[Drive Train] Moving by vector:", "<%f, %f, %f>", distX, distY, rotation);
 
             // Combine the requests for each axis-motion to determine each wheel's power.
             // (formula was found on gm0)

@@ -5,10 +5,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.RobotLog;
-import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.DoubleClaw;
-import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
-import org.firstinspires.ftc.teamcode.modules.location.Odometry;
+
+import org.firstinspires.ftc.teamcode.modules.*;
+import org.firstinspires.ftc.teamcode.modules.location.*;
 
 import java.util.List;
 
@@ -21,6 +20,7 @@ public abstract class OpBase extends OpMode {
     protected Arm arm;
     protected DoubleClaw doubleClaw;
     protected PlaneLauncher planeLauncher;
+	protected ActiveIntake activeIntake;
 
     // Global Variables
 
@@ -42,6 +42,7 @@ public abstract class OpBase extends OpMode {
         driveTrain = new Odometry(this);
         arm = new Arm(this);
         planeLauncher = new PlaneLauncher(this);
+		activeIntake = new ActiveIntake(this);
         telemetry.addLine("Module classes created");
 
         telemetry.addLine("Successfully initialized hardware!");

@@ -30,6 +30,7 @@ public final class TeleOpMain extends OpBase {
     public void start() {
         super.start();
         driveTrain.resetRotation();
+		activeIntake.start();
 
         previousGamepad1 = new Gamepad();
         previousGamepad2 = new Gamepad();

@@ -1,19 +1,23 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import android.util.Pair;
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
 import org.firstinspires.ftc.teamcode.Movement;
+import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
 
 public class DriveTrain extends ModuleBase {
     /**
      * The motor that drives the front right mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
      */
-    protected final DcMotorEx frontRightMecanumDriver;
+    protected final DcMotorEx getFrontRightMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
 
     /**
      * The default name of the front right mecanum driver
@@ -23,8 +27,12 @@ public class DriveTrain extends ModuleBase {
 
     /**
      * The motor that drives the front left mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
      */
-    protected final DcMotorEx frontLeftMecanumDriver;
+    protected final DcMotorEx getFrontLeftMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
 
 
     /**
@@ -35,8 +43,12 @@ public class DriveTrain extends ModuleBase {
 
     /**
      * The motor that drives the back right mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
      */
-    protected final DcMotorEx backRightMecanumDriver;
+    protected final DcMotorEx getBackRightMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
 
 
     /**
@@ -46,8 +58,12 @@ public class DriveTrain extends ModuleBase {
 
     /**
      * The motor that drives the back left mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
      */
-    protected final DcMotorEx backLeftMecanumDriver;
+    protected final DcMotorEx getBackLeftMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
 
 
     /**
@@ -56,32 +72,40 @@ public class DriveTrain extends ModuleBase {
     public static final String BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME = "Back Left Mecanum Driver";
 
     /**
+     * A {@link ConditionalHardwareDeviceGroup} containing all the hardware devices necessary for the drive train to function
+     */
+    protected final ConditionalHardwareDeviceGroup hardwareDevices;
+
+    /**
      * Attempts to initialize the module by getting motors with the default names from a hardware map
      * @param registrar the OpMode that will be using the module
-     * @exception InterruptedException The module was unable to locate the necessary motors
      */
-    public DriveTrain(@NonNull OpMode registrar) throws InterruptedException {
+    public DriveTrain(@NonNull OpMode registrar) {
         super(registrar);
-        try {
-            frontRightMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
-            frontLeftMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
-            backLeftMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
-            backRightMecanumDriver = registrar.hardwareMap.get(DcMotorEx.class, BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
-        }
-        catch (IllegalArgumentException e) {
-            throw new InterruptedException(e.getMessage());
-        }
 
-        // motor config
-        frontRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backRightMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        frontLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backLeftMecanumDriver.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        hardwareDevices = new ConditionalHardwareDeviceGroup();
+        hardwareDevices.tryLoadDevices(parent.hardwareMap,
+                new Pair<>(DcMotorEx.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
+                new Pair<>(DcMotorEx.class, FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME),
+                new Pair<>(DcMotorEx.class, BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
+                new Pair<>(DcMotorEx.class, BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME)
+                );
 
-        frontRightMecanumDriver.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRightMecanumDriver.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontLeftMecanumDriver.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeftMecanumDriver.setDirection(DcMotorSimple.Direction.REVERSE);
+        hardwareDevices.executeIfAllAreAvailable(() -> {
+
+            // motor config
+            getFrontRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            getBackRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            getFrontLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            getBackLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+            getFrontRightMecanumDriver().setDirection(DcMotorSimple.Direction.FORWARD);
+            getBackRightMecanumDriver().setDirection(DcMotorSimple.Direction.FORWARD);
+            getFrontLeftMecanumDriver().setDirection(DcMotorSimple.Direction.REVERSE);
+            getBackLeftMecanumDriver().setDirection(DcMotorSimple.Direction.REVERSE);
+
+            getTelemetry().addLine("[Drive Train] Found all drive motors");
+        }, () -> getTelemetry().addLine("[Drive Train] Could not find all drive motors!"));
     }
 
     @Override
@@ -97,7 +121,12 @@ public class DriveTrain extends ModuleBase {
     /**
      * the scale for our exponential scaling of motor power
      */
-    public static final int SCALE = 5;
+    public static final int POWER_SCALE = 5;
+
+    /**
+     * the scale for our linear scaling of motor power
+     */
+    public static final double SCALE = 0.75;
 
     /**
      * Moves and rotates the robot
@@ -106,40 +135,42 @@ public class DriveTrain extends ModuleBase {
      * @param rotation The rotational velocity
      */
     public void setVelocity(double distX, double distY, double rotation) {
-        getTelemetry().addData("Moving by vector:", "<%f, %f, %f>", distX, distY, rotation);
+        hardwareDevices.executeIfAllAreAvailable(() -> {
+            getTelemetry().addData("[Drive Train] Moving by vector:", "<%f, %f, %f>", distX, distY, rotation);
 
-        // Combine the requests for each axis-motion to determine each wheel's power.
-        // (formula was found on gm0)
-        double leftFrontPower  = distY + distX + rotation;
-        double leftBackPower = distY - distX + rotation;
-        double rightFrontPower   = distY - distX - rotation;
-        double rightBackPower  = distY + distX - rotation;
+            // Combine the requests for each axis-motion to determine each wheel's power.
+            // (formula was found on gm0)
+            double leftFrontPower = distY + distX + rotation;
+            double leftBackPower = distY - distX + rotation;
+            double rightFrontPower = distY - distX - rotation;
+            double rightBackPower = distY + distX - rotation;
 
-        // Normalize the values so no wheel power exceeds 100%
-        // This ensures that the robot maintains the desired motion.
-        double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-        max = Math.max(max, Math.abs(leftBackPower));
-        max = Math.max(max, Math.abs(rightBackPower));
+            // Normalize the values so no wheel power exceeds 100%
+            // This ensures that the robot maintains the desired motion.
+            double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+            max = Math.max(max, Math.abs(leftBackPower));
+            max = Math.max(max, Math.abs(rightBackPower));
 
-        if (max > 1.0) {
-            leftFrontPower  /= max;
-            rightFrontPower /= max;
-            leftBackPower   /= max;
-            rightBackPower  /= max;
-        }
+            if (max > 1.0) {
+                leftFrontPower /= max;
+                rightFrontPower /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
+            }
 
-        leftFrontPower = Math.pow(leftFrontPower, SCALE) * 0.75; // TODO make this a little less jank
-        rightFrontPower = Math.pow(rightFrontPower, SCALE) * 0.75;
-        rightBackPower = Math.pow(rightBackPower, SCALE) * 0.75;
-        leftBackPower = Math.pow(leftBackPower, SCALE) * 0.75;
+            leftFrontPower = Math.pow(leftFrontPower, POWER_SCALE) * SCALE;
+            rightFrontPower = Math.pow(rightFrontPower, POWER_SCALE) * SCALE;
+            rightBackPower = Math.pow(rightBackPower, POWER_SCALE) * SCALE;
+            leftBackPower = Math.pow(leftBackPower, POWER_SCALE) * SCALE;
 
-        getTelemetry().addData("Setting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+            getTelemetry().addData("Setting motor power", "%f, %f, %f, %f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
 
-        // Send calculated power to wheels
-        frontLeftMecanumDriver.setPower(leftFrontPower);
-        frontRightMecanumDriver.setPower(rightFrontPower);
-        backRightMecanumDriver.setPower(rightBackPower);
-        backLeftMecanumDriver.setPower(leftBackPower);
+            // Send calculated power to wheels
+            getFrontLeftMecanumDriver().setPower(leftFrontPower);
+            getFrontRightMecanumDriver().setPower(rightFrontPower);
+            getBackRightMecanumDriver().setPower(rightBackPower);
+            getBackLeftMecanumDriver().setPower(leftBackPower);
+        });
     }
 
     public void setVelocity(Movement velocity) {

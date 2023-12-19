@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.OpBaseLinear;
 import org.firstinspires.ftc.teamcode.modules.detection.Prop;
 import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
-import org.firstinspires.ftc.teamcode.modules.location.Odometry;
 
 @Autonomous(name = "Autonomous Main (Drive To Position)")
 public class AutonomousMainReal extends OpBaseLinear {
@@ -41,22 +38,22 @@ public class AutonomousMainReal extends OpBaseLinear {
     }
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() { // TODO use roadrunner's drive-to-position stuff
         // assumed starting position is touching the wall, with the active intake facing away from the backdrop
 
-        driveTrain.driveToOdometry(Movement.Axis.Y.genPointFromAxis(DISTANCE_TO_TEAM_PROP_U)); // drive sideways to the U
+        // TODO driveTrain.driveToOdometry(Movement.Axis.Y.genPointFromAxis(DISTANCE_TO_TEAM_PROP_U)); // drive sideways to the U
 
         // determine what side team prop is on
         if (propDetector.isPropDetected(teamProp)) { // prop detected on the side facing the wall opposite the backdrop
             aprilTagLocator.setTagId(LEFT_APRIL_TAG_ID);
         }
         else {
-            driveTrain.driveToOdometry(driveTrain.getLocation().add(Movement.Axis.THETA.genPointFromAxis(Odometry.ANGLE_UNIT.fromDegrees(-90))));
+            // TODO driveTrain.driveToOdometry(driveTrain.getLocation().add(Movement.Axis.THETA.genPointFromAxis(Odometry.ANGLE_UNIT.fromDegrees(-90))));
             if (propDetector.isPropDetected(teamProp)) { // prop detected on the side facing the opposing alliance
                 aprilTagLocator.setTagId(CENTER_APRIL_TAG_ID);
             }
             else {
-                driveTrain.driveToOdometry(driveTrain.getLocation().add(Movement.Axis.THETA.genPointFromAxis(Odometry.ANGLE_UNIT.fromDegrees(-90))));
+                // TODO driveTrain.driveToOdometry(driveTrain.getLocation().add(Movement.Axis.THETA.genPointFromAxis(Odometry.ANGLE_UNIT.fromDegrees(-90))));
                 aprilTagLocator.setTagId(RIGHT_APRIL_TAG_ID); // assume prop is on the side facing the backdrop
             }
         }
@@ -66,10 +63,10 @@ public class AutonomousMainReal extends OpBaseLinear {
         // use location of team prop to determine path
 
 
-        driveTrain.driveToOdometry(driveTrain.getLocation().add(Movement.Axis.THETA.genPointFromAxis(Odometry.ANGLE_UNIT.fromDegrees(90)))); // rotate so we can see the AprilTags
+        // TODO driveTrain.driveToOdometry(driveTrain.getLocation().add(Movement.Axis.THETA.genPointFromAxis(Odometry.ANGLE_UNIT.fromDegrees(90)))); // rotate so we can see the AprilTags
         // AprilTagLocator only works if we can see the April Tag, So we convert its location to a more reliable locator
         LocalizedMovement aprilTagLoc_odom = new LocalizedMovement(0, 1, aprilTagLocator).convertToOtherLocator(driveTrain);
-        driveTrain.driveTo(aprilTagLoc_odom);
+        // TODO driveTrain.driveTo(aprilTagLoc_odom);
 
         scoreOnBackdrop();
 

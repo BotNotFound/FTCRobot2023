@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 import org.firstinspires.ftc.teamcode.modules.DoubleClaw;
 import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
-import org.firstinspires.ftc.teamcode.modules.location.PIDriveTrain;
+import org.firstinspires.ftc.teamcode.modules.location.Odometry;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public abstract class OpBase extends OpMode {
     // Globally Declared Sensors
 
     // Module Classes
-    protected PIDriveTrain driveTrain;
+    protected Odometry driveTrain;
     protected Arm arm;
     protected DoubleClaw doubleClaw;
     protected PlaneLauncher planeLauncher;
@@ -39,7 +39,7 @@ public abstract class OpBase extends OpMode {
         telemetry.addLine("Independent motors registered");
         
         // Init Module classes
-        driveTrain = new PIDriveTrain(this);
+        driveTrain = new Odometry(this);
         arm = new Arm(this);
         planeLauncher = new PlaneLauncher(this);
         telemetry.addLine("Module classes created");

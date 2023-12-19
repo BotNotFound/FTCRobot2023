@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
@@ -31,7 +29,7 @@ public abstract class ModuleBase {
 
     /**
      * Ran by parent OpMode in its stop() method
-     * Cleans up items like backgound threads
+     * Cleans up items like background threads
      */
     public abstract void cleanupModule();
 

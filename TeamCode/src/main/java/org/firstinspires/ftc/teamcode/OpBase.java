@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.modules.location.*;
@@ -58,8 +59,16 @@ public abstract class OpBase extends OpMode {
         catch (InterruptedException e) {
             telemetry.addData("INIT FAILED WITH MESSAGE", e.getMessage());
             telemetry.update();
+            RobotLog.ee(getClass().getSimpleName(), e, "FATAL: INIT FAILED WITH EXCEPTION");
+            RobotLog.setGlobalErrorMsg(new RuntimeException("Init failed", e), "Failed to initialize OpMode");
             terminateOpModeNow();
         }
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        arm.startThreads();
     }
 
     @Override

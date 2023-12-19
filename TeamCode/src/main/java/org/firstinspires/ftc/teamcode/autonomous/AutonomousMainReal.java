@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.modules.detection.Prop;
 import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 
 @Autonomous(name = "Autonomous Main (Drive To Position)")
 public class AutonomousMainReal extends OpBaseLinear {
@@ -24,6 +25,8 @@ public class AutonomousMainReal extends OpBaseLinear {
      */
     private PropDetector propDetector;
 
+    private org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive driverToPosition;
+
     public static final Prop teamProp = Prop.BLUE_TEAM_PROP;
 
     public static final int LEFT_APRIL_TAG_ID = 4;
@@ -35,6 +38,7 @@ public class AutonomousMainReal extends OpBaseLinear {
         super.initHardware();
         aprilTagLocator = new AprilTagLocator(this);
         propDetector = new PropDetector(this);
+        driverToPosition = new SampleMecanumDrive(this);
     }
 
     @Override

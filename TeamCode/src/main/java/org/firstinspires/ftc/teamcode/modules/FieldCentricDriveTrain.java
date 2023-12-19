@@ -20,6 +20,13 @@ public class FieldCentricDriveTrain extends DriveTrain {
         return hardwareDevices.getLoadedDevice(IMU.class, IMU_NAME);
     }
 
+    private static final IMU.Parameters IMU_PARAMETERS = new IMU.Parameters(new RevHubOrientationOnRobot(
+            RevHubOrientationOnRobot.LogoFacingDirection.UP,
+            RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
+    public static IMU.Parameters getImuParameters() {
+        return IMU_PARAMETERS;
+    }
+
     public static final String IMU_NAME = "imu";
 
     public FieldCentricDriveTrain(@NonNull OpMode registrar) {
@@ -27,10 +34,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
         hardwareDevices.tryLoadDevice(parent.hardwareMap, IMU.class, IMU_NAME);
 
         hardwareDevices.executeIfAllAreAvailable(() -> {
-            IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-            getIMU().initialize(parameters);
+            getIMU().initialize(getImuParameters());
             resetRotation();
             getTelemetry().addLine("[Field Centric Drive Train] Found IMU");
         }, () -> getTelemetry().addLine("[Field Centric Drive Train] Couldn't find IMU!"));

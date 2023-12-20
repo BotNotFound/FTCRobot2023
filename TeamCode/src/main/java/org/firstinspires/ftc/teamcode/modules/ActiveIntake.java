@@ -27,7 +27,9 @@ public class ActiveIntake extends ModuleBase {
 	}
 
 	@Override
-	public void cleanupModule() {}
+	public void cleanupModule() {
+		stop();
+	}
 
 	@Override
 	public void log() {}

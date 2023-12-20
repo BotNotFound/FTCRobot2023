@@ -76,6 +76,7 @@ public abstract class OpBase extends OpMode {
         arm.cleanupModule();
         driveTrain.cleanupModule();
         planeLauncher.cleanupModule();
+        activeIntake.cleanupModule();
         telemetry.addLine("Cleanup done!");
         telemetry.update();
     }

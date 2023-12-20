@@ -48,6 +48,10 @@ public final class Arm extends ConcurrentModule {
 
     public static final class ArmPresets extends Presets {
         /**
+         * Starting position of arm
+         */
+        public static final double START_POS = 0;
+        /**
          * Rotates the arm so that the robot can collect pixels
          */
         public static final double READY_TO_INTAKE = -25.0;
@@ -309,8 +313,7 @@ public final class Arm extends ConcurrentModule {
     public void rotateWristTo(double rotation, AngleUnit angleUnit) {
         wristServo.runIfAvailable((Servo wrist) -> {
             final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
-
-            throw new RuntimeException("Not implemented!"); // TODO
+            wrist.setPosition(convertedRotation / ONE_REVOLUTION_OUR_ANGLE_UNIT);
         });
     }
 
@@ -347,7 +350,6 @@ public final class Arm extends ConcurrentModule {
     public double getWristRotation(AngleUnit angleUnit) {
         return angleUnit.fromUnit(ANGLE_UNIT, getWristRotation());
     }
-
     /**
      * Opens the flap, if the flap is not already open
      */

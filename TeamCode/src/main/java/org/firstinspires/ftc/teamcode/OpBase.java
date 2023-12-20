@@ -42,7 +42,7 @@ public abstract class OpBase extends OpMode {
         driveTrain = new OdometryLocalizer(this);
         arm = new Arm(this);
         planeLauncher = new PlaneLauncher(this);
-		activeIntake = new ActiveIntake(this);
+        activeIntake = new ActiveIntake(this);
         telemetry.addLine("Module classes created");
 
         telemetry.addLine("Successfully initialized hardware!");

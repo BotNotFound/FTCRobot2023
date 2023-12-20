@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.modules.detection;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
-import org.firstinspires.ftc.teamcode.modules.ModuleBase;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class PropDetector extends ModuleBase {
+public class PropDetector extends Module {
     private final ColorRangeSensor sensor;
 
     public static final String SENSOR_NAME = "Color Sensor";

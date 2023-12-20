@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.OpBase;
+import org.firstinspires.ftc.teamcode.modules.ActiveIntake;
 import org.firstinspires.ftc.teamcode.modules.Arm;
+import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
+import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -19,6 +22,19 @@ public final class TeleOpMain extends OpBase {
     }
 
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
+
+    private FieldCentricDriveTrain driveTrain;
+    private Arm arm;
+    private ActiveIntake activeIntake;
+    private PlaneLauncher planeLauncher;
+
+    @Override
+    protected void initModules() {
+        driveTrain = getModuleManager().getModule(FieldCentricDriveTrain.class);
+        arm = getModuleManager().getModule(Arm.class);
+        activeIntake = getModuleManager().getModule(ActiveIntake.class);
+        planeLauncher = getModuleManager().getModule(PlaneLauncher.class);
+    }
 
     @Override
     public void init_loop() {
@@ -68,13 +84,11 @@ public final class TeleOpMain extends OpBase {
         if (currentGamepad1.start) {
             driveTrain.resetRotation();
         }
-        driveTrain.log();
 
         // 2nd gamepad controls grabbing and plane launcher
         if (currentGamepad2.start && launchedPlane.compareAndSet(false, true)) {
             planeLauncher.launch();
         }
-        planeLauncher.log();
 
         if (gamepad2.x) {
             arm.rotateArmTo(Arm.ArmPresets.START_POS, Arm.ANGLE_UNIT);
@@ -91,7 +105,7 @@ public final class TeleOpMain extends OpBase {
             arm.toggleFlap();
         }
 
-        arm.log();
+        getModuleManager().logModuleStatus();
     }
     
 }

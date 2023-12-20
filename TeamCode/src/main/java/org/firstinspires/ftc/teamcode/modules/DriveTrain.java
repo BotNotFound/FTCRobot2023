@@ -7,8 +7,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class DriveTrain extends ModuleBase {
+public class DriveTrain extends Module {
     /**
      * The motor that drives the front right mecanum wheel
      * @apiNote This should only be called within the

@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Claw extends ModuleBase {
+public class Claw extends Module {
     private final ConditionalHardwareDevice<Servo> clawServo;
 
     private final AtomicBoolean isGrabbing;

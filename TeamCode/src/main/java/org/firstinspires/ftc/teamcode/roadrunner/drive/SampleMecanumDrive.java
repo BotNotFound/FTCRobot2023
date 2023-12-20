@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.localization.Localizer;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.*;
@@ -19,7 +18,6 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.modules.DriveTrain;
 import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
-import org.firstinspires.ftc.teamcode.modules.location.OdometryLocalizer;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
@@ -67,14 +65,14 @@ public class SampleMecanumDrive extends MecanumDrive {
     // ADDED: single-parameter constructor takes an OpMode as a parameter to allow OdometryLocalizer to be used without
     //         requiring roadrunner OpModes to derive from OpBase
     public SampleMecanumDrive(OpMode opMode) {
-        this(opMode.hardwareMap, new OdometryLocalizer(opMode));
+        this(opMode.hardwareMap);
     }
 
     // MODIFIED:
     //           +- configured class to use predefined constants for hardware devices
-    //           +  Added extra constructor parameter 'localizer' to allow OpModes driving from OpBase to set the given
+    // [not yet] +  Added extra constructor parameter 'localizer' to allow OpModes driving from OpBase to set the given
     //               Odometry drive train as the localizer
-    public SampleMecanumDrive(HardwareMap hardwareMap, Localizer localizer) {
+    public SampleMecanumDrive(HardwareMap hardwareMap/*, Localizer localizer*/) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
@@ -120,7 +118,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         List<Integer> lastTrackingEncVels = new ArrayList<>();
 
         // DONE: if desired, use setLocalizer() to change the localization method
-        setLocalizer(localizer); // if this fails, we can just use the default
+        //setLocalizer(localizer); // this may change later, but it will be better to tune with the default localizer
 
         trajectorySequenceRunner = new TrajectorySequenceRunner(
                 follower, HEADING_PID, batteryVoltageSensor,

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.autonomous.template;
 
 import org.firstinspires.ftc.teamcode.OpBaseLinear;
 import org.firstinspires.ftc.teamcode.modules.Arm;
@@ -44,12 +44,14 @@ public abstract class AutonomousBase extends OpBaseLinear {
         return driverToPosition;
     }
 
+    private Arm arm;
+
     @Override
-    public void initHardware() throws InterruptedException {
-        super.initHardware();
-        aprilTagLocator = new AprilTagLocator(this);
-        propDetector = new PropDetector(this);
-        driverToPosition = new SampleMecanumDrive(hardwareMap, driveTrain);
+    protected void initModules() {
+        aprilTagLocator = getModuleManager().getModule(AprilTagLocator.class);
+        propDetector = getModuleManager().getModule(PropDetector.class);
+        arm = getModuleManager().getModule(Arm.class);
+        driverToPosition = new SampleMecanumDrive(this);
     }
 
     @Override
@@ -61,7 +63,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
         // determine what side team prop is on
         final Prop teamProp = getTeamProp();
         if (propDetector.isPropDetected(teamProp)) { // prop detected on the side facing the wall opposite the backdrop
-            aprilTagLocator.setTagId(getWallSideAprilTagId());
+            aprilTagLocator.setTagId(getLeftAprilTagId());
         }
         else {
             rotateToNextSpikeMark();
@@ -70,15 +72,16 @@ public abstract class AutonomousBase extends OpBaseLinear {
             }
             else {
                 rotateToNextSpikeMark();
-                aprilTagLocator.setTagId(getOpenSideAprilTagId()); // assume prop is on the side facing the backdrop
+                aprilTagLocator.setTagId(getRightAprilTagId()); // assume prop is on the side facing the backdrop
             }
         }
         scoreOnSpikeMark();
 
-
+        prepareArmForDriving();
         driveToBackdrop();
         scoreOnBackdrop();
 
+        prepareArmForDriving();
         park();
     }
 
@@ -94,15 +97,14 @@ public abstract class AutonomousBase extends OpBaseLinear {
      */
     private void prepareArmForDriving() {
         arm.closeFlap();
-        arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE);
-
+        arm.rotateArmTo(Arm.ArmPresets.START_POS);
     }
 
     /**
      * Called when the robot has finished scoring on the backdrop.  When implemented, parks the robot either to the left
      *  or right of the backdrop.
      */
-    public abstract void park();
+    protected abstract void park();
 
     /**
      * Called after the target AprilTag is set, when the robot is in the U of spike marks, with the team prop directly
@@ -128,10 +130,10 @@ public abstract class AutonomousBase extends OpBaseLinear {
     protected abstract void driveToSpikeMarks();
 
     /**
-     * @return The ID of the AprilTag closest to the wall that the robot was touching at the start of execution
+     * @return The ID of the AprilTag on the left of the backdrop
      * @see #driveToSpikeMarks()
      */
-    protected abstract int getWallSideAprilTagId();
+    protected abstract int getLeftAprilTagId();
 
     /**
      * @return The ID of the AprilTag in the middle of the backdrop
@@ -139,10 +141,10 @@ public abstract class AutonomousBase extends OpBaseLinear {
     protected abstract int getCenterAprilTagId();
 
     /**
-     * @return The ID of the AprilTag furthest away from the wall that the robot was touching at the start of execution
+     * @return The ID of the AprilTag on the right of the backdrop
      * @see #driveToSpikeMarks()
      */
-    protected abstract int getOpenSideAprilTagId();
+    protected abstract int getRightAprilTagId();
 
     /**
      * @return A {@link Prop} object representing the team prop for our alliance

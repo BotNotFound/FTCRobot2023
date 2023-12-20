@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ModuleThread;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 public final class Arm extends ConcurrentModule {
     /**
@@ -48,9 +47,11 @@ public final class Arm extends ConcurrentModule {
 
     public static final class ArmPresets extends Presets {
         /**
-         * Starting position of arm
+         * Rotates the arm to the position it was in at the start of execution.  This should be parallel to the ground,
+         *  with the end of the arm closest to the active intake.
          */
-        public static final double START_POS = 0;
+        public static final double START_POS = 0.0;
+
         /**
          * Rotates the arm so that the robot can collect pixels
          */
@@ -271,7 +272,7 @@ public final class Arm extends ConcurrentModule {
         }
 
         armData.setTargetPosition((int)Math.round(
-                    normalizedAngle
+                normalizedAngle
                         * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
                         / ONE_REVOLUTION_OUR_ANGLE_UNIT
         ));

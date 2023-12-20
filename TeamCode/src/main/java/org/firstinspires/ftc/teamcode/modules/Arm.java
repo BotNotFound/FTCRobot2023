@@ -415,7 +415,7 @@ public final class Arm extends ConcurrentModule {
 
     @Override
     protected void registerModuleThreads() {
-        armMotor.runIfAvailable(arm -> registerAsyncOperation(new ArmPositionUpdaterThread(this)));
+        registerAsyncOperation(new ArmPositionUpdaterThread(this));
     }
 
     @Override

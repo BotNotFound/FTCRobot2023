@@ -22,6 +22,9 @@ public class Movement {
 
     @Override
     public boolean equals(@Nullable Object obj) {
+        if (super.equals(obj)) {
+            return true;
+        }
         if (obj == null) {
             return false;
         }

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.teamcode.OpBase;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 
@@ -31,6 +30,7 @@ public final class TeleOpMain extends OpBase {
     public void start() {
         super.start();
         driveTrain.resetRotation();
+		activeIntake.start();
 
         previousGamepad1 = new Gamepad();
         previousGamepad2 = new Gamepad();
@@ -68,24 +68,25 @@ public final class TeleOpMain extends OpBase {
         if (currentGamepad1.start) {
             driveTrain.resetRotation();
         }
+        driveTrain.log();
 
         // 2nd gamepad controls grabbing and plane launcher
-        if (currentGamepad2.y && launchedPlane.compareAndSet(false, true)) {
+        if (currentGamepad2.start && launchedPlane.compareAndSet(false, true)) {
             planeLauncher.launch();
         }
+        planeLauncher.log();
 
-        if (gamepad2.dpad_left) {
-            arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
-        } else if (gamepad2.dpad_up) {
+        if (gamepad2.x) {
+            arm.rotateArmTo(Arm.ArmPresets.START_POS, Arm.ANGLE_UNIT);
+        } else if (gamepad2.y) {
             arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT);
-        } else if (gamepad2.dpad_right) {
+        } else if (gamepad2.b) {
             arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.ANGLE_UNIT);
         }
-
-        // preset grabber positions
-        if (currentGamepad2.a && !previousGamepad2.a) {
-            doubleClaw.incrementClawState();
+        else if (gamepad2.a) {
+            arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
         }
+        arm.log();
     }
     
 }

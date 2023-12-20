@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * A class that manages the life cycle of modules used by {@link OpMode}s
  */
-public class ModuleManager {
+public final class ModuleManager {
     /**
      * Has the OpMode already signaled for threads in {@link ConcurrentModule}s to start?
      */

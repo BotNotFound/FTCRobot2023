@@ -307,6 +307,23 @@ public final class Arm extends ConcurrentModule {
     }
 
     /**
+     * Rotates the arm to the specified rotation
+     * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
+     * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
+     */
+    public void rotateArmTo(double rotation, boolean preserveWristRotation) {
+        rotateArmTo(rotation, ANGLE_UNIT, preserveWristRotation);
+    }
+
+    /**
+     * Rotates the arm to the specified rotation, WITHOUT preserving wrist rotation.
+     * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
+     */
+    public void rotateArmTo(double rotation) {
+        rotateArmTo(rotation, false);
+    }
+
+    /**
      * Rotates the wrist to the specified rotation
      * @param rotation The target rotation
      * @param angleUnit The unit of rotation used
@@ -316,6 +333,14 @@ public final class Arm extends ConcurrentModule {
             final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
             wrist.setPosition(convertedRotation / ONE_REVOLUTION_OUR_ANGLE_UNIT);
         });
+    }
+
+    /**
+     * Rotates the wrist to the specified rotation
+     * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
+     */
+    public void rotateWristTo(double rotation) {
+        rotateWristTo(rotation, ANGLE_UNIT);
     }
 
     /**
@@ -396,7 +421,7 @@ public final class Arm extends ConcurrentModule {
 
     @Override
     protected void registerModuleThreads() {
-        armMotor.runIfAvailable(arm -> registerAsyncOperation(new ArmPositionUpdaterThread(this)));
+        registerAsyncOperation(new ArmPositionUpdaterThread(this));
     }
 
     @Override

@@ -16,7 +16,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
     /**
      * The distance to the '|_|' shape where the team prop will be (in millimeters)
      */
-    public static final double DISTANCE_TO_TEAM_PROP_U_MM = 50.0; // TODO is this actually in millimeters?
+    public static final double DISTANCE_TO_TEAM_PROP_U_MM = 50.0;
 
     /**
      * The prop detector

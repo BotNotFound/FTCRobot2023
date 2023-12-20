@@ -45,10 +45,11 @@ public final class ModuleManager {
      * @param <T> The type of the module to get
      * @throws IllegalArgumentException The provided class is abstract
      * @throws ExceptionInInitializerError The module's constructor threw an exception
-     * @throws ClassFormatError The module class definition does not have a public constructor taking an {@link OpMode}
+     * @throws NoSuchMethodError The module's class definition does not have a public constructor taking an {@link OpMode}
      *  as its only parameter
+     * @see Module#Module(OpMode)  Module
      */
-    public <T extends Module> T getModule(Class<T> moduleClass) throws ClassFormatError, IllegalArgumentException, ExceptionInInitializerError {
+    public <T extends Module> T getModule(Class<T> moduleClass) throws NoSuchMethodError, IllegalArgumentException, ExceptionInInitializerError {
         if (Modifier.isAbstract(moduleClass.getModifiers())) {
             throw new IllegalArgumentException("Trying to retrieve an instance an abstract class!");
         }
@@ -73,7 +74,7 @@ public final class ModuleManager {
         }
         catch (NoSuchMethodException | IllegalAccessException e) {
             // if constructor is private/nonexistent, we can't create an instance
-            throw new ClassFormatError("Unable to retrieve module constructor with the required signature");
+            throw new NoSuchMethodError("Unable to retrieve module constructor with the required signature");
         }
         catch (InstantiationException shouldNeverBeThrown) {
             // If the provided class is abstract, fail.

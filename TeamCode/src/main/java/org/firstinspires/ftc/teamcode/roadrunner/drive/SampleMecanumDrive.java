@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.localization.Localizer;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.*;
@@ -63,10 +64,18 @@ public class SampleMecanumDrive extends MecanumDrive {
     private final List<Integer> lastEncPositions = new ArrayList<>();
     private final List<Integer> lastEncVels = new ArrayList<>();
 
-    // MODIFIED: replaced hardwareMap parameter with OpMode to allow for compatibility with ModuleBase
+    // ADDED: single-parameter constructor takes an OpMode as a parameter to allow OdometryLocalizer to be used without
+    //         requiring roadrunner OpModes to derive from OpBase
     public SampleMecanumDrive(OpMode opMode) {
+        this(opMode.hardwareMap, new OdometryLocalizer(opMode));
+    }
+
+    // MODIFIED:
+    //           +- configured class to use predefined constants for hardware devices
+    //           +  Added extra constructor parameter 'localizer' to allow OpModes driving from OpBase to set the given
+    //               Odometry drive train as the localizer
+    public SampleMecanumDrive(HardwareMap hardwareMap, Localizer localizer) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
-        HardwareMap hardwareMap = opMode.hardwareMap;
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
@@ -110,8 +119,8 @@ public class SampleMecanumDrive extends MecanumDrive {
         List<Integer> lastTrackingEncPositions = new ArrayList<>();
         List<Integer> lastTrackingEncVels = new ArrayList<>();
 
-        // TODO: if desired, use setLocalizer() to change the localization method
-        setLocalizer(new OdometryLocalizer(opMode));
+        // DONE: if desired, use setLocalizer() to change the localization method
+        setLocalizer(localizer); // if this fails, we can just use the default
 
         trajectorySequenceRunner = new TrajectorySequenceRunner(
                 follower, HEADING_PID, batteryVoltageSensor,

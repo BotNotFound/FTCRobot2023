@@ -354,20 +354,12 @@ public final class Arm extends ConcurrentModule {
      * Opens the flap, if the flap is not already open
      */
     public void openFlap() {
-        flapServo.runIfAvailable(new Consumer<Servo>() {
-            public void accept(Servo flap)
-            {
-                if (isFlapOpen) {
-                    return;
-                }
-                flap.setPosition(FLAP_OPEN);
-                isFlapOpen = true;
+        flapServo.runIfAvailable(flap -> {
+            if (isFlapOpen) {
+                return;
             }
-
-            @Override
-            public Consumer<Servo> andThen(Consumer<? super Servo> after) {
-                return Consumer.super.andThen(after);
-            }
+            flap.setPosition(FLAP_OPEN);
+            isFlapOpen = true;
         });
     }
 
@@ -375,7 +367,7 @@ public final class Arm extends ConcurrentModule {
      * Closes the flap, if the flap is not already closed
      */
     public void closeFlap() {
-        flapServo.runIfAvailable((Servo flap) -> {
+        flapServo.runIfAvailable(flap -> {
             if (!isFlapOpen) {
                 return;
             }

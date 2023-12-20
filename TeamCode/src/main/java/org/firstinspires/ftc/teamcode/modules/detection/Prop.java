@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.modules.detection;
 
 public enum Prop {
     RED_TEAM_PROP((byte) 255, (byte) 255, (byte) 0, (byte) 0),
-    BLUE_TEAM_PROP((byte) 255, (byte) 0, (byte) 0, (byte) 255);
+    BLUE_TEAM_PROP((byte) 255, (byte) 50, (byte) 50, (byte) 180);
 
     /**
      * How many bits is the alpha channel shifted?
@@ -11,19 +11,19 @@ public enum Prop {
     public static final int ALPHA_SHIFT = 24;
 
     /**
-     * How many bits is the alpha channel shifted?
+     * How many bits is the red channel shifted?
      * Can also be thought of as the starting bit of the channel
      */
     public static final int RED_SHIFT = 16;
 
     /**
-     * How many bits is the alpha channel shifted?
+     * How many bits is the green channel shifted?
      * Can also be thought of as the starting bit of the channel
      */
     public static final int GREEN_SHIFT = 8;
 
     /**
-     * How many bits is the alpha channel shifted?
+     * How many bits is the blue channel shifted?
      * Can also be thought of as the starting bit of the channel
      */
     public static final int BLUE_SHIFT = 0;

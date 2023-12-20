@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 
 public class PlaneLauncher extends ModuleBase {
 
@@ -13,7 +13,7 @@ public class PlaneLauncher extends ModuleBase {
     /**
      * The servo launching the paper airplane
      */
-    private Servo launcherServo;
+    private final ConditionalHardwareDevice<Servo> launcherServo;
 
     /**
      * Initializes the module and registers it with the specified OpMode
@@ -22,22 +22,15 @@ public class PlaneLauncher extends ModuleBase {
      */
     public PlaneLauncher(@NonNull OpMode registrar) {
         super(registrar);
-        try {
-            launcherServo = registrar.hardwareMap.get(Servo.class, LAUNCHER_SERVO_NAME);
-            getTelemetry().addLine("Launcher servo found!");
-        }
-        catch (IllegalArgumentException e) {
-            registrar.telemetry.addLine("Could not find launcher servo!  Module not initialized...");
-        }
+        launcherServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, LAUNCHER_SERVO_NAME);
     }
 
     public void launch() {
-        if (launcherServo == null) {
-            getTelemetry().addLine("[Plane Launcher] No servo to activate!");
-            return;
-        }
-        getTelemetry().addLine("Launching plane");
-        launcherServo.setPosition(SERVO_POSITION_LAUNCHED);
+        launcherServo.runIfAvailable(launcher -> launcher.setPosition(SERVO_POSITION_LAUNCHED));
+    }
+
+    public boolean hasLaunched() {
+        return launcherServo.requireDevice().getPosition() == SERVO_POSITION_LAUNCHED;
     }
 
     @Override
@@ -47,6 +40,6 @@ public class PlaneLauncher extends ModuleBase {
 
     @Override
     public void log() {
-
+        launcherServo.runIfAvailable(launcher -> getTelemetry().addData("[Plane Launcher] has launched", hasLaunched()));
     }
 }

@@ -35,6 +35,16 @@ public final class Arm extends ConcurrentModule {
      */
     public static final double ONE_REVOLUTION_OUR_ANGLE_UNIT = ANGLE_UNIT.getUnnormalized().fromDegrees(360.0);
 
+    /**
+     * Rotate flap to open position
+     */
+    public static final double FLAP_OPEN = 0;
+
+    /**
+     * Rotate flap to closed position
+     */
+    public static final double FLAP_CLOSED = 1;
+
     public static final class ArmPresets extends Presets {
         /**
          * Rotates the arm to the position it was in at the start of execution.  This should be parallel to the ground,
@@ -262,7 +272,7 @@ public final class Arm extends ConcurrentModule {
         }
 
         armData.setTargetPosition((int)Math.round(
-                    normalizedAngle
+                normalizedAngle
                         * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
                         / ONE_REVOLUTION_OUR_ANGLE_UNIT
         ));
@@ -304,8 +314,7 @@ public final class Arm extends ConcurrentModule {
     public void rotateWristTo(double rotation, AngleUnit angleUnit) {
         wristServo.runIfAvailable((Servo wrist) -> {
             final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
-
-            throw new RuntimeException("Not implemented!"); // TODO
+            wrist.setPosition(convertedRotation / ONE_REVOLUTION_OUR_ANGLE_UNIT);
         });
     }
 
@@ -342,18 +351,16 @@ public final class Arm extends ConcurrentModule {
     public double getWristRotation(AngleUnit angleUnit) {
         return angleUnit.fromUnit(ANGLE_UNIT, getWristRotation());
     }
-
     /**
      * Opens the flap, if the flap is not already open
      */
     public void openFlap() {
-        flapServo.runIfAvailable((Servo flap) -> {
+        flapServo.runIfAvailable(flap -> {
             if (isFlapOpen) {
                 return;
             }
+            flap.setPosition(FLAP_OPEN);
             isFlapOpen = true;
-
-            throw new RuntimeException("Not implemented!"); // TODO
         });
     }
 
@@ -361,13 +368,12 @@ public final class Arm extends ConcurrentModule {
      * Closes the flap, if the flap is not already closed
      */
     public void closeFlap() {
-        flapServo.runIfAvailable((Servo flap) -> {
+        flapServo.runIfAvailable(flap -> {
             if (!isFlapOpen) {
                 return;
             }
+            flap.setPosition(FLAP_CLOSED);
             isFlapOpen = false;
-
-            throw new RuntimeException("Not implemented!");
         });
     }
 

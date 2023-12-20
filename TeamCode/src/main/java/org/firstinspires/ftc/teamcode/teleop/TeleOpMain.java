@@ -86,6 +86,11 @@ public final class TeleOpMain extends OpBase {
         else if (gamepad2.a) {
             arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
         }
+
+        if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
+            arm.toggleFlap();
+        }
+
         arm.log();
     }
     

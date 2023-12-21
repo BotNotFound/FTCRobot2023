@@ -62,6 +62,10 @@ public final class ModuleManager {
 
         // no module of the specified type exists
         T module = initModule(moduleClass);
+        if (module instanceof ConcurrentModule && areThreadsStarted) {
+            ((ConcurrentModule)module).startThreads();
+        }
+
         loadedModules.add(module);
         return module;
     }

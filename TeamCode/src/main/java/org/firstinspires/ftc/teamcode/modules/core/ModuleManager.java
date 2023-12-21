@@ -43,13 +43,11 @@ public final class ModuleManager {
      * @param moduleClass The class of the module to get
      * @return The module
      * @param <T> The type of the module to get
-     * @throws IllegalArgumentException The provided class is abstract
-     * @throws ExceptionInInitializerError The module's constructor threw an exception
-     * @throws NoSuchMethodError The module's class definition does not have a public constructor taking an {@link OpMode}
+     * @throws IllegalArgumentException The provided class is not a registered method
      *  as its only parameter
      * @see Module#Module(OpMode)  Module
      */
-    public <T extends Module> T getModule(Class<T> moduleClass) throws NoSuchMethodError, IllegalArgumentException, ExceptionInInitializerError {
+    public <T extends Module> T getModule(Class<T> moduleClass) throws IllegalArgumentException {
         if (Modifier.isAbstract(moduleClass.getModifiers())) {
             throw new IllegalArgumentException("Trying to retrieve an instance an abstract class!");
         }
@@ -62,6 +60,12 @@ public final class ModuleManager {
 
         // no module of the specified type exists
         T module = initModule(moduleClass);
+        if (module == null) {
+            throw new IllegalArgumentException("Provided class "
+                    + moduleClass.getCanonicalName()
+                    + " is not a registered module!");
+        }
+
         if (module instanceof ConcurrentModule && areThreadsStarted) {
             ((ConcurrentModule)module).startThreads();
         }

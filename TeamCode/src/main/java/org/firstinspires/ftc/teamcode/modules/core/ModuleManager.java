@@ -1,7 +1,12 @@
 package org.firstinspires.ftc.teamcode.modules.core;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.modules.ActiveIntake;
+import org.firstinspires.ftc.teamcode.modules.Arm;
+import org.firstinspires.ftc.teamcode.modules.DriveTrain;
+import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
+import org.firstinspires.ftc.teamcode.modules.location.Odometry;
 
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
@@ -59,9 +64,35 @@ public final class ModuleManager {
         }
 
         // no module of the specified type exists
-        T module = org.firstinspires.ftc.teamcode.modules.core.RegisteredModules.initModule(moduleClass, opMode);
+        T module = initModule(moduleClass);
         loadedModules.add(module);
         return module;
+    }
+
+    private <T extends Module> T initModule(Class<? extends T> moduleClass) {
+        Module ret = null;
+        if (moduleClass.equals(Arm.class)) {
+            ret = new Arm(opMode);
+        }
+        else if (moduleClass.equals(ActiveIntake.class)) {
+            ret = new ActiveIntake(opMode);
+        }
+        else if (moduleClass.equals(DriveTrain.class)) {
+            ret = new DriveTrain(opMode);
+        }
+        else if (moduleClass.equals(FieldCentricDriveTrain.class)) {
+            ret = new FieldCentricDriveTrain(opMode);
+        }
+        else if (moduleClass.equals(Odometry.class)) {
+            ret = new Odometry(opMode);
+        }
+
+        try {
+            return moduleClass.cast(ret);
+        }
+        catch (ClassCastException e) {
+            return null; // just in case
+        }
     }
 
     /**

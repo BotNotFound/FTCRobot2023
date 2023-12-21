@@ -5,7 +5,6 @@ import com.acmerobotics.roadrunner.localization.Localizer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Movement;
-import org.firstinspires.ftc.teamcode.annotations.ModuleInitializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +80,6 @@ public final class OdometryLocalizer extends Odometry implements Localizer {
      * Initializes this module
      * @param registrar The OpMode that is initializing this
      */
-    @ModuleInitializer
     public OdometryLocalizer(OpMode registrar) {
         super(registrar);
         offset = Movement.zero();

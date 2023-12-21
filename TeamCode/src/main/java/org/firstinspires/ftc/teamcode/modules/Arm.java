@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.annotations.ModuleInitializer;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.GearRatio;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
@@ -123,7 +122,6 @@ public final class Arm extends ConcurrentModule {
      *
      * @param registrar The OpMode initializing the module
      */
-    @ModuleInitializer
     public Arm(OpMode registrar) {
         super(registrar, "Arm Module Threads");
         armMotor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, DcMotor.class, ARM_MOTOR_NAME);

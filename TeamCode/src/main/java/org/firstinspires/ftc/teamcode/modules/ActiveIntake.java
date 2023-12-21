@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import org.firstinspires.ftc.teamcode.annotations.ModuleInitializer;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.modules.core.Module;
 
@@ -11,7 +10,6 @@ public class ActiveIntake extends Module {
 
 	public static final String INTAKE_MOTOR_NAME = "Intake Motor";
 
-	@ModuleInitializer
 	public ActiveIntake(OpMode registrar) {
 			super(registrar);
 			intakeMotor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, DcMotor.class, INTAKE_MOTOR_NAME);

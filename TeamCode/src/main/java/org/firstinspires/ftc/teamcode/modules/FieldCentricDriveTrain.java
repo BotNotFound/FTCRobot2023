@@ -21,7 +21,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     private static final IMU.Parameters IMU_PARAMETERS = new IMU.Parameters(new RevHubOrientationOnRobot(
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
-            RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
+            RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
     public static IMU.Parameters getImuParameters() {
         return IMU_PARAMETERS;
     }

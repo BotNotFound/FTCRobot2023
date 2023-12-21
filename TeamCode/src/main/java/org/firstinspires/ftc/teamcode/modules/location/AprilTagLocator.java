@@ -1,16 +1,10 @@
 package org.firstinspires.ftc.teamcode.modules.location;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.ModuleBase;
-import org.firstinspires.ftc.teamcode.modules.location.LocalizedMovement;
-import org.firstinspires.ftc.teamcode.modules.location.Locator;
-import org.firstinspires.ftc.teamcode.modules.location.LocatorException;
-import org.firstinspires.ftc.teamcode.modules.location.LocatorKind;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
@@ -32,7 +26,7 @@ public class AprilTagLocator extends ModuleBase implements Locator {
      */
     private VisionPortal visionPortal;
 
-    public int tagId;
+    private int tagId;
 
     public static final String WEBCAM_DEVICE_NAME = "Webcam 1";
 
@@ -53,6 +47,10 @@ public class AprilTagLocator extends ModuleBase implements Locator {
 
     public void setTagId(int tagId) {
         this.tagId = tagId;
+    }
+
+    public int getTagId() {
+        return tagId;
     }
 
     @Override

@@ -5,9 +5,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.RobotLog;
-
-import org.firstinspires.ftc.teamcode.modules.*;
-import org.firstinspires.ftc.teamcode.modules.location.*;
+import org.firstinspires.ftc.teamcode.modules.ActiveIntake;
+import org.firstinspires.ftc.teamcode.modules.Arm;
+import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
+import org.firstinspires.ftc.teamcode.modules.location.OdometryLocalizer;
 
 import java.util.List;
 
@@ -16,9 +17,8 @@ public abstract class OpBase extends OpMode {
     // Globally Declared Sensors
 
     // Module Classes
-    protected Odometry driveTrain;
+    protected OdometryLocalizer driveTrain;
     protected Arm arm;
-    protected DoubleClaw doubleClaw;
     protected PlaneLauncher planeLauncher;
 	protected ActiveIntake activeIntake;
 
@@ -39,10 +39,10 @@ public abstract class OpBase extends OpMode {
         telemetry.addLine("Independent motors registered");
         
         // Init Module classes
-        driveTrain = new Odometry(this);
+        driveTrain = new OdometryLocalizer(this);
         arm = new Arm(this);
         planeLauncher = new PlaneLauncher(this);
-		activeIntake = new ActiveIntake(this);
+        activeIntake = new ActiveIntake(this);
         telemetry.addLine("Module classes created");
 
         telemetry.addLine("Successfully initialized hardware!");
@@ -75,8 +75,8 @@ public abstract class OpBase extends OpMode {
     public void stop() {
         arm.cleanupModule();
         driveTrain.cleanupModule();
-        doubleClaw.cleanupModule();
         planeLauncher.cleanupModule();
+        activeIntake.cleanupModule();
         telemetry.addLine("Cleanup done!");
         telemetry.update();
     }

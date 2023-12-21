@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 /**
  * A point.  The coordinate system we are using is horizontal and vertical translation in a rotated
@@ -147,5 +148,13 @@ public class Movement {
     @Override
     public String toString() {
         return "<" + x + ", " + y + ", " + theta + ">";
+    }
+
+    public Pose2d toPose() {
+        return new Pose2d(x, y, theta);
+    }
+
+    public static Movement fromPose(Pose2d pose) {
+        return new Movement(pose.getX(), pose.getY(), pose.getHeading());
     }
 }

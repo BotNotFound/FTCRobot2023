@@ -14,9 +14,16 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
     public static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;
 
     /**
-     * The radius of the mecanum wheels in millimeters
+     * The diameter of the mecanum wheels in millimeters. <br />
+     *  Taken from <a href="https://www.gobilda.com/96mm-mecanum-wheel-set-70a-durometer-bearing-supported-rollers/">GoBilda</a>
      */
-    public static final double WHEEL_RADIUS = 48;
+    public static final double WHEEL_DIAMETER_MM = 96;
+
+    /**
+     * The radius of the mecanum wheels in millimeters
+     * @see #WHEEL_DIAMETER_MM
+     */
+    public static final double WHEEL_RADIUS_MM = WHEEL_DIAMETER_MM / 2;
 
     /**
      * The amount of encoder ticks in one full revolution
@@ -26,7 +33,7 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
     /**
      * Used convert from motor position (in ticks) to distance (in millimeters)
      */
-    public static final double TICKS_TO_MM = ENCODER_RESOLUTION / (WHEEL_RADIUS * 360);
+    public static final double TICKS_TO_MM = ENCODER_RESOLUTION / (WHEEL_RADIUS_MM * 360);
 
     public Odometry(@NonNull OpMode registrar) {
         super(registrar);
@@ -57,28 +64,16 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
             throw new LocatorException(this, "Module does not have the necessary hardware devices!");
         }
 
-        final double frontLeftPos = getMotorPosition(getFrontLeftMecanumDriver());
-        final double frontRightPos = getMotorPosition(getFrontRightMecanumDriver());
-        final double backLeftPos = getMotorPosition(getBackLeftMecanumDriver());
-        final double backRightPos = getMotorPosition(getBackLeftMecanumDriver());
+        final double frontLeftPos = getFrontLeftMecanumDriver().getCurrentPosition();
+        final double frontRightPos = getFrontRightMecanumDriver().getCurrentPosition();
+        final double backLeftPos = getBackLeftMecanumDriver().getCurrentPosition();
+        final double backRightPos = getBackLeftMecanumDriver().getCurrentPosition();
 
         final double forwardDistance = ((frontLeftPos + frontRightPos + backLeftPos + backRightPos) / 4) * TICKS_TO_MM;
         final double strafeDistance = ((frontLeftPos + frontRightPos - backLeftPos - backRightPos) / 4) * TICKS_TO_MM;
         final double rotation = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
 
         return new LocalizedMovement(forwardDistance, strafeDistance, rotation, this);
-    }
-
-    private static double getMotorPosition(DcMotor motor) {
-        switch (motor.getDirection()) {
-            case FORWARD:
-                return motor.getCurrentPosition();
-            case REVERSE:
-                return -motor.getCurrentPosition();
-            default:
-                // there is no reason for anyone to make a new member for the Direction enum, so if we get here, just panic
-                throw new IllegalStateException("HOW");
-        }
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
 
 public class DriveTrain extends ModuleBase {
@@ -94,23 +93,46 @@ public class DriveTrain extends ModuleBase {
         hardwareDevices.executeIfAllAreAvailable(() -> {
 
             // motor config
-            getFrontRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            getBackRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            getFrontLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            getBackLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            getFrontRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getBackRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getFrontLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getBackLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            getFrontRightMecanumDriver().setDirection(DcMotorSimple.Direction.FORWARD);
-            getBackRightMecanumDriver().setDirection(DcMotorSimple.Direction.FORWARD);
-            getFrontLeftMecanumDriver().setDirection(DcMotorSimple.Direction.REVERSE);
-            getBackLeftMecanumDriver().setDirection(DcMotorSimple.Direction.REVERSE);
+            configureMotorDirections(
+                    getFrontLeftMecanumDriver(),
+                    getFrontRightMecanumDriver(),
+                    getBackLeftMecanumDriver(),
+                    getBackRightMecanumDriver()
+            );
 
             getTelemetry().addLine("[Drive Train] Found all drive motors");
         }, () -> getTelemetry().addLine("[Drive Train] Could not find all drive motors!"));
     }
 
+    /**
+     * Sets the directions of the drive train motors.  Used in {@link #DriveTrain(OpMode)} and
+     *  {@link org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive#SampleMecanumDrive(OpMode)}
+     * @param frontLeft The front left motor
+     * @param frontRight The front right motor
+     * @param backLeft The back left motor
+     * @param backRight The back right motor
+     */
+    public static void configureMotorDirections(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight) {
+        // ensure that we are actually configuring the drive train motors
+        assert frontLeft.getDeviceName().equals(FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+        assert frontRight.getDeviceName().equals(FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+        assert backLeft.getDeviceName().equals(BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+        assert backRight.getDeviceName().equals(BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
     @Override
     public void cleanupModule() {
-
+        // nothing to clean up
     }
 
     @Override
@@ -171,9 +193,5 @@ public class DriveTrain extends ModuleBase {
             getBackRightMecanumDriver().setPower(rightBackPower);
             getBackLeftMecanumDriver().setPower(leftBackPower);
         });
-    }
-
-    public void setVelocity(Movement velocity) {
-        setVelocity(velocity.x, velocity.y, velocity.theta);
     }
 }

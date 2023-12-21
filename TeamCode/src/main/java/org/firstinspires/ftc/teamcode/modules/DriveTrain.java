@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import android.util.Pair;
-import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import org.firstinspires.ftc.teamcode.annotations.ModuleInitializer;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
 import org.firstinspires.ftc.teamcode.modules.core.Module;
 
@@ -80,7 +80,8 @@ public class DriveTrain extends Module {
      * Attempts to initialize the module by getting motors with the default names from a hardware map
      * @param registrar the OpMode that will be using the module
      */
-    public DriveTrain(@NonNull OpMode registrar) {
+    @ModuleInitializer
+    public DriveTrain(OpMode registrar) {
         super(registrar);
 
         hardwareDevices = new ConditionalHardwareDeviceGroup();

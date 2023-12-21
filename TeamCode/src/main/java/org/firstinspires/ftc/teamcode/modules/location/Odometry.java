@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Movement;
+import org.firstinspires.ftc.teamcode.annotations.ModuleInitializer;
 import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 
 public class Odometry extends FieldCentricDriveTrain implements Locator {
@@ -35,6 +36,7 @@ public class Odometry extends FieldCentricDriveTrain implements Locator {
      */
     public static final double TICKS_TO_MM = ENCODER_RESOLUTION / (WHEEL_RADIUS_MM * 360);
 
+    @ModuleInitializer
     public Odometry(@NonNull OpMode registrar) {
         super(registrar);
         hardwareDevices.executeIfAllAreAvailable(() -> {

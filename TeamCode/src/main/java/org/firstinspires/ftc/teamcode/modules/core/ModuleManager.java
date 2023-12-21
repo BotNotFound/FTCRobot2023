@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.modules.core;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,31 +59,9 @@ public final class ModuleManager {
         }
 
         // no module of the specified type exists
-        try {
-            Constructor<T> moduleConstructor = moduleClass.getConstructor(OpMode.class);
-            T moduleInstance = moduleConstructor.newInstance(opMode);
-
-            if (moduleInstance instanceof ConcurrentModule && areThreadsStarted) {
-                ((ConcurrentModule)moduleInstance).startThreads();
-            }
-
-            loadedModules.add(moduleInstance);
-            return moduleInstance;
-        }
-        catch (NoSuchMethodException | IllegalAccessException e) {
-            // if constructor is private/nonexistent, we can't create an instance
-            throw new NoSuchMethodError("Unable to retrieve module constructor with the required signature");
-        }
-        catch (InstantiationException shouldNeverBeThrown) {
-            // If the provided class is abstract, fail.
-            //  We check if the class is abstract at the beginning of the method and fail there, so this code should
-            //  never be reached.
-            throw new IllegalArgumentException(shouldNeverBeThrown);
-        }
-        catch (InvocationTargetException passOn) {
-            // If the constructor fails, pass on the error
-            throw new ExceptionInInitializerError(passOn.getTargetException());
-        }
+        T module = org.firstinspires.ftc.teamcode.modules.core.RegisteredModules.initModule(moduleClass, opMode);
+        loadedModules.add(module);
+        return module;
     }
 
     /**

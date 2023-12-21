@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules.core;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import org.firstinspires.ftc.teamcode.modules.ActiveIntake;
-import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.DriveTrain;
-import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
+import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 import org.firstinspires.ftc.teamcode.modules.location.Odometry;
 
@@ -85,6 +82,9 @@ public final class ModuleManager {
         }
         else if (moduleClass.equals(Odometry.class)) {
             ret = new Odometry(opMode);
+        }
+        else if (moduleClass.equals(PlaneLauncher.class)) {
+            ret = new PlaneLauncher(opMode);
         }
 
         try {

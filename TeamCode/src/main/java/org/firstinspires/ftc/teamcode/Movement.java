@@ -42,43 +42,12 @@ public class Movement {
     }
 
     /**
-     * The number of bits in an integer. Used by hashCode.
-     * @see #hashCode()
-     */
-    private static final int LENGTH_OF_AN_INTEGER = (int)(Math.log(Integer.MAX_VALUE) / Math.log(2)) + 1; // MAX_VALUE is positive, so it will be 1 bit short
-    /**
-     * A bitmask for the first third of an integer. Used by hashCode.
-     * @see #hashCode()
-     */
-    private static final int THIRD_INT_MASK = (Integer.MAX_VALUE << (2 * LENGTH_OF_AN_INTEGER / 3)) >> (2 * LENGTH_OF_AN_INTEGER / 3);
-
-    /**
      * Gets the hash code of this object
      * @return The XOR of {@link #x}, {@link #y}, and {@link #theta}
      */
     @Override
     public int hashCode() {
         return Double.hashCode(x) ^ Double.hashCode(y) ^ Double.hashCode(theta);
-    }
-
-    public enum Axis {
-        X,
-        Y,
-        THETA;
-
-        public Movement genPointFromAxis(double distance) {
-            switch (this) {
-                case X:
-                    return new Movement(distance, 0, 0);
-                case Y:
-                    return new Movement(0, distance, 0);
-                case THETA:
-                    return new Movement(0, 0, distance);
-
-                default:
-                    throw new RuntimeException("Invalid axis!");
-            }
-        }
     }
 
     public double x;

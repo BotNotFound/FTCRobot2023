@@ -21,6 +21,12 @@ public class Movement {
                 Math.abs(theta) < EPSILON;
     }
 
+    /**
+     * Checks for equality with another object
+     * @param obj The other object
+     * @return True if the object is of type {@link Movement} and their {@link #x}, {@link #y}, and {@link #theta} are
+     *  within {@link #EPSILON} of ours
+     */
     @Override
     public boolean equals(@Nullable Object obj) {
         if (super.equals(obj)) {
@@ -46,17 +52,13 @@ public class Movement {
      */
     private static final int THIRD_INT_MASK = (Integer.MAX_VALUE << (2 * LENGTH_OF_AN_INTEGER / 3)) >> (2 * LENGTH_OF_AN_INTEGER / 3);
 
+    /**
+     * Gets the hash code of this object
+     * @return The XOR of {@link #x}, {@link #y}, and {@link #theta}
+     */
     @Override
     public int hashCode() {
-        // only care about equality as precise as EPSILON
-        long roundedX = Math.round(x / EPSILON);
-        long roundedY = Math.round(y / EPSILON);
-        long roundedRotation = Math.round(theta / EPSILON);
-        return (int)(
-                ((roundedX & THIRD_INT_MASK) << ((2 * LENGTH_OF_AN_INTEGER) / 3)) |
-                        (roundedY | THIRD_INT_MASK) << (LENGTH_OF_AN_INTEGER / 3) |
-                        (roundedRotation | THIRD_INT_MASK)
-        ); // unique enough for our nonexistent usage of this function
+        return Double.hashCode(x) ^ Double.hashCode(y) ^ Double.hashCode(theta);
     }
 
     public enum Axis {

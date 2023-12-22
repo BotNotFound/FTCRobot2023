@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.modules.core;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
+import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
+import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 import org.firstinspires.ftc.teamcode.modules.location.Odometry;
 
 import java.lang.reflect.Modifier;
@@ -93,6 +95,12 @@ public final class ModuleManager {
         }
         else if (moduleClass.equals(PlaneLauncher.class)) {
             ret = new PlaneLauncher(opMode);
+        }
+        else if (moduleClass.equals(AprilTagLocator.class)) {
+            ret = new AprilTagLocator(opMode);
+        }
+        else if (moduleClass.equals(PropDetector.class)) {
+            ret = new PropDetector(opMode);
         }
 
         try {

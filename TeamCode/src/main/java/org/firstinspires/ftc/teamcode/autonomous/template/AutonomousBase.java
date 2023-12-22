@@ -14,14 +14,6 @@ public abstract class AutonomousBase extends OpBaseLinear {
     private AprilTagLocator aprilTagLocator;
 
     /**
-     * Gets the april tag locator
-     * @return The april tag locator
-     */
-    protected final AprilTagLocator getAprilTagLocator() {
-        return aprilTagLocator;
-    }
-
-    /**
      * The prop detector
      */
     private PropDetector propDetector;

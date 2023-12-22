@@ -14,22 +14,17 @@ public abstract class AutonomousBase extends OpBaseLinear {
     private AprilTagLocator aprilTagLocator;
 
     /**
-     * The distance to the '|_|' shape where the team prop will be (in millimeters)
+     * Gets the april tag locator
+     * @return The april tag locator
      */
-    public static final double DISTANCE_TO_TEAM_PROP_U_MM = 50.0;
+    protected final AprilTagLocator getAprilTagLocator() {
+        return aprilTagLocator;
+    }
 
     /**
      * The prop detector
      */
     private PropDetector propDetector;
-
-    /**
-     * Gets the prop detector
-     * @return the prop detector
-     */
-    protected final PropDetector getPropDetector() {
-        return propDetector;
-    }
 
     /**
      * Roadrunner's drive-to-position drive train
@@ -95,7 +90,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
      * Called after methods that move the arm, before methods that move the robot.  Moves the arm and wrist so that the
      *  robot will be able to drive under the trusses without getting stuck
      */
-    private void prepareArmForDriving() {
+    protected final void prepareArmForDriving() {
         arm.closeFlap();
         arm.rotateArmTo(Arm.ArmPresets.START_POS);
     }

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.autonomous.red.backdrop;
+package org.firstinspires.ftc.teamcode.opmode.autonomous.red.backdrop;
 
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.teamcode.autonomous.template.AutonomousConstants;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
+import org.firstinspires.ftc.teamcode.opmode.autonomous.template.AutonomousConstants;
 
 @Autonomous(name = AutonomousRedBackdropStartImpl.RED_BACKDROP_AUTO_GROUP_NAME + " | Corner", group = AutonomousRedBackdropStartImpl.RED_BACKDROP_AUTO_GROUP_NAME)
 public final class AutonomousRedBackdropStartCornerParkImpl extends AutonomousRedBackdropStartImpl {

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.autonomous.simple;
+package org.firstinspires.ftc.teamcode.opmode.autonomous.simple;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import org.firstinspires.ftc.teamcode.OpBaseLinear;
 import org.firstinspires.ftc.teamcode.modules.DriveTrain;
+import org.firstinspires.ftc.teamcode.opmode.OpBaseLinear;
 
 @Deprecated
 @Disabled

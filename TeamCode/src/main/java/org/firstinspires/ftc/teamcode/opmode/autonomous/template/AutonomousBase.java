@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.autonomous.template;
+package org.firstinspires.ftc.teamcode.opmode.autonomous.template;
 
-import org.firstinspires.ftc.teamcode.OpBaseLinear;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 import org.firstinspires.ftc.teamcode.modules.detection.Prop;
 import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
+import org.firstinspires.ftc.teamcode.opmode.OpBaseLinear;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 
 public abstract class AutonomousBase extends OpBaseLinear {

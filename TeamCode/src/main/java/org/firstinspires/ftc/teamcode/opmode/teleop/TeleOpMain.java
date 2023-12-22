@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import org.firstinspires.ftc.teamcode.OpBase;
 import org.firstinspires.ftc.teamcode.modules.ActiveIntake;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
 import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
+import org.firstinspires.ftc.teamcode.opmode.OpBase;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

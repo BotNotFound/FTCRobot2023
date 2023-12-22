@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.autonomous.red;
+package org.firstinspires.ftc.teamcode.opmode.autonomous.red;
 
-import org.firstinspires.ftc.teamcode.autonomous.template.AutonomousBase;
-import org.firstinspires.ftc.teamcode.autonomous.template.AutonomousConstants;
 import org.firstinspires.ftc.teamcode.modules.detection.Prop;
+import org.firstinspires.ftc.teamcode.opmode.autonomous.template.AutonomousBase;
+import org.firstinspires.ftc.teamcode.opmode.autonomous.template.AutonomousConstants;
 
 public abstract class AutonomousRedImpl extends AutonomousBase {
     public static final String RED_AUTO_GROUP_NAME = "Red";

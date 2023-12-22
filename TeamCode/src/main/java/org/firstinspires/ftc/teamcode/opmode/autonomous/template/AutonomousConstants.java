@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous.template;
+package org.firstinspires.ftc.teamcode.opmode.autonomous.template;
 
 import org.firstinspires.ftc.teamcode.util.StaticClass;
 

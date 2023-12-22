@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.autonomous.red.backdrop;
+package org.firstinspires.ftc.teamcode.opmode.autonomous.red.backdrop;
 
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import org.firstinspires.ftc.teamcode.autonomous.red.AutonomousRedImpl;
-import org.firstinspires.ftc.teamcode.autonomous.template.AutonomousConstants;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
+import org.firstinspires.ftc.teamcode.opmode.autonomous.red.AutonomousRedImpl;
+import org.firstinspires.ftc.teamcode.opmode.autonomous.template.AutonomousConstants;
 
 public abstract class AutonomousRedBackdropStartImpl extends AutonomousRedImpl {
     public static final String RED_BACKDROP_AUTO_GROUP_NAME = RED_AUTO_GROUP_NAME + " | Backdrop";

@@ -32,8 +32,8 @@ public final class SwitchStatement<SWITCH_ON, RETURN> {
 
         final AtomicReference<Function<SWITCH_ON, RETURN>> matchingCase = new AtomicReference<>(null);
         cases.parallelStream().forEach(caseStatement -> {
-            if (switchOn.equals(caseStatement.first)) {
-                matchingCase.compareAndSet(null, caseStatement.second);
+            if (matchingCase.get() == null && switchOn.equals(caseStatement.first)) {
+                matchingCase.set(caseStatement.second);
             }
         });
         final Function<SWITCH_ON, RETURN> toRun = matchingCase.get();

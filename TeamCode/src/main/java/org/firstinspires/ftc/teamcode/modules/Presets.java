@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules;
 
-import org.firstinspires.ftc.teamcode.StaticClass;
+import org.firstinspires.ftc.teamcode.util.StaticClass;
 
 /**
  * A base class for collections of presets -- constant values used to eliminate usage of magic numbers

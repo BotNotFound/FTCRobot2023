@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.modules.location;
 import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Movement;
 import org.firstinspires.ftc.teamcode.modules.core.Module;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;

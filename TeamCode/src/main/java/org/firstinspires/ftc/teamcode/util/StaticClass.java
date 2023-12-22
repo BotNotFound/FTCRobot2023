@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.util;
 
 /**
  * Represents a static class -- a container for static methods that should not be instantiated

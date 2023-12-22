@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.modules.location;
 
-import org.firstinspires.ftc.teamcode.Movement;
-
 /**
  * The default locator -- used as more of a placeholder, its coordinate system goes from <0,0>
  *     to <1,1>

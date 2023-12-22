@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.modules.location;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.modules.core;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import org.firstinspires.ftc.teamcode.SwitchStatement;
 import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
 import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 import org.firstinspires.ftc.teamcode.modules.location.Odometry;
+import org.firstinspires.ftc.teamcode.util.SwitchStatement;
 
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous.template;
 
-import org.firstinspires.ftc.teamcode.StaticClass;
+import org.firstinspires.ftc.teamcode.util.StaticClass;
 
 public final class AutonomousConstants extends StaticClass {
     public static final double TILE_SIDE_LENGTH_IN = 22.75;

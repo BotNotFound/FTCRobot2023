@@ -18,6 +18,8 @@ public class DriverMotorTest extends LinearOpMode {
                 backRightMotor = hardwareMap.get(DcMotor.class,
                         DriveTrain.BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
 
+        telemetry.setAutoClear(false);
+
         waitForStart();
 
         telemetry.addLine("moving front left...");
@@ -43,5 +45,9 @@ public class DriverMotorTest extends LinearOpMode {
         backRightMotor.setPower(0.25);
         sleep(1000);
         backRightMotor.setPower(0);
+
+        while (opModeIsActive()) {
+            Thread.yield();
+        }
     }
 }

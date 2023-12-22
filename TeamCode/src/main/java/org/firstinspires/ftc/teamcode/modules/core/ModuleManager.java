@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules.core;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.SwitchStatement;
 import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
@@ -77,34 +78,22 @@ public final class ModuleManager {
     }
 
     private <T extends Module> T initModule(Class<? extends T> moduleClass) {
-        Module ret = null;
-        if (moduleClass.equals(Arm.class)) {
-            ret = new Arm(opMode);
-        }
-        else if (moduleClass.equals(ActiveIntake.class)) {
-            ret = new ActiveIntake(opMode);
-        }
-        else if (moduleClass.equals(DriveTrain.class)) {
-            ret = new DriveTrain(opMode);
-        }
-        else if (moduleClass.equals(FieldCentricDriveTrain.class)) {
-            ret = new FieldCentricDriveTrain(opMode);
-        }
-        else if (moduleClass.equals(Odometry.class)) {
-            ret = new Odometry(opMode);
-        }
-        else if (moduleClass.equals(PlaneLauncher.class)) {
-            ret = new PlaneLauncher(opMode);
-        }
-        else if (moduleClass.equals(AprilTagLocator.class)) {
-            ret = new AprilTagLocator(opMode);
-        }
-        else if (moduleClass.equals(PropDetector.class)) {
-            ret = new PropDetector(opMode);
-        }
-
         try {
-            return moduleClass.cast(ret);
+            return moduleClass.cast(
+                    new SwitchStatement<Class<?>, Module>(clazz -> null)
+                            .addCase(PropDetector.class, clazz -> new PropDetector(opMode))
+
+                            .addCase(AprilTagLocator.class, clazz -> new AprilTagLocator(opMode))
+                            .addCase(Odometry.class, clazz -> new Odometry(opMode))
+
+                            .addCase(ActiveIntake.class, clazz -> new ActiveIntake(opMode))
+                            .addCase(Arm.class, clazz -> new Arm(opMode))
+                            .addCase(DriveTrain.class, clazz -> new DriveTrain(opMode))
+                            .addCase(FieldCentricDriveTrain.class, clazz -> new FieldCentricDriveTrain(opMode))
+                            .addCase(PlaneLauncher.class, clazz -> new PlaneLauncher(opMode))
+
+                            .execute(moduleClass)
+            );
         }
         catch (ClassCastException e) {
             return null; // just in case

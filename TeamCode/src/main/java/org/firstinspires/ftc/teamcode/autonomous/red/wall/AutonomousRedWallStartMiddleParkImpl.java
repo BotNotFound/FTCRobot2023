@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous.red.wall;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.autonomous.template.AutonomousConstants;
+import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 
 @Autonomous(name = AutonomousRedWallStartImpl.RED_WALL_AUTO_GROUP_NAME + " | Middle", group = AutonomousRedWallStartImpl.RED_WALL_AUTO_GROUP_NAME)
 public final class AutonomousRedWallStartMiddleParkImpl extends AutonomousRedWallStartImpl {
@@ -14,11 +15,12 @@ public final class AutonomousRedWallStartMiddleParkImpl extends AutonomousRedWal
     @Override
     protected void park() {
         final TrajectoryBuilder builder = getDriverToPosition().trajectoryBuilder(getDriverToPosition().getPoseEstimate());
+        final AprilTagLocator aprilTagLocator = getModuleManager().getModule(AprilTagLocator.class);
 
-        if (getAprilTagLocator().getTagId() == getRightAprilTagId()) {
+        if (aprilTagLocator.getTagId() == getRightAprilTagId()) {
             builder.strafeLeft((AutonomousConstants.BACKDROP_WIDTH / 3) + AutonomousConstants.TILE_SIDE_LENGTH_IN);
         }
-        else if (getAprilTagLocator().getTagId() == getCenterAprilTagId()) {
+        else if (aprilTagLocator.getTagId() == getCenterAprilTagId()) {
             builder.strafeLeft(AutonomousConstants.TILE_SIDE_LENGTH_IN);
         }
         else {

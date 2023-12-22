@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import org.firstinspires.ftc.teamcode.autonomous.red.AutonomousRedImpl;
 import org.firstinspires.ftc.teamcode.autonomous.template.AutonomousConstants;
 import org.firstinspires.ftc.teamcode.modules.Arm;
+import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 
 public abstract class AutonomousRedBackdropStartImpl extends AutonomousRedImpl {
     public static final String RED_BACKDROP_AUTO_GROUP_NAME = RED_AUTO_GROUP_NAME + " | Backdrop";
@@ -14,7 +15,8 @@ public abstract class AutonomousRedBackdropStartImpl extends AutonomousRedImpl {
      */
     @Override
     protected void driveToBackdrop() {
-        final int tagId = getAprilTagLocator().getTagId();
+        final AprilTagLocator aprilTagLocator = getModuleManager().getModule(AprilTagLocator.class);
+        final int tagId = aprilTagLocator.getTagId();
         TrajectoryBuilder builder = getDriverToPosition().trajectoryBuilder(getDriverToPosition().getPoseEstimate());
         if (tagId == getLeftAprilTagId()) {
             builder.strafeLeft(AutonomousConstants.TILE_SIDE_LENGTH_IN);

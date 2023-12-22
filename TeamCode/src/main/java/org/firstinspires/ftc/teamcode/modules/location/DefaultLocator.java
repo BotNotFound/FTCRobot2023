@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.Movement;
  * The default locator -- used as more of a placeholder, its coordinate system goes from <0,0>
  *     to <1,1>
  */
+@Deprecated
 public final class DefaultLocator implements Locator {
     @Override
     public LocalizedMovement getLocation() throws LocatorException {

@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Deprecated
 public class Claw extends Module {
     private final ConditionalHardwareDevice<Servo> clawServo;
 
@@ -14,8 +15,6 @@ public class Claw extends Module {
 
     public static final String CLAW_SERVO_DEFAULT_NAME = "Claw Servo";
 
-    /* TODO when claws get added to the robot, change these values to ones that actually make the
-            claw grab and release */
     public static final double DEFAULT_GRABBING_SERVO_POSITION = 1.0;
     public static final double DEFAULT_RELEASED_SERVO_POSITION = 0.5;
 

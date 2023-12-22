@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * A localizer that uses the {@link Odometry} module to get the position
  */
+@Deprecated
 public final class OdometryLocalizer extends Odometry implements Localizer {
 
     /**

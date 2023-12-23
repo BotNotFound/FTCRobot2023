@@ -164,11 +164,11 @@ public final class Arm extends ConcurrentModule {
     private static class ArmPositionUpdaterThread extends ModuleThread<Arm> {
         public static final String THREAD_NAME = "Arm Position Updater";
 
-        public static final double kP = 0.000945;
-        public static final double kI = 0.001;
-        public static final double kD = 0;
+        public static double kP = 0.000945;
+        public static double kI = 0.001;
+        public static double kD = 0;
 
-        public static final double INTEGRAL_MAX_POWER = 0.05;
+        public static double INTEGRAL_MAX_POWER = 0.05;
 
         /**
          * Initializes the thread

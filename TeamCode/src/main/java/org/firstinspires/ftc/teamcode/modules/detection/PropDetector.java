@@ -4,9 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
-import org.firstinspires.ftc.teamcode.modules.ModuleBase;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class PropDetector extends ModuleBase {
+public class PropDetector extends Module {
     /**
      * The sensor used to detect the prop
      */

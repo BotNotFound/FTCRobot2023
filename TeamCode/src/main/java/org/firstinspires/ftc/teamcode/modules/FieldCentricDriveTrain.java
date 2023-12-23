@@ -29,7 +29,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     public static final String IMU_NAME = "imu";
 
-    public FieldCentricDriveTrain(@NonNull OpMode registrar) {
+    public FieldCentricDriveTrain(OpMode registrar) {
         super(registrar);
         hardwareDevices.tryLoadDevice(parent.hardwareMap, IMU.class, IMU_NAME);
 

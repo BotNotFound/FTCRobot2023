@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import androidx.annotation.NonNull;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -20,8 +21,8 @@ public class FieldCentricDriveTrain extends DriveTrain {
     }
 
     private static final IMU.Parameters IMU_PARAMETERS = new IMU.Parameters(new RevHubOrientationOnRobot(
-            RevHubOrientationOnRobot.LogoFacingDirection.UP,
-            RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+            RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
     public static IMU.Parameters getImuParameters() {
         return IMU_PARAMETERS;
     }
@@ -61,9 +62,9 @@ public class FieldCentricDriveTrain extends DriveTrain {
             // but only if at least one is out of the range [-1, 1]
             double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rotation), 1);
             double frontLeftPower = (rotY + rotX + rotation) / denominator;
-            double backLeftPower = (-rotY - rotX + rotation) / denominator;
+            double backLeftPower = (rotY - rotX + rotation) / denominator;
             double frontRightPower = (rotY - rotX - rotation) / denominator;
-            double backRightPower = (-rotY + rotX - rotation) / denominator;
+            double backRightPower = (rotY + rotX - rotation) / denominator;
             //Set power to motors
             getFrontLeftMecanumDriver().setPower(frontLeftPower);
             getBackLeftMecanumDriver().setPower(backLeftPower);

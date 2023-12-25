@@ -1,27 +1,24 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import android.util.Pair;
-
-import java.util.LinkedList;
+import java.util.Hashtable;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 public final class SwitchStatement<SWITCH_ON, RETURN> {
-    private final LinkedList<Pair<SWITCH_ON, Function<SWITCH_ON, RETURN>>> cases;
+    private final Hashtable<SWITCH_ON, Function<SWITCH_ON, RETURN>> cases;
 
     private final Function<SWITCH_ON, RETURN> defaultCase;
 
     public SwitchStatement(Function<SWITCH_ON, RETURN> defaultCase) {
         this.defaultCase = defaultCase;
-        cases = new LinkedList<>();
+        cases = new Hashtable<>();
     }
 
     public SwitchStatement<SWITCH_ON, RETURN> addCase(SWITCH_ON caseObj, Function<SWITCH_ON, RETURN> whatToDo) {
         Objects.requireNonNull(caseObj, "Attempted to add a null case!  Null cases are not permitted; use the " +
                 "default case instead!");
         Objects.requireNonNull(whatToDo, "Attempted to add a case without a body!");
-        cases.add(new Pair<>(caseObj, whatToDo));
+        cases.put(caseObj, whatToDo);
         return this;
     }
 
@@ -30,16 +27,7 @@ public final class SwitchStatement<SWITCH_ON, RETURN> {
             return defaultCase.apply(switchOn);
         }
 
-        final AtomicReference<Function<SWITCH_ON, RETURN>> matchingCase = new AtomicReference<>(null);
-        cases.parallelStream().forEach(caseStatement -> {
-            if (matchingCase.get() == null && switchOn.equals(caseStatement.first)) {
-                matchingCase.set(caseStatement.second);
-            }
-        });
-        final Function<SWITCH_ON, RETURN> toRun = matchingCase.get();
-        if (toRun != null) {
-            return toRun.apply(switchOn);
-        }
-        return defaultCase.apply(switchOn);
+        final Function<SWITCH_ON, RETURN> matchingCase = cases.getOrDefault(switchOn, defaultCase);
+        return matchingCase.apply(switchOn);
     }
 }

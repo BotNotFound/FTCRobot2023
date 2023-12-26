@@ -22,9 +22,7 @@ public class ActiveIntake extends Module {
 			on = new AtomicBoolean(false);
 			intakeMotor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, DcMotor.class, INTAKE_MOTOR_NAME);
 
-			intakeMotor.runIfAvailable(intake -> {
-				intake.setDirection(DcMotorSimple.Direction.REVERSE);
-			});
+			intakeMotor.runIfAvailable(intake -> intake.setDirection(DcMotorSimple.Direction.REVERSE));
 	}
 
 	public void setPower(double newPower) {

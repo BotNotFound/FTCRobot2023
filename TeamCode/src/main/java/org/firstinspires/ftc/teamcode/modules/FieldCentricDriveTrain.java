@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.modules;
 
-import androidx.annotation.NonNull;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -31,7 +30,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     public FieldCentricDriveTrain(OpMode registrar) {
         super(registrar);
-        hardwareDevices.tryLoadDevice(parent.hardwareMap, IMU.class, IMU_NAME);
+        hardwareDevices.tryLoadDevice(IMU.class, IMU_NAME);
 
         hardwareDevices.executeIfAllAreAvailable(() -> {
             getIMU().initialize(getImuParameters());

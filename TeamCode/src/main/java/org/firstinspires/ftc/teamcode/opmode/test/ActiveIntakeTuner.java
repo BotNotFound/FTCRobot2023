@@ -18,6 +18,7 @@ public class ActiveIntakeTuner extends LinearOpMode {
         while (opModeIsActive()) {
             in.setPower(gamepad1.left_stick_y);
             telemetry.addData("Current Power", in.getPower());
+            telemetry.update();
         }
         in.stop();
     }

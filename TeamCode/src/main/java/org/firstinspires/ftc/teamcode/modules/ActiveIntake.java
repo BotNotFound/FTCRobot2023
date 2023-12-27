@@ -27,6 +27,11 @@ public class ActiveIntake extends Module {
 
 	public void setPower(double newPower) {
 		activePower = newPower;
+		intakeMotor.runIfAvailable(intake -> {
+			if (on.get()) {
+				intake.setPower(activePower);
+			}
+		});
 	}
 
 	public double getPower() {

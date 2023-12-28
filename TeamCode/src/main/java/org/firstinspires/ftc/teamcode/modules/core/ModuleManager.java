@@ -90,6 +90,7 @@ public final class ModuleManager {
                             .addCase(Arm.class, clazz -> new Arm(opMode))
                             .addCase(DriveTrain.class, clazz -> new DriveTrain(opMode))
                             .addCase(FieldCentricDriveTrain.class, clazz -> new FieldCentricDriveTrain(opMode))
+                            .addCase(HangModule.class, clazz -> new HangModule(opMode))
                             .addCase(PlaneLauncher.class, clazz -> new PlaneLauncher(opMode))
 
                             .execute(moduleClass)

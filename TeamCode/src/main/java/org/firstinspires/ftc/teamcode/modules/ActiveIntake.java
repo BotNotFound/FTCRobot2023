@@ -48,11 +48,23 @@ public class ActiveIntake extends Module {
 		}
 	}
 
+	public void reverse() {
+		setPower(-getPower());
+	}
+
 	public void turbo() {
 		on.set(true);
 		intakeMotor.runIfAvailable(intake ->
 			intake.setPower(TURBO_POWER)
 		);
+	}
+
+	public void unTurbo() {
+		setPower(getPower());
+	}
+
+	public boolean isTurbo() {
+		return on.get() && intakeMotor.requireDevice().getPower() == TURBO_POWER;
 	}
 
 	public void stop() {

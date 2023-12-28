@@ -105,6 +105,14 @@ public final class TeleOpMain extends OpBase {
             arm.toggleFlap();
         }
 
+        if (currentGamepad1.right_bumper && !previousGamepad2.right_bumper) {
+            activeIntake.reverse();
+        } else if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
+            activeIntake.turbo();
+        } else if (activeIntake.isTurbo()) {
+            activeIntake.unTurbo();
+        }
+
         getModuleManager().logModuleStatus();
     }
     

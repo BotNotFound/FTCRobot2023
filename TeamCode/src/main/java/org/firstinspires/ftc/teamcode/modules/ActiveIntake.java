@@ -13,7 +13,9 @@ public class ActiveIntake extends Module {
 
 	public static final String INTAKE_MOTOR_NAME = "Intake Motor";
 
-	private double activePower = 1.0;
+	private double activePower = 0.6;
+
+	private static final double TURBO_POWER = 1.0;
 
 	private final AtomicBoolean on;
 
@@ -44,6 +46,13 @@ public class ActiveIntake extends Module {
 					intake.setPower(activePower)
 			);
 		}
+	}
+
+	public void turbo() {
+		on.set(true);
+		intakeMotor.runIfAvailable(intake ->
+			intake.setPower(TURBO_POWER)
+		);
 	}
 
 	public void stop() {

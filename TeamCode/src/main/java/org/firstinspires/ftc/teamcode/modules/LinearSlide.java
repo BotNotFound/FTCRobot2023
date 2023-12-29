@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.modules;
 import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class LinearSlide extends ModuleBase {
+@Deprecated
+public class LinearSlide extends Module {
     /**
      * The slide motor
      */

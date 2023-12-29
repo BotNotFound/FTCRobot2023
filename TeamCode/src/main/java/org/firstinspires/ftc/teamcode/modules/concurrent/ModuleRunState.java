@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.modules.concurrent;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import org.firstinspires.ftc.teamcode.modules.ModuleBase;
 
 /**
  * Describes the state of a {@link ConcurrentModule}.  Used to allow its threads a chance to detect termination of the
@@ -26,8 +23,8 @@ public enum ModuleRunState {
      * @apiNote Module threads should NOT use the hardware map to get references to hardware devices.  All hardware
      *  devices should be initialized by the host {@link ConcurrentModule}, and threads are expected to use hardware
      *  devices through it.
-     * @see OpMode#init()
-     * @see LinearOpMode#opModeInInit()
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
+     * @see com.qualcomm.robotcore.eventloop.opmode.LinearOpMode#opModeInInit()
      */
     INIT,
 
@@ -38,8 +35,9 @@ public enum ModuleRunState {
     RUNNING,
 
     /**
-     * The method {@link ModuleBase#cleanupModule()} has been called, and the OpMode has been stopped.  When a module
-     * is in this state, threads will have a limited amount of time to clean up before they are forcefully interrupted.
+     * The method {@link org.firstinspires.ftc.teamcode.modules.core.Module#cleanupModule()} has been called, and the
+     * OpMode has been stopped.  When a module is in this state, threads will have a limited amount of time to clean up
+     * before they are forcefully interrupted.
      */
     TERMINATED;
 
@@ -70,7 +68,7 @@ public enum ModuleRunState {
     }
 
     /**
-     * Is the module's parent {@link OpMode} in its main execution loop?
+     * Is the module's parent {@link com.qualcomm.robotcore.eventloop.opmode.OpMode} in its main execution loop?
      * @return True if the state is {@link #RUNNING}, otherwise false
      */
     public boolean isRunning() {

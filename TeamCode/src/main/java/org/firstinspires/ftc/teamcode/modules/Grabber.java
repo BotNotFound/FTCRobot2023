@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public final class Grabber extends ModuleBase {
+@Deprecated
+public final class Grabber extends Module {
 
     /**
      * The first servo controlling the grabber

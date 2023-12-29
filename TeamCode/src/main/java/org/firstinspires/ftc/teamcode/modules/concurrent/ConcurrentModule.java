@@ -3,12 +3,12 @@ package org.firstinspires.ftc.teamcode.modules.concurrent;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
-import org.firstinspires.ftc.teamcode.modules.ModuleBase;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 /**
  * Represents a module that utilizes external threads
  */
-public abstract class ConcurrentModule extends ModuleBase {
+public abstract class ConcurrentModule extends Module {
 
     /**
      * The current state of the module

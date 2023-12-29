@@ -4,8 +4,9 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class PlaneLauncher extends ModuleBase {
+public class PlaneLauncher extends Module {
 
     private static final double SERVO_POSITION_LAUNCHED = 0;
     public static final String LAUNCHER_SERVO_NAME = "Launcher Servo";

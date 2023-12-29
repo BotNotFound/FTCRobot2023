@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import android.util.Pair;
-import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class DriveTrain extends ModuleBase {
+public class DriveTrain extends Module {
     /**
      * The motor that drives the front right mecanum wheel
      * @apiNote This should only be called within the
@@ -79,7 +79,7 @@ public class DriveTrain extends ModuleBase {
      * Attempts to initialize the module by getting motors with the default names from a hardware map
      * @param registrar the OpMode that will be using the module
      */
-    public DriveTrain(@NonNull OpMode registrar) {
+    public DriveTrain(OpMode registrar) {
         super(registrar);
 
         hardwareDevices = new ConditionalHardwareDeviceGroup();
@@ -118,12 +118,6 @@ public class DriveTrain extends ModuleBase {
      * @param backRight The back right motor
      */
     public static void configureMotorDirections(DcMotor frontLeft, DcMotor frontRight, DcMotor backLeft, DcMotor backRight) {
-        // ensure that we are actually configuring the drive train motors
-        assert frontLeft.getDeviceName().equals(FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
-        assert frontRight.getDeviceName().equals(FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
-        assert backLeft.getDeviceName().equals(BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
-        assert backRight.getDeviceName().equals(BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
-
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -143,12 +137,12 @@ public class DriveTrain extends ModuleBase {
     /**
      * the scale for our exponential scaling of motor power
      */
-    public static final int POWER_SCALE = 5;
+    public static final int POWER_SCALE = 1;
 
     /**
      * the scale for our linear scaling of motor power
      */
-    public static final double SCALE = 0.75;
+    public static final double SCALE = 1;
 
     /**
      * Moves and rotates the robot
@@ -164,8 +158,8 @@ public class DriveTrain extends ModuleBase {
             // (formula was found on gm0)
             double leftFrontPower = distY + distX + rotation;
             double leftBackPower = distY - distX + rotation;
-            double rightFrontPower = distY - distX - rotation;
-            double rightBackPower = distY + distX - rotation;
+            double rightFrontPower = distY + distX - rotation;
+            double rightBackPower = distY - distX - rotation;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.

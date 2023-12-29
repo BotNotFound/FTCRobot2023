@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.modules.location;
 
 import androidx.annotation.NonNull;
 
-import org.firstinspires.ftc.teamcode.Movement;
-
 /**
  * A variant of {@link Movement} that specifies its coordinate system via a provided {@link Locator}
  */

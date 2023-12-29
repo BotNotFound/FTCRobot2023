@@ -70,6 +70,11 @@ public final class Arm extends ConcurrentModule {
 
     public static final class WristPresets extends Presets { // TODO these presets are untested
         /**
+         * Rotates the wrist to the position it was in at the start of execution.
+         * This should be parallel to the ground.
+         */
+        public static final double START_POS = 90.0;
+        /**
          * Rotates the wrist so that the robot can collect pixels
          */
         public static final double READY_TO_INTAKE = 30.0;
@@ -164,11 +169,11 @@ public final class Arm extends ConcurrentModule {
     private static class ArmPositionUpdaterThread extends ModuleThread<Arm> {
         public static final String THREAD_NAME = "Arm Position Updater";
 
-        public static final double kP = 0.000945;
-        public static final double kI = 0.001;
-        public static final double kD = 0;
+        public static double kP = 0.000945;
+        public static double kI = 0.001;
+        public static double kD = 0;
 
-        public static final double INTEGRAL_MAX_POWER = 0.05;
+        public static double INTEGRAL_MAX_POWER = 0.05;
 
         /**
          * Initializes the thread
@@ -194,10 +199,13 @@ public final class Arm extends ConcurrentModule {
                         errorChange,
                         errorTotal = 0;
                 double power;
+                boolean adjustWristPosition = false;
+                int currentPosition;
 
                 while (host.getState().isRunning()) {
                     if (host.armData.isDirty.compareAndSet(true, false)) {
                         curTarget = host.armData.getTargetPosition();
+                        adjustWristPosition = host.armData.getAdjustWristPosition();
 
                         // if we never made it to the target (i.e. we're tuning the PID controller and kI has been 0 for
                         //  a while), we don't want a potentially massive error total to roll over to our new position
@@ -205,7 +213,12 @@ public final class Arm extends ConcurrentModule {
                         errorTotal = 0;
                     }
 
-                    error = arm.getCurrentPosition() - curTarget;
+                    currentPosition = arm.getCurrentPosition();
+                    if (adjustWristPosition) {
+                        host.rotateWristTo(host.getWristRotation() - host.getArmRotation());
+                    }
+
+                    error = currentPosition - curTarget;
                     errorChange = error - prevError;
                     errorTotal += error;
                     errorTotal = (int)(Math.min(Math.abs(errorTotal), INTEGRAL_MAX_POWER / kI) * Math.signum(errorTotal)); // integral sum limit (errorTotal * kI <= INTEGRAL_MAX_POWER)
@@ -222,9 +235,10 @@ public final class Arm extends ConcurrentModule {
     private static class ArmData {
         public final AtomicBoolean isDirty = new AtomicBoolean(true);
         private int targetPosition = 0;
-        private final Object dataLock = new Object(); // I'm pretty sure this is how threads work
+        private boolean adjustWristPosition = false;
+        private final Object dataMonitor = new Object(); // I'm pretty sure this is how threads work
         public int getTargetPosition() {
-            synchronized (dataLock) {
+            synchronized (dataMonitor) {
                 return targetPosition;
             }
         }
@@ -233,9 +247,19 @@ public final class Arm extends ConcurrentModule {
                 return; // nothing to update
             }
 
-            synchronized (dataLock) {
+            synchronized (dataMonitor) {
                 targetPosition = newTarget;
                 isDirty.set(true);
+            }
+        }
+        public boolean getAdjustWristPosition() {
+            synchronized (dataMonitor) {
+                return adjustWristPosition;
+            }
+        }
+        public void setAdjustWristPosition(boolean newValue) {
+            synchronized (dataMonitor) {
+                adjustWristPosition = newValue;
             }
         }
     }
@@ -277,10 +301,7 @@ public final class Arm extends ConcurrentModule {
                         / ONE_REVOLUTION_OUR_ANGLE_UNIT
         ));
 
-        if (preserveWristRotation) {
-            // use normalizedAngle instead of getArmRotation() because the arm probably hasn't finished rotating yet
-            rotateWristTo(getWristRotation() - normalizedAngle, ANGLE_UNIT);
-        }
+        armData.setAdjustWristPosition(preserveWristRotation);
     }
 
     /**

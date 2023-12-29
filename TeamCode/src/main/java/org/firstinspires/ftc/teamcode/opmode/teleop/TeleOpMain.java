@@ -2,10 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import org.firstinspires.ftc.teamcode.modules.ActiveIntake;
-import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
-import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
+import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.opmode.OpBase;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +24,7 @@ public final class TeleOpMain extends OpBase {
     private Arm arm;
     private ActiveIntake activeIntake;
     private PlaneLauncher planeLauncher;
+    private HangModule hangModule;
 
     @Override
     protected void initModules() {
@@ -34,6 +32,7 @@ public final class TeleOpMain extends OpBase {
         arm = getModuleManager().getModule(Arm.class);
         activeIntake = getModuleManager().getModule(ActiveIntake.class);
         planeLauncher = getModuleManager().getModule(PlaneLauncher.class);
+        hangModule = getModuleManager().getModule(HangModule.class);
     }
 
     @Override
@@ -91,18 +90,34 @@ public final class TeleOpMain extends OpBase {
         }
 
         if (gamepad2.x) {
-            arm.rotateArmTo(Arm.ArmPresets.START_POS, Arm.ANGLE_UNIT);
+            arm.rotateWristTo(Arm.WristPresets.START_POS);
+            arm.rotateArmTo(Arm.ArmPresets.START_POS, true);
         } else if (gamepad2.y) {
+            arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
             arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT);
         } else if (gamepad2.b) {
+            arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
             arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.ANGLE_UNIT);
         }
         else if (gamepad2.a) {
+            arm.rotateWristTo(Arm.WristPresets.READY_TO_INTAKE);
             arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
         }
 
         if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
             arm.toggleFlap();
+        }
+
+        if (currentGamepad1.right_bumper && !previousGamepad2.right_bumper) {
+            activeIntake.reverse();
+        } else if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
+            activeIntake.turbo();
+        } else if (activeIntake.isTurbo()) {
+            activeIntake.unTurbo();
+        }
+
+        if (currentGamepad1.left_stick_button && !previousGamepad1.left_stick_button) {
+            hangModule.toggleHangState();
         }
 
         getModuleManager().logModuleStatus();

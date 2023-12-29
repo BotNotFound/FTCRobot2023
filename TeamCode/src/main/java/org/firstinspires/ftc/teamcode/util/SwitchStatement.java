@@ -10,7 +10,7 @@ import java.util.function.Function;
  * @param <SWITCH_ON> The type of the cases and object to switch on
  * @param <RETURN> The type that will be returned by every case and, by extension, {@link #execute(Object)}
  */
-public class SwitchStatement<SWITCH_ON, RETURN> {
+public final class SwitchStatement<SWITCH_ON, RETURN> {
     /**
      * The set of cases mapped to the code to run for each case
      */

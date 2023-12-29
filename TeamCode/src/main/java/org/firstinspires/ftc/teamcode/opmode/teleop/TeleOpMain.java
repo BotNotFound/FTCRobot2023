@@ -2,10 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import org.firstinspires.ftc.teamcode.modules.ActiveIntake;
-import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.FieldCentricDriveTrain;
-import org.firstinspires.ftc.teamcode.modules.PlaneLauncher;
+import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.opmode.OpBase;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +24,7 @@ public final class TeleOpMain extends OpBase {
     private Arm arm;
     private ActiveIntake activeIntake;
     private PlaneLauncher planeLauncher;
+    private HangModule hangModule;
 
     @Override
     protected void initModules() {
@@ -34,6 +32,7 @@ public final class TeleOpMain extends OpBase {
         arm = getModuleManager().getModule(Arm.class);
         activeIntake = getModuleManager().getModule(ActiveIntake.class);
         planeLauncher = getModuleManager().getModule(PlaneLauncher.class);
+        hangModule = getModuleManager().getModule(HangModule.class);
     }
 
     @Override
@@ -115,6 +114,10 @@ public final class TeleOpMain extends OpBase {
             activeIntake.turbo();
         } else if (activeIntake.isTurbo()) {
             activeIntake.unTurbo();
+        }
+
+        if (currentGamepad1.left_stick_button && !previousGamepad1.left_stick_button) {
+            hangModule.toggleHangState();
         }
 
         getModuleManager().logModuleStatus();

@@ -46,7 +46,7 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.*;
 @Config
 @Autonomous(group = "drive")
 public class DriveVelocityPIDTuner extends LinearOpMode {
-    public static double DISTANCE = 72; // in
+    public static double DISTANCE = 23; // in
 
     enum Mode {
         DRIVER_MODE,

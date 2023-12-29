@@ -82,13 +82,13 @@ public class DriveTrain extends Module {
     public DriveTrain(OpMode registrar) {
         super(registrar);
 
-        hardwareDevices = new ConditionalHardwareDeviceGroup();
-        hardwareDevices.tryLoadDevices(parent.hardwareMap,
+        hardwareDevices = new ConditionalHardwareDeviceGroup(parent.hardwareMap);
+        hardwareDevices.tryLoadDevices(
                 new Pair<>(DcMotorEx.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
                 new Pair<>(DcMotorEx.class, FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME),
                 new Pair<>(DcMotorEx.class, BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
                 new Pair<>(DcMotorEx.class, BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME)
-                );
+        );
 
         hardwareDevices.executeIfAllAreAvailable(() -> {
 

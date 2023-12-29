@@ -23,10 +23,14 @@ public final class ConditionalHardwareDeviceGroup {
      */
     private final AtomicBoolean allAreAccessible;
 
+    private final HardwareMap hardwareMap;
+
     /**
      * Constructs an empty device group
+     * @param hardwareMap The {@link HardwareMap} object to use
      */
-    public ConditionalHardwareDeviceGroup() {
+    public ConditionalHardwareDeviceGroup(HardwareMap hardwareMap) {
+        this.hardwareMap = hardwareMap;
         devices = new Hashtable<>();
         allAreAccessible = new AtomicBoolean(true);
     }
@@ -37,12 +41,11 @@ public final class ConditionalHardwareDeviceGroup {
 
     /**
      * Attempts to add the specified hardware device to the group
-     * @param hardwareMap The {@link HardwareMap} object to use
      * @param deviceType A class representing the device
      * @param deviceName The name of the device
      * @param <T> The device's type
      */
-    public <T extends HardwareDevice> void tryLoadDevice(HardwareMap hardwareMap, Class<? extends T> deviceType, String deviceName) {
+    public <T extends HardwareDevice> void tryLoadDevice(Class<? extends T> deviceType, String deviceName) {
         if (devices.containsKey(deviceName) && devices.get(deviceName) != null) {
             return; // hardware device has already been successfully loaded
         }
@@ -56,15 +59,14 @@ public final class ConditionalHardwareDeviceGroup {
 
     /**
      * Attempts to add the specified hardware devices to the group
-     * @param hardwareMap The {@link HardwareMap} object to use
      * @param deviceInfoSet A list of pairs.  The first element of each pair is the desired class of the hardware device,
      *                     and the second element is the device's name.  The devices will be loaded in the order they are
      *                      provided.
      */
     @SafeVarargs
-    public final void tryLoadDevices(HardwareMap hardwareMap, Pair<Class<? extends HardwareDevice>, String>... deviceInfoSet) {
+    public final void tryLoadDevices(Pair<Class<? extends HardwareDevice>, String>... deviceInfoSet) {
         for (Pair<Class<? extends HardwareDevice>, String> deviceInfo : deviceInfoSet) {
-            tryLoadDevice(hardwareMap, deviceInfo.first, deviceInfo.second);
+            tryLoadDevice(deviceInfo.first, deviceInfo.second);
         }
     }
 

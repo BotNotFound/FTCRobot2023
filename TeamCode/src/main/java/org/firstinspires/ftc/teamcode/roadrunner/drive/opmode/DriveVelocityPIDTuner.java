@@ -59,6 +59,17 @@ public class DriveVelocityPIDTuner extends LinearOpMode {
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VEL, MAX_ACCEL);
     }
 
+    private void printBlankTelementry() {
+        telemetry.addData("targetVelocity", 0);
+        for (int i = 0; i < 4; i++) {
+            telemetry.addData("measuredVelocity" + i, 0);
+            telemetry.addData(
+                    "error" + i,
+                    0
+            );
+        }
+    }
+
     @Override
     public void runOpMode() {
         if (!RUN_USING_ENCODER) {
@@ -84,6 +95,8 @@ public class DriveVelocityPIDTuner extends LinearOpMode {
         telemetry.addLine("Ready!");
         telemetry.update();
         telemetry.clearAll();
+        printBlankTelementry();
+        telemetry.update();
 
         waitForStart();
 
@@ -131,6 +144,8 @@ public class DriveVelocityPIDTuner extends LinearOpMode {
                     }
                     break;
                 case DRIVER_MODE:
+                    printBlankTelementry();
+                    telemetry.update();
                     if (gamepad1.b) {
                         drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 

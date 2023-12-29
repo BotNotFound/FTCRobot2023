@@ -21,15 +21,15 @@ public class FieldCentricDriveTrain extends DriveTrain {
     }
 
     private static final IMU.Parameters IMU_PARAMETERS = new IMU.Parameters(new RevHubOrientationOnRobot(
-            RevHubOrientationOnRobot.LogoFacingDirection.UP,
-            RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
+            RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
     public static IMU.Parameters getImuParameters() {
         return IMU_PARAMETERS;
     }
 
     public static final String IMU_NAME = "imu";
 
-    public FieldCentricDriveTrain(@NonNull OpMode registrar) {
+    public FieldCentricDriveTrain(OpMode registrar) {
         super(registrar);
         hardwareDevices.tryLoadDevice(parent.hardwareMap, IMU.class, IMU_NAME);
 
@@ -62,9 +62,9 @@ public class FieldCentricDriveTrain extends DriveTrain {
             // but only if at least one is out of the range [-1, 1]
             double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rotation), 1);
             double frontLeftPower = (rotY + rotX + rotation) / denominator;
-            double backLeftPower = (-rotY - rotX + rotation) / denominator;
+            double backLeftPower = (rotY - rotX + rotation) / denominator;
             double frontRightPower = (rotY - rotX - rotation) / denominator;
-            double backRightPower = (-rotY + rotX - rotation) / denominator;
+            double backRightPower = (rotY + rotX - rotation) / denominator;
             //Set power to motors
             getFrontLeftMecanumDriver().setPower(frontLeftPower);
             getBackLeftMecanumDriver().setPower(backLeftPower);

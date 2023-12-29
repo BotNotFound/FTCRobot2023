@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class DoubleClaw extends ModuleBase {
+@Deprecated
+public class DoubleClaw extends Module {
     public enum ClawState {
         BOTH_GRABBED,
         ONE_GRABBED,

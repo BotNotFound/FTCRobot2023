@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.modules.location;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +21,12 @@ public class Movement {
                 Math.abs(theta) < EPSILON;
     }
 
+    /**
+     * Checks for equality with another object
+     * @param obj The other object
+     * @return True if the object is of type {@link Movement} and their {@link #x}, {@link #y}, and {@link #theta} are
+     *  within {@link #EPSILON} of ours
+     */
     @Override
     public boolean equals(@Nullable Object obj) {
         if (super.equals(obj)) {
@@ -36,47 +42,12 @@ public class Movement {
     }
 
     /**
-     * The number of bits in an integer. Used by hashCode.
-     * @see #hashCode()
+     * Gets the hash code of this object
+     * @return The XOR of {@link #x}, {@link #y}, and {@link #theta}
      */
-    private static final int LENGTH_OF_AN_INTEGER = (int)(Math.log(Integer.MAX_VALUE) / Math.log(2)) + 1; // MAX_VALUE is positive, so it will be 1 bit short
-    /**
-     * A bitmask for the first third of an integer. Used by hashCode.
-     * @see #hashCode()
-     */
-    private static final int THIRD_INT_MASK = (Integer.MAX_VALUE << (2 * LENGTH_OF_AN_INTEGER / 3)) >> (2 * LENGTH_OF_AN_INTEGER / 3);
-
     @Override
     public int hashCode() {
-        // only care about equality as precise as EPSILON
-        long roundedX = Math.round(x / EPSILON);
-        long roundedY = Math.round(y / EPSILON);
-        long roundedRotation = Math.round(theta / EPSILON);
-        return (int)(
-                ((roundedX & THIRD_INT_MASK) << ((2 * LENGTH_OF_AN_INTEGER) / 3)) |
-                        (roundedY | THIRD_INT_MASK) << (LENGTH_OF_AN_INTEGER / 3) |
-                        (roundedRotation | THIRD_INT_MASK)
-        ); // unique enough for our nonexistent usage of this function
-    }
-
-    public enum Axis {
-        X,
-        Y,
-        THETA;
-
-        public Movement genPointFromAxis(double distance) {
-            switch (this) {
-                case X:
-                    return new Movement(distance, 0, 0);
-                case Y:
-                    return new Movement(0, distance, 0);
-                case THETA:
-                    return new Movement(0, 0, distance);
-
-                default:
-                    throw new RuntimeException("Invalid axis!");
-            }
-        }
+        return Double.hashCode(x) ^ Double.hashCode(y) ^ Double.hashCode(theta);
     }
 
     public double x;
@@ -134,14 +105,6 @@ public class Movement {
      */
     public Movement multiply(double factor) {
         return new Movement(x * factor, y * factor, theta * factor);
-    }
-
-    /**
-     * Gets the magnitude of this object as if it was a vector
-     * @return the magnitude of the vector <{@link #x}, {@link #y}>
-     */
-    public double magnitude() {
-        return Math.sqrt(x*x + y*y);
     }
 
     @NonNull

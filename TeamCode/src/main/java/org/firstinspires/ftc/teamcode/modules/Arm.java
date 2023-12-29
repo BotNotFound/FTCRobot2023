@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ModuleThread;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class Arm extends ConcurrentModule {
     /**
@@ -201,14 +202,14 @@ public final class Arm extends ConcurrentModule {
                 double power;
                 boolean adjustWristPosition = false;
                 int currentPosition;
-                double wristRotation = 0;
+                final AtomicReference<Double> wristRotation = new AtomicReference<>(0.0);
 
                 while (host.getState().isRunning()) {
                     if (host.armData.isDirty.compareAndSet(true, false)) {
                         curTarget = host.armData.getTargetPosition();
                         adjustWristPosition = host.armData.getAdjustWristPosition();
                         if (adjustWristPosition)
-                            wristRotation = host.getWristRotation();
+                            host.wristServo.runIfAvailable(servo -> wristRotation.set(servo.getPosition()));
 
                         // if we never made it to the target (i.e. we're tuning the PID controller and kI has been 0 for
                         //  a while), we don't want a potentially massive error total to roll over to our new position
@@ -218,7 +219,11 @@ public final class Arm extends ConcurrentModule {
 
                     currentPosition = arm.getCurrentPosition();
                     if (adjustWristPosition) {
-                        host.rotateWristTo(wristRotation - host.getArmRotation());
+                        final int finalCurrentPosition = currentPosition;
+                        host.wristServo.runIfAvailable(servo ->
+                                servo.setPosition(
+                                        wristRotation.get() - (finalCurrentPosition / ONE_REVOLUTION_ENCODER_TICKS)
+                                ));
                     }
 
                     error = currentPosition - curTarget;

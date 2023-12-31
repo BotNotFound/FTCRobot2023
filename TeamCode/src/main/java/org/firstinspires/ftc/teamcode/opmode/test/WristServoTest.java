@@ -13,9 +13,9 @@ public class WristServoTest extends LinearOpMode {
         wrist.setPosition(0);
         waitForStart();
         while (opModeIsActive()) {
-            if (wrist.getPosition() > 0.999)
+            if (wrist.getPosition() > 0.9)
                 wrist.setPosition(0);
-            if (wrist.getPosition() < 0.001)
+            if (wrist.getPosition() < 0.1)
                 wrist.setPosition(1);
         }
     }

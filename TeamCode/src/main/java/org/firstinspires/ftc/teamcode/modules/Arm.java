@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -365,7 +366,7 @@ public final class Arm extends ConcurrentModule {
     public void rotateWristTo(double rotation, AngleUnit angleUnit) {
         wristServo.runIfAvailable((Servo wrist) -> {
             final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
-            wrist.setPosition(convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT);
+            wrist.setPosition(MathUtils.clamp((convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT), 0.35, 0.85));
         });
     }
 

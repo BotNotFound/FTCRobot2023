@@ -90,8 +90,8 @@ public final class TeleOpMain extends OpBase {
         }
 
         if (gamepad2.x) {
-            arm.rotateWristTo(Arm.WristPresets.START_POS);
-            arm.rotateArmTo(Arm.ArmPresets.START_POS, true);
+            arm.rotateWristTo(Arm.WristPresets.IDLE);
+            arm.rotateArmTo(Arm.ArmPresets.IDLE, true);
         } else if (gamepad2.y) {
             arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
             arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT);

@@ -13,10 +13,12 @@ public class WristServoTest extends LinearOpMode {
         wrist.setPosition(0);
         waitForStart();
         while (opModeIsActive()) {
+            telemetry.addData("pos", wrist.getPosition());
             if (wrist.getPosition() > 0.9)
                 wrist.setPosition(0);
             if (wrist.getPosition() < 0.1)
                 wrist.setPosition(1);
+            telemetry.update();
         }
     }
 }

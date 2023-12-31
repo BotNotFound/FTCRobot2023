@@ -80,7 +80,7 @@ public final class ModuleManager {
     private <T extends Module> T initModule(Class<? extends T> moduleClass) {
         try {
             return moduleClass.cast(
-                    new SwitchStatement<Class<?>, Module>(clazz -> null)
+                    new SwitchStatement<Class<?>, Module>()
                             .addCase(PropDetector.class, clazz -> new PropDetector(opMode))
 
                             .addCase(AprilTagLocator.class, clazz -> new AprilTagLocator(opMode))

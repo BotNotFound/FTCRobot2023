@@ -10,7 +10,7 @@ import java.util.function.Function;
  * @param <SWITCH_ON> The type of the cases and object to switch on
  * @param <RETURN> The type that will be returned by every case and, by extension, {@link #execute(Object)}
  */
-public class SwitchStatement<SWITCH_ON, RETURN> {
+public final class SwitchStatement<SWITCH_ON, RETURN> {
     /**
      * The set of cases mapped to the code to run for each case
      */
@@ -26,8 +26,16 @@ public class SwitchStatement<SWITCH_ON, RETURN> {
      * @param defaultCase The default case that will be run if no match is found
      */
     public SwitchStatement(Function<SWITCH_ON, RETURN> defaultCase) {
+        Objects.requireNonNull(defaultCase, "Default case cannot be null!");
         this.defaultCase = defaultCase;
         cases = new Hashtable<>();
+    }
+
+    /**
+     * Initializes the switch statement with a no-op default case that returns null
+     */
+    public SwitchStatement() {
+        this(switchOn -> null);
     }
 
     /**
@@ -40,6 +48,9 @@ public class SwitchStatement<SWITCH_ON, RETURN> {
         Objects.requireNonNull(caseObj, "Attempted to add a null case!  Null cases are not permitted; use the " +
                 "default case instead!");
         Objects.requireNonNull(whatToDo, "Attempted to add a case without a body!");
+        if (cases.containsKey(caseObj)) {
+            throw new IllegalArgumentException("Attempted to add a case that already is a part of the statements!");
+        }
         cases.put(caseObj, whatToDo);
         return this;
     }

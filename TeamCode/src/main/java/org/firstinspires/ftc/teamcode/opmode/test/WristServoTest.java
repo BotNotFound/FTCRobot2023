@@ -10,11 +10,13 @@ public class WristServoTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Servo wrist = hardwareMap.get(Servo.class, Arm.WRIST_SERVO_NAME);
-        wrist.setPosition(0.5);
+        wrist.setPosition(0);
         waitForStart();
         while (opModeIsActive()) {
-            wrist.setPosition(0);
-            wrist.setPosition(1);
+            if (wrist.getPosition() > 0.999)
+                wrist.setPosition(0);
+            if (wrist.getPosition() < 0.001)
+                wrist.setPosition(1);
         }
     }
 }

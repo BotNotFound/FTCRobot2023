@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.modules.location;
 
-import org.firstinspires.ftc.teamcode.Movement;
-
 public interface Locator {
     /**
      * Gets the current position of the robot

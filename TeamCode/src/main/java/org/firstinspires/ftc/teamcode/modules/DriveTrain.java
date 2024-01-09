@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import android.util.Pair;
-import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class DriveTrain extends ModuleBase {
+public class DriveTrain extends Module {
     /**
      * The motor that drives the front right mecanum wheel
      * @apiNote This should only be called within the
@@ -79,16 +79,16 @@ public class DriveTrain extends ModuleBase {
      * Attempts to initialize the module by getting motors with the default names from a hardware map
      * @param registrar the OpMode that will be using the module
      */
-    public DriveTrain(@NonNull OpMode registrar) {
+    public DriveTrain(OpMode registrar) {
         super(registrar);
 
-        hardwareDevices = new ConditionalHardwareDeviceGroup();
-        hardwareDevices.tryLoadDevices(parent.hardwareMap,
+        hardwareDevices = new ConditionalHardwareDeviceGroup(parent.hardwareMap);
+        hardwareDevices.tryLoadDevices(
                 new Pair<>(DcMotorEx.class, FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
                 new Pair<>(DcMotorEx.class, FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME),
                 new Pair<>(DcMotorEx.class, BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
                 new Pair<>(DcMotorEx.class, BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME)
-                );
+        );
 
         hardwareDevices.executeIfAllAreAvailable(() -> {
 

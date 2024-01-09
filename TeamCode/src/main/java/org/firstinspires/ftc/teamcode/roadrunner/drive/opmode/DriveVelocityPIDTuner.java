@@ -46,7 +46,7 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.*;
 @Config
 @Autonomous(group = "drive")
 public class DriveVelocityPIDTuner extends LinearOpMode {
-    public static double DISTANCE = 72; // in
+    public static double DISTANCE = 23; // in
 
     enum Mode {
         DRIVER_MODE,
@@ -57,6 +57,17 @@ public class DriveVelocityPIDTuner extends LinearOpMode {
         MotionState start = new MotionState(movingForward ? 0 : DISTANCE, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? DISTANCE : 0, 0, 0, 0);
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VEL, MAX_ACCEL);
+    }
+
+    private void printBlankTelementry() {
+        telemetry.addData("targetVelocity", 0);
+        for (int i = 0; i < 4; i++) {
+            telemetry.addData("measuredVelocity" + i, 0);
+            telemetry.addData(
+                    "error" + i,
+                    0
+            );
+        }
     }
 
     @Override
@@ -84,6 +95,8 @@ public class DriveVelocityPIDTuner extends LinearOpMode {
         telemetry.addLine("Ready!");
         telemetry.update();
         telemetry.clearAll();
+        printBlankTelementry();
+        telemetry.update();
 
         waitForStart();
 
@@ -131,6 +144,8 @@ public class DriveVelocityPIDTuner extends LinearOpMode {
                     }
                     break;
                 case DRIVER_MODE:
+                    printBlankTelementry();
+                    telemetry.update();
                     if (gamepad1.b) {
                         drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.GearRatio;
@@ -171,23 +172,27 @@ public final class Arm extends Module {
         private final int targetPosition;
         private final int prevError;
         private final int totalError;
+        private final ElapsedTime elapsedTime;
 
-        private ArmState(int targetPosition, int prevError, int totalError) {
+
+        private ArmState(int targetPosition, int prevError, int totalError, ElapsedTime timer) {
             this.targetPosition = targetPosition;
             this.prevError = prevError;
             this.totalError = totalError;
+            elapsedTime = timer;
+            elapsedTime.reset();
         }
 
         private static ArmState fromCurrentPosition(DcMotor armMotor) {
-            return new ArmState(armMotor.getCurrentPosition(), 0, 0);
+            return new ArmState(armMotor.getCurrentPosition(), 0, 0, new ElapsedTime());
         }
 
         private static ArmState createEmptyState() {
-            return new ArmState(0, 0, 0);
+            return new ArmState(0, 0, 0, new ElapsedTime());
         }
 
         private static ArmState genNewRotateCommand(int targetPosition) {
-            return new ArmState(targetPosition, 0, 0);
+            return new ArmState(targetPosition, 0, 0, new ElapsedTime());
         }
     }
 
@@ -204,6 +209,7 @@ public final class Arm extends Module {
         }
 
         final int currentPosition = arm.getCurrentPosition();
+        final long deltaTime = curState.elapsedTime.nanoseconds();
 
         final int error = currentPosition - curState.targetPosition;
         final int errorChange = error - curState.prevError;
@@ -212,7 +218,7 @@ public final class Arm extends Module {
 
         final double power = error == 0 ? 0 : (error * kP) + (errorChange * kD) + (clampedErrorTotal * kI);
         arm.setPower(power);
-        return new ArmState(curState.targetPosition, error, clampedErrorTotal);
+        return new ArmState(curState.targetPosition, error, clampedErrorTotal, curState.elapsedTime);
     }
 
     public void cycleArmPID() {

@@ -232,6 +232,9 @@ public final class Arm extends ConcurrentModule {
                     }
 
                     error = currentPosition - curTarget;
+                    if (error == 0) {
+                        notifyAll();
+                    }
                     errorChange = error - prevError;
                     errorTotal += error;
                     errorTotal = (int)(Math.min(Math.abs(errorTotal), INTEGRAL_MAX_POWER / kI) * Math.signum(errorTotal)); // integral sum limit (errorTotal * kI <= INTEGRAL_MAX_POWER)
@@ -409,6 +412,24 @@ public final class Arm extends ConcurrentModule {
      */
     public double getWristRotation(AngleUnit angleUnit) {
         return angleUnit.fromUnit(ANGLE_UNIT, getWristRotation());
+    }
+    public void waitForArmToRotateWrist(double rotation, AngleUnit angleUnit) {
+        wristServo.runIfAvailable((Servo wrist) -> {
+            armMotor.runIfAvailable(arm -> {
+                final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
+                while (arm.getCurrentPosition() != armData.targetPosition) {
+                    try {
+                        wait();
+                    }
+                    catch (InterruptedException e) {
+                        return;
+                    }
+
+                    wrist.setPosition(convertedRotation / ONE_REVOLUTION_OUR_ANGLE_UNIT);
+                }
+
+            });
+        });
     }
     /**
      * Opens the flap, if the flap is not already open

@@ -56,7 +56,9 @@ public final class TeleOpMain extends OpBase {
 
     @Override
     public void loop() {
-        if (checkFailsafe()) return;
+        if (checkFailsafe()) {
+            return;
+        }
 
         // Store the gamepad values from the previous loop iteration in
         // previousGamepad1/2 to be used in this loop iteration.
@@ -103,6 +105,7 @@ public final class TeleOpMain extends OpBase {
             arm.rotateWristTo(Arm.WristPresets.READY_TO_INTAKE);
             arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
         }
+        arm.cycleArmPID();
 
         if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
             arm.toggleFlap();

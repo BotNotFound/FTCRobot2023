@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.opmode.OpBase;
@@ -28,7 +29,7 @@ public final class TeleOpMain extends OpBase {
     private PlaneLauncher planeLauncher;
 //    private HangModule hangModule;
 
-    private ConditionalHardwareDevice<DcMotor> hangMotor;
+    private ConditionalHardwareDevice<DcMotorEx> hangMotor;
 
     @Override
     protected void initModules() {
@@ -38,7 +39,7 @@ public final class TeleOpMain extends OpBase {
         planeLauncher = getModuleManager().getModule(PlaneLauncher.class);
 //        hangModule = getModuleManager().getModule(HangModule.class);
 
-        hangMotor = ConditionalHardwareDevice.tryGetHardwareDevice(hardwareMap, DcMotor.class, HangModule.HANG_MOTOR_NAME);
+        hangMotor = ConditionalHardwareDevice.tryGetHardwareDevice(hardwareMap, DcMotorEx.class, HangModule.HANG_MOTOR_NAME);
     }
 
     @Override
@@ -127,6 +128,7 @@ public final class TeleOpMain extends OpBase {
 //        }
         hangMotor.runIfAvailable(motor -> {
             motor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            telemetry.addData("[Hang] motor amp usage", motor.getCurrent(CurrentUnit.MILLIAMPS));
         });
 
         getModuleManager().logModuleStatus();

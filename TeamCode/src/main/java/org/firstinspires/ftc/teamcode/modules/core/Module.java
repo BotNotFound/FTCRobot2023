@@ -36,7 +36,7 @@ public abstract class Module {
      * Ran by parent OpMode in its stop() method
      * Cleans up items like background threads
      */
-    public abstract void cleanupModule();
+    public void cleanupModule() {}
 
     /**
      * Logs data about the module to telemetry

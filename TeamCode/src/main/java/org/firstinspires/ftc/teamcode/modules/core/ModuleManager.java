@@ -111,7 +111,8 @@ public final class ModuleManager {
         areThreadsStarted = true;
         for (Module module : loadedModules) {
             if (module instanceof ConcurrentModule) {
-                ((ConcurrentModule)module).startThreads();
+                final ConcurrentModule concurrentModule = (ConcurrentModule) module;
+                concurrentModule.startThreads();
             }
         }
     }

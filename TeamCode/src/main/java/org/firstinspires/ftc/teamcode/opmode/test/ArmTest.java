@@ -43,7 +43,7 @@ public final class ArmTest extends OpMode {
 
     @Config("Arm Test")
     public static class ArmTestConfig {
-        public static double targetPosition = 90;
+        public static double targetPosition = 40;
         public static AngleUnit angleUnit = AngleUnit.DEGREES;
     }
 
@@ -87,10 +87,11 @@ public final class ArmTest extends OpMode {
 
         if (gamepad1.y) {
             ArmTestConfig.targetPosition = ArmTestConfig.angleUnit.fromDegrees(90);
-            arm.rotateArmTo((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES); // [-90, 90] + 90 = [0, 180]
+            arm.beginRotateArmTo((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES, false); // [-90, 90] + 90 = [0, 180]
         } else {
-            arm.rotateArmTo(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit);
+            arm.beginRotateArmTo(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit, false);
         }
+        arm.cycleArmPID();
 
         telemetry.addData("curPos", arm.getArmMotorPosition());
         telemetry.addData("tPos", arm.getArmMotorTarget());

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.modules;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -8,13 +7,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.GearRatio;
-import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
-import org.firstinspires.ftc.teamcode.modules.concurrent.ModuleThread;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
-public final class Arm extends ConcurrentModule {
+public final class Arm extends Module {
     /**
      * One full rotation of the arm motor in encoder ticks.<br />
      * Taken from <a href="https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-50-9-1-ratio-24mm-length-8mm-rex-shaft-117-rpm-3-3-5v-encoder/">GoBilda</a>
@@ -131,14 +126,23 @@ public final class Arm extends ConcurrentModule {
      * @param registrar The OpMode initializing the module
      */
     public Arm(OpMode registrar) {
-        super(registrar, "Arm Module Threads");
+        super(registrar);
         armMotor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, DcMotor.class, ARM_MOTOR_NAME);
         wristServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, WRIST_SERVO_NAME);
         flapServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, FLAP_SERVO_NAME);
 
+        armState = ArmState.createEmptyState();
+
         // status update
         armMotor.runIfAvailable(
-                device -> getTelemetry().addLine("[Arm] found arm motor of type " + device.getDeviceName() + " on port " + device.getPortNumber()),
+                device -> {
+                    device.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    device.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    device.setDirection(DcMotorSimple.Direction.FORWARD);
+                    device.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    armState = ArmState.fromCurrentPosition(device);
+                    getTelemetry().addLine("[Arm] found arm motor of type " + device.getDeviceName() + " on port " + device.getPortNumber());
+                },
                 () -> getTelemetry().addLine("[Arm] could not find arm motor!")
         );
         wristServo.runIfAvailable(
@@ -153,130 +157,91 @@ public final class Arm extends ConcurrentModule {
                 () -> getTelemetry().addLine("[Arm] could not find flap servo!")
         );
 
-        armMotor.runIfAvailable((arm) -> {
-            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            arm.setDirection(DcMotorSimple.Direction.FORWARD);
-            arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        });
-        armData = new ArmData();
-
         isFlapOpen = true;
         closeFlap();
-
-        exitSetup();
-
     }
 
-    /**
-     * A thread that keeps the arm motor at the target position
-     */
-    @Config("Arm (Position Updater Thread)")
-    private static class ArmPositionUpdaterThread extends ModuleThread<Arm> {
-        public static final String THREAD_NAME = "Arm Position Updater";
+    public static double kP = 0.000945;
+    public static double kI = 0.001;
+    public static double kD = 0;
 
-        public static double kP = 0.000945;
-        public static double kI = 0.001;
-        public static double kD = 0;
+    public static double INTEGRAL_MAX_POWER = 0.05;
 
-        public static double INTEGRAL_MAX_POWER = 0.05;
+    public static class ArmState {
+        private final int targetPosition;
+        private final int prevError;
+        private final int totalError;
 
-        /**
-         * Initializes the thread
-         * @param arm The arm to use
-         */
-        public ArmPositionUpdaterThread(Arm arm) {
-            super(arm, THREAD_NAME);
+        private ArmState(int targetPosition, int prevError, int totalError) {
+            this.targetPosition = targetPosition;
+            this.prevError = prevError;
+            this.totalError = totalError;
         }
 
-        @Override
-        public void execute() {
-            while (host.getState().isInInit()) {
-                if (host.getState().isTerminated()) {
-                    return; // if OpMode ends in init, end the thread
-                }
-                Thread.yield(); // wait until OpMode starts before moving the motor
-            }
+        private static ArmState fromCurrentPosition(DcMotor armMotor) {
+            return new ArmState(armMotor.getCurrentPosition(), 0, 0);
+        }
 
-            host.armMotor.runIfAvailable(arm -> { // this thread does nothing if there is no arm motor to update
-                int curTarget = 0;
-                int error,
-                        prevError = 0,
-                        errorChange,
-                        errorTotal = 0;
-                double power;
-                boolean adjustWristPosition = false;
-                int currentPosition;
-                final AtomicReference<Double> wristRotation = new AtomicReference<>(0.0);
+        private static ArmState createEmptyState() {
+            return new ArmState(0, 0, 0);
+        }
 
-                while (host.getState().isRunning()) {
-                    if (host.armData.isDirty.compareAndSet(true, false)) {
-                        curTarget = host.armData.getTargetPosition();
-                        adjustWristPosition = host.armData.getAdjustWristPosition();
-                        if (adjustWristPosition)
-                            host.wristServo.runIfAvailable(servo -> wristRotation.set(servo.getPosition()));
-
-                        // if we never made it to the target (i.e. we're tuning the PID controller and kI has been 0 for
-                        //  a while), we don't want a potentially massive error total to roll over to our new position
-                        //  and potentially be detrimental/dangerous
-                        errorTotal = 0;
-                    }
-
-                    currentPosition = arm.getCurrentPosition();
-                    if (adjustWristPosition) {
-                        final int finalCurrentPosition = currentPosition;
-                        host.wristServo.runIfAvailable(servo ->
-                                servo.setPosition(
-                                        wristRotation.get() - finalCurrentPosition / ONE_REVOLUTION_ENCODER_TICKS
-                                ));
-                    }
-
-                    error = currentPosition - curTarget;
-                    errorChange = error - prevError;
-                    errorTotal += error;
-                    errorTotal = (int)(Math.min(Math.abs(errorTotal), INTEGRAL_MAX_POWER / kI) * Math.signum(errorTotal)); // integral sum limit (errorTotal * kI <= INTEGRAL_MAX_POWER)
-
-                    power = error == 0 ? 0 : (error * kP) + (errorChange * kD) + (errorTotal * kI);
-                    arm.setPower(power);
-                    prevError = error;
-                }
-                arm.setPower(0.0); // this probably does something
-            });
+        private static ArmState genNewRotateCommand(int targetPosition) {
+            return new ArmState(targetPosition, 0, 0);
         }
     }
 
-    private static class ArmData {
-        public final AtomicBoolean isDirty = new AtomicBoolean(true);
-        private int targetPosition = 0;
-        private boolean adjustWristPosition = false;
-        private final Object dataMonitor = new Object(); // I'm pretty sure this is how threads work
-        public int getTargetPosition() {
-            synchronized (dataMonitor) {
-                return targetPosition;
-            }
-        }
-        public void setTargetPosition(int newTarget) {
-            if (targetPosition == newTarget) {
-                return; // nothing to update
-            }
+    private ArmState armState;
 
-            synchronized (dataMonitor) {
-                targetPosition = newTarget;
-                isDirty.set(true);
-            }
+    private ArmState internalCycleArmPID(ArmState curState) {
+        if (!armMotor.isAvailable()) {
+            return curState; // cannot move nonexistent arm
         }
-        public boolean getAdjustWristPosition() {
-            synchronized (dataMonitor) {
-                return adjustWristPosition;
-            }
+        final DcMotor arm = armMotor.requireDevice();
+
+        if (curState == null) {
+            return ArmState.fromCurrentPosition(arm); // if null, don't move
         }
-        public void setAdjustWristPosition(boolean newValue) {
-            synchronized (dataMonitor) {
-                adjustWristPosition = newValue;
-            }
-        }
+
+        final int currentPosition = arm.getCurrentPosition();
+
+        final int error = currentPosition - curState.targetPosition;
+        final int errorChange = error - curState.prevError;
+        final int errorTotal = curState.totalError + error;
+        final int clampedErrorTotal = (int)(Math.min(Math.abs(errorTotal), INTEGRAL_MAX_POWER / kI) * Math.signum(errorTotal)); // integral sum limit (errorTotal * kI <= INTEGRAL_MAX_POWER)
+
+        final double power = error == 0 ? 0 : (error * kP) + (errorChange * kD) + (clampedErrorTotal * kI);
+        arm.setPower(power);
+        return new ArmState(curState.targetPosition, error, clampedErrorTotal);
     }
-    private final ArmData armData;
+
+    public void cycleArmPID() {
+        armState = internalCycleArmPID(armState);
+    }
+
+    public void beginRotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
+        if (!armMotor.isAvailable()) {
+            return;
+        }
+
+        final double normalizedAngle = normalizeAngleOurWay(rotation + angleUnit.fromUnit(ANGLE_UNIT, ARM_ANGLE_OFFSET), angleUnit);
+
+        // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
+        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE) {
+            return; // don't rotate the arm into the floor
+        }
+
+        final int targetPosition = (int)Math.round(
+                normalizedAngle
+                        * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
+                        / ONE_REVOLUTION_OUR_ANGLE_UNIT
+        );
+        if (targetPosition == armState.targetPosition) {
+            return;
+        }
+
+        armState = ArmState.genNewRotateCommand(targetPosition);
+    }
 
     /**
      * Gets the arm motor's internal position
@@ -291,7 +256,7 @@ public final class Arm extends ConcurrentModule {
      * @return The arm's target position, in encoder ticks
      */
     public int getArmMotorTarget() {
-        return armData.getTargetPosition();
+        return armState.targetPosition;
     }
 
     /**
@@ -301,20 +266,14 @@ public final class Arm extends ConcurrentModule {
      * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
      */
     public void rotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
-        final double normalizedAngle = normalizeAngleOurWay(rotation + angleUnit.fromUnit(ANGLE_UNIT, ARM_ANGLE_OFFSET), angleUnit);
-
-        // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
-        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE) {
-            return; // don't rotate the arm into the floor
+        if (!armMotor.isAvailable()) {
+            return;
         }
+        beginRotateArmTo(rotation, angleUnit, preserveWristRotation);
 
-        armData.setTargetPosition((int)Math.round(
-                normalizedAngle
-                        * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
-                        / ONE_REVOLUTION_OUR_ANGLE_UNIT
-        ));
-
-        armData.setAdjustWristPosition(preserveWristRotation);
+        while (getArmMotorPosition() != armState.targetPosition) {
+            cycleArmPID();
+        }
     }
 
     /**
@@ -454,13 +413,7 @@ public final class Arm extends ConcurrentModule {
     }
 
     @Override
-    protected void registerModuleThreads() {
-        registerAsyncOperation(new ArmPositionUpdaterThread(this));
-    }
-
-    @Override
     public void log() {
-        getTelemetry().addData("[Arm] module state", getState());
         armMotor.runIfAvailable(arm -> getTelemetry().addData( "[Arm] (arm motor) current rotation",
                 Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 ));
         wristServo.runIfAvailable(wrist -> getTelemetry().addData( "[Arm] (wrist servo) current rotation",

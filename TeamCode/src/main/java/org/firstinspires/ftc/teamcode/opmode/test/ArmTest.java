@@ -54,7 +54,6 @@ public final class ArmTest extends OpMode {
 
         if (gamepad1.a || gamepad1.back) {
             failsafeEngaged = true;
-            arm.interrupt();
             terminateOpModeNow(); // failsafe
             arm.cleanupModule();
             return true;
@@ -80,13 +79,6 @@ public final class ArmTest extends OpMode {
 
         telemetry.addData("curPos", 0);
         telemetry.addData("tPos", 0);
-        telemetry.addData("s", arm.getState());
-    }
-
-    @Override
-    public void start() {
-        super.start();
-        arm.startThreads();
     }
 
     @Override
@@ -102,7 +94,6 @@ public final class ArmTest extends OpMode {
 
         telemetry.addData("curPos", arm.getArmMotorPosition());
         telemetry.addData("tPos", arm.getArmMotorTarget());
-        telemetry.addData("s", arm.getState());
     }
 
     @Override

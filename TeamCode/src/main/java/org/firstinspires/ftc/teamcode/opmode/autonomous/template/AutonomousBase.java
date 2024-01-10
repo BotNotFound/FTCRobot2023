@@ -84,6 +84,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
      */
     protected final void prepareArmForDriving() {
         arm.closeFlap();
+        arm.rotateWristTo(Arm.WristPresets.IDLE);
         arm.rotateArmTo(Arm.ArmPresets.IDLE);
     }
 

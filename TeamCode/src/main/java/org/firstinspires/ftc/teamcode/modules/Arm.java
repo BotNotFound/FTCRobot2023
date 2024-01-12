@@ -174,28 +174,38 @@ public final class Arm extends Module {
         private final int prevError;
         private final long totalError;
         private final ElapsedTime elapsedTime;
+        private final double wristPositionAtEnd;
 
 
-        private ArmState(int targetPosition, int prevError, long totalError, ElapsedTime timer) {
+        private ArmState(int targetPosition, int prevError, long totalError, ElapsedTime timer, double wristRotationAtEnd) {
             this.targetPosition = targetPosition;
             this.prevError = prevError;
             this.totalError = totalError;
             elapsedTime = timer;
+            this.wristPositionAtEnd = wristRotationAtEnd;
             elapsedTime.reset();
         }
 
         private static ArmState fromCurrentPosition(DcMotor armMotor) {
-            return new ArmState(armMotor.getCurrentPosition(), 0, 0, new ElapsedTime());
+            return genNewRotateCommand(armMotor.getCurrentPosition());
+        }
+        private static ArmState fromCurrentPosition(DcMotor armMotor, Servo wristServo) {
+            return genNewRotateCommand(armMotor.getCurrentPosition(), wristServo.getPosition());
         }
 
         private static ArmState createEmptyState() {
-            return new ArmState(0, 0, 0, new ElapsedTime());
+            return new ArmState(0, 0, 0, new ElapsedTime(), 0);
         }
 
+        private static ArmState genNewRotateCommand(int targetPosition, double targetWristPosition) {
+            return new ArmState(targetPosition, 0, 0, new ElapsedTime(), targetWristPosition);
+        }
         private static ArmState genNewRotateCommand(int targetPosition) {
-            return new ArmState(targetPosition, 0, 0, new ElapsedTime());
+            return genNewRotateCommand(targetPosition, 0);
         }
     }
+
+    public static final double WRIST_UP_POSITION = 0.75;
 
     private ArmState armState;
 
@@ -219,7 +229,20 @@ public final class Arm extends Module {
 
         final double power = error == 0 ? 0 : (error * kP) + (errorChange * kD) + (clampedErrorTotal * kI);
         arm.setPower(power);
-        return new ArmState(curState.targetPosition, error, clampedErrorTotal, curState.elapsedTime);
+
+        if (wristServo.isAvailable()) {
+            final Servo wrist = wristServo.requireDevice();
+            if (currentPosition == curState.targetPosition) {
+                wrist.setPosition(curState.wristPositionAtEnd);
+            }
+            else {
+                final double positionFraction = currentPosition / ONE_REVOLUTION_ENCODER_TICKS;
+                final double desiredWristPosition = WRIST_UP_POSITION - positionFraction;
+                wrist.setPosition(desiredWristPosition);
+            }
+        }
+
+        return new ArmState(curState.targetPosition, error, clampedErrorTotal, curState.elapsedTime, curState.wristPositionAtEnd);
     }
 
     public void cycleArmPID() {

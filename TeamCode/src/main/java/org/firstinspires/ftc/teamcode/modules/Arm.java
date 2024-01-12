@@ -171,11 +171,11 @@ public final class Arm extends Module {
     public static class ArmState {
         private final int targetPosition;
         private final int prevError;
-        private final int totalError;
+        private final long totalError;
         private final ElapsedTime elapsedTime;
 
 
-        private ArmState(int targetPosition, int prevError, int totalError, ElapsedTime timer) {
+        private ArmState(int targetPosition, int prevError, long totalError, ElapsedTime timer) {
             this.targetPosition = targetPosition;
             this.prevError = prevError;
             this.totalError = totalError;
@@ -212,8 +212,8 @@ public final class Arm extends Module {
         final long deltaTime = curState.elapsedTime.nanoseconds();
 
         final int error = currentPosition - curState.targetPosition;
-        final int errorChange = error - curState.prevError;
-        final int errorTotal = curState.totalError + error;
+        final double errorChange = (double)(error - curState.prevError) / deltaTime;
+        final long errorTotal = curState.totalError + (error / deltaTime);
         final int clampedErrorTotal = (int)(Math.min(Math.abs(errorTotal), INTEGRAL_MAX_POWER / kI) * Math.signum(errorTotal)); // integral sum limit (errorTotal * kI <= INTEGRAL_MAX_POWER)
 
         final double power = error == 0 ? 0 : (error * kP) + (errorChange * kD) + (clampedErrorTotal * kI);

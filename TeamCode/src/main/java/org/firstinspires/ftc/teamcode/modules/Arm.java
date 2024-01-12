@@ -149,9 +149,7 @@ public final class Arm extends Module {
                 () -> getTelemetry().addLine("[Arm] could not find arm motor!")
         );
         wristServo.runIfAvailable(
-                device -> {
-                    getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber());
-                },
+                device -> getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber()),
                 () -> getTelemetry().addLine("[Arm] could not find wrist servo!")
         );
         flapServo.runIfAvailable(
@@ -176,6 +174,10 @@ public final class Arm extends Module {
         private final ElapsedTime elapsedTime;
         private final double wristPositionAtEnd;
 
+        private ArmState withWristPosition(double wristPosition) {
+            return new ArmState(targetPosition, prevError, totalError, elapsedTime, wristPosition);
+        }
+
         private static final double DO_NOT_ROTATE_WRIST = Double.NaN;
         public boolean shouldRotateWrist() {
             return !Double.isNaN(wristPositionAtEnd);
@@ -194,19 +196,12 @@ public final class Arm extends Module {
         private static ArmState fromCurrentPosition(DcMotor armMotor) {
             return genNewRotateCommand(armMotor.getCurrentPosition());
         }
-        private static ArmState fromCurrentPosition(DcMotor armMotor, Servo wristServo) {
-            return genNewRotateCommand(armMotor.getCurrentPosition(), wristServo.getPosition());
-        }
 
         private static ArmState createEmptyState() {
             return new ArmState(0, 0, 0, new ElapsedTime(), DO_NOT_ROTATE_WRIST);
         }
-
-        private static ArmState genNewRotateCommand(int targetPosition, double targetWristPosition) {
-            return new ArmState(targetPosition, 0, 0, new ElapsedTime(), targetWristPosition);
-        }
         private static ArmState genNewRotateCommand(int targetPosition) {
-            return genNewRotateCommand(targetPosition, DO_NOT_ROTATE_WRIST);
+            return new ArmState(targetPosition, 0, 0, new ElapsedTime(), DO_NOT_ROTATE_WRIST);
         }
     }
 
@@ -349,10 +344,9 @@ public final class Arm extends Module {
      * @param angleUnit The unit of rotation used
      */
     public void rotateWristTo(double rotation, AngleUnit angleUnit) {
-        wristServo.runIfAvailable((Servo wrist) -> {
-            final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
-            wrist.setPosition(convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT);
-        });
+        final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
+        final double targetWristPos = convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT;
+        armState = armState.withWristPosition(targetWristPos);
     }
 
     /**

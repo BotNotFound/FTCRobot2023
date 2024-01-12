@@ -300,6 +300,8 @@ public final class Arm extends Module {
         return armState.targetPosition;
     }
 
+    public static final int ERROR_MARGIN = 50;
+
     /**
      * Rotates the arm to the specified rotation
      * @param rotation The target rotation
@@ -311,7 +313,7 @@ public final class Arm extends Module {
         }
         beginRotateArmTo(rotation, angleUnit);
 
-        while (getArmMotorPosition() != armState.targetPosition) {
+        while (Math.abs(getArmMotorPosition() - armState.targetPosition) <= ERROR_MARGIN) {
             cycleArmPID();
         }
     }

@@ -93,17 +93,17 @@ public final class TeleOpMain extends OpBase {
 
         if (gamepad2.x) {
             arm.rotateWristTo(Arm.WristPresets.IDLE);
-            arm.beginRotateArmTo(Arm.ArmPresets.IDLE, Arm.ANGLE_UNIT, true);
+            arm.beginRotateArmTo(Arm.ArmPresets.IDLE, Arm.ANGLE_UNIT);
         } else if (gamepad2.y) {
             arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
-            arm.beginRotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT, true);
+            arm.beginRotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT);
         } else if (gamepad2.b) {
             arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
-            arm.beginRotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.ANGLE_UNIT, true);
+            arm.beginRotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.ANGLE_UNIT);
         }
         else if (gamepad2.a) {
             arm.rotateWristTo(Arm.WristPresets.READY_TO_INTAKE);
-            arm.beginRotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT, true);
+            arm.beginRotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
         }
         arm.cycleArmPID();
 

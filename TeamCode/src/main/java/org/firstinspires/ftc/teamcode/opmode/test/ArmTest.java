@@ -87,9 +87,9 @@ public final class ArmTest extends OpMode {
 
         if (gamepad1.y) {
             ArmTestConfig.targetPosition = ArmTestConfig.angleUnit.fromDegrees(90);
-            arm.beginRotateArmTo((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES, false); // [-90, 90] + 90 = [0, 180]
+            arm.beginRotateArmTo((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES); // [-90, 90] + 90 = [0, 180]
         } else {
-            arm.beginRotateArmTo(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit, false);
+            arm.beginRotateArmTo(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit);
         }
         arm.cycleArmPID();
 

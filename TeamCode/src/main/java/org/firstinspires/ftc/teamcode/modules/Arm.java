@@ -225,7 +225,7 @@ public final class Arm extends Module {
         armState = internalCycleArmPID(armState);
     }
 
-    public void beginRotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
+    public void beginRotateArmTo(double rotation, AngleUnit angleUnit) {
         if (!armMotor.isAvailable()) {
             return;
         }
@@ -269,13 +269,12 @@ public final class Arm extends Module {
      * Rotates the arm to the specified rotation
      * @param rotation The target rotation
      * @param angleUnit The unit of rotation used
-     * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
      */
-    public void rotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
+    public void rotateArmTo(double rotation, AngleUnit angleUnit) {
         if (!armMotor.isAvailable()) {
             return;
         }
-        beginRotateArmTo(rotation, angleUnit, preserveWristRotation);
+        beginRotateArmTo(rotation, angleUnit);
 
         while (getArmMotorPosition() != armState.targetPosition) {
             cycleArmPID();
@@ -298,28 +297,10 @@ public final class Arm extends Module {
 
     /**
      * Rotates the arm to the specified rotation, WITHOUT preserving wrist rotation.
-     * @param rotation The target rotation
-     * @param angleUnit The unit of rotation used
-     */
-    public void rotateArmTo(double rotation, AngleUnit angleUnit) {
-        rotateArmTo(rotation, angleUnit, false);
-    }
-
-    /**
-     * Rotates the arm to the specified rotation
-     * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
-     * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
-     */
-    public void rotateArmTo(double rotation, boolean preserveWristRotation) {
-        rotateArmTo(rotation, ANGLE_UNIT, preserveWristRotation);
-    }
-
-    /**
-     * Rotates the arm to the specified rotation, WITHOUT preserving wrist rotation.
      * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
      */
     public void rotateArmTo(double rotation) {
-        rotateArmTo(rotation, false);
+        rotateArmTo(rotation, ANGLE_UNIT);
     }
 
     /**

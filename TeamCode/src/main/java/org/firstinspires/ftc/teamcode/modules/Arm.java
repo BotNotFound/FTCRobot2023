@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import java.lang.Thread;
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -39,14 +41,19 @@ public final class Arm extends ConcurrentModule {
     public static final double ONE_REVOLUTION_OUR_ANGLE_UNIT = ANGLE_UNIT.getUnnormalized().fromDegrees(360.0);
 
     /**
-     * Rotate flap to open position
+     * Rotate flap to open position with the right pixel exposed
      */
-    public static final double FLAP_OPEN = 0;
+    public static final double FLAP_OPEN_RIGHT = 0.35;
+
+    /**
+     * Rotate flap to open position with the left pixel exposed
+     */
+    public static final double FLAP_OPEN_LEFT = 0.65;
 
     /**
      * Rotate flap to closed position
      */
-    public static final double FLAP_CLOSED = 1;
+    public static final double FLAP_CLOSED = 0.5;
 
     public static final class ArmPresets extends Presets {
         /**
@@ -93,7 +100,7 @@ public final class Arm extends ConcurrentModule {
         public static final double DEPOSIT_ON_BACKDROP = 90.0;
     }
 
-    private boolean isFlapOpen;
+    private FlapState currentFlapState;
 
     /**
      * The motor that rotates the arm
@@ -144,7 +151,6 @@ public final class Arm extends ConcurrentModule {
         wristServo.runIfAvailable(
                 device -> {
                     getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber());
-                    device.setPosition(0.5);
                 },
                 () -> getTelemetry().addLine("[Arm] could not find wrist servo!")
         );
@@ -161,8 +167,7 @@ public final class Arm extends ConcurrentModule {
         });
         armData = new ArmData();
 
-        isFlapOpen = true;
-        closeFlap();
+        setFlapState(FlapState.CLOSED);
 
         exitSetup();
 
@@ -365,7 +370,7 @@ public final class Arm extends ConcurrentModule {
     public void rotateWristTo(double rotation, AngleUnit angleUnit) {
         wristServo.runIfAvailable((Servo wrist) -> {
             final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
-            wrist.setPosition(convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT);
+            wrist.setPosition(MathUtils.clamp((convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT), 0.35, 0.85));
         });
     }
 
@@ -411,46 +416,72 @@ public final class Arm extends ConcurrentModule {
         return angleUnit.fromUnit(ANGLE_UNIT, getWristRotation());
     }
     /**
-     * Opens the flap, if the flap is not already open
+     * Cycles the flap's state from OPEN_RIGHT -> OPEN_LEFT -> CLOSE -> OPEN_RIGHT and etc.
      */
-    public void openFlap() {
+    public void cycleFlap() {
         flapServo.runIfAvailable(flap -> {
-            if (isFlapOpen) {
-                return;
+            if (currentFlapState == FlapState.OPEN_RIGHT) {
+                currentFlapState = FlapState.OPEN_LEFT;
+                flap.setPosition(FLAP_OPEN_LEFT);
+            } else if (currentFlapState == FlapState.OPEN_LEFT) {
+                currentFlapState = FlapState.CLOSED;
+                flap.setPosition(FLAP_CLOSED);
+            } else {
+                currentFlapState = FlapState.OPEN_RIGHT;
+                flap.setPosition(FLAP_OPEN_RIGHT);
             }
-            flap.setPosition(FLAP_OPEN);
-            isFlapOpen = true;
         });
     }
 
+    public  static final long FLAP_CYCLE_WAIT_TIME = 200;
+
     /**
-     * Closes the flap, if the flap is not already closed
+     * Cycles through all flap states with enough time for pixels to fall out
      */
+    public void fullCycleFlap() {
+        try {
+            setFlapState(FlapState.CLOSED);
+            cycleFlap();
+            Thread.sleep(FLAP_CYCLE_WAIT_TIME);
+            cycleFlap();
+            Thread.sleep(FLAP_CYCLE_WAIT_TIME);
+            cycleFlap();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Sets the currentFlapState, as well moving the flap to that state
+     * @param flapState The FLAP_STATE to set the flap to
+     */
+    public void setFlapState(FlapState flapState) {
+        flapServo.runIfAvailable(flap -> {
+            if (flapState == FlapState.OPEN_LEFT) {
+                currentFlapState = FlapState.OPEN_LEFT;
+                flap.setPosition(FLAP_OPEN_LEFT);
+            } else if (flapState == FlapState.CLOSED) {
+                currentFlapState = FlapState.CLOSED;
+                flap.setPosition(FLAP_CLOSED);
+            } else {
+                currentFlapState = FlapState.OPEN_RIGHT;
+                flap.setPosition(FLAP_OPEN_RIGHT);
+            }
+        });
+    }
+
     public void closeFlap() {
-        flapServo.runIfAvailable(flap -> {
-            if (!isFlapOpen) {
-                return;
-            }
-            flap.setPosition(FLAP_CLOSED);
-            isFlapOpen = false;
-        });
+        setFlapState(FlapState.CLOSED);
     }
 
-    /**
-     * If the flap is open, close it.  Otherwise, open the flap
-     */
-    public void toggleFlap() {
-        if (isFlapOpen) {
-            closeFlap();
-        }
-        else {
-            openFlap();
-        }
-    }
-
-    public boolean isFlapOpen() {
+    public boolean isFlapOpenRight() {
         flapServo.requireDevice();
-        return isFlapOpen;
+        return currentFlapState == FlapState.OPEN_RIGHT;
+    }
+
+    public boolean isFlapOpenLeft() {
+        flapServo.requireDevice();
+        return currentFlapState == FlapState.OPEN_LEFT;
     }
 
     @Override
@@ -465,6 +496,10 @@ public final class Arm extends ConcurrentModule {
                 Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 ));
         wristServo.runIfAvailable(wrist -> getTelemetry().addData( "[Arm] (wrist servo) current rotation",
                 Math.rint(getWristRotation(AngleUnit.DEGREES) * 100) / 100 ));
-        flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap open", isFlapOpen()));
+        flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap closed", !(isFlapOpenLeft() && isFlapOpenRight())));
+    }
+
+    private enum FlapState {
+        OPEN_RIGHT, OPEN_LEFT, CLOSED
     }
 }

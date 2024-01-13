@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.modules.*;
 import org.firstinspires.ftc.teamcode.opmode.OpBase;
 
@@ -24,7 +27,9 @@ public final class TeleOpMain extends OpBase {
     private Arm arm;
     private ActiveIntake activeIntake;
     private PlaneLauncher planeLauncher;
-    private HangModule hangModule;
+//    private HangModule hangModule;
+
+    private ConditionalHardwareDevice<DcMotorEx> hangMotor;
 
     @Override
     protected void initModules() {
@@ -32,7 +37,9 @@ public final class TeleOpMain extends OpBase {
         arm = getModuleManager().getModule(Arm.class);
         activeIntake = getModuleManager().getModule(ActiveIntake.class);
         planeLauncher = getModuleManager().getModule(PlaneLauncher.class);
-        hangModule = getModuleManager().getModule(HangModule.class);
+//        hangModule = getModuleManager().getModule(HangModule.class);
+
+        hangMotor = ConditionalHardwareDevice.tryGetHardwareDevice(hardwareMap, DcMotorEx.class, HangModule.HANG_MOTOR_NAME);
     }
 
     @Override
@@ -105,10 +112,19 @@ public final class TeleOpMain extends OpBase {
         }
 
         if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
-            arm.toggleFlap();
+            arm.cycleFlap();
+        }
+        if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper) {
+            arm.fullCycleFlap();
         }
 
-        if (currentGamepad1.right_bumper && !previousGamepad2.right_bumper) {
+        if (currentGamepad1.b && !previousGamepad1.b) {
+            activeIntake.stop();
+        }
+        else if (currentGamepad1.a && !previousGamepad1.a) {
+            activeIntake.start();
+        }
+        else if (currentGamepad1.right_bumper && !previousGamepad2.right_bumper) {
             activeIntake.reverse();
         } else if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
             activeIntake.turbo();
@@ -116,9 +132,13 @@ public final class TeleOpMain extends OpBase {
             activeIntake.unTurbo();
         }
 
-        if (currentGamepad1.left_stick_button && !previousGamepad1.left_stick_button) {
-            hangModule.toggleHangState();
-        }
+//        if (currentGamepad1.left_stick_button && !previousGamepad1.left_stick_button) {
+//            hangModule.toggleHangState();
+//        }
+        hangMotor.runIfAvailable(motor -> {
+            motor.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            telemetry.addData("[Hang] motor amp usage", motor.getCurrent(CurrentUnit.MILLIAMPS));
+        });
 
         getModuleManager().logModuleStatus();
     }

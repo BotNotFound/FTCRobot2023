@@ -58,7 +58,7 @@ public abstract class AutonomousRedBackdropStartImpl extends AutonomousRedImpl {
         final Arm arm = getModuleManager().getModule(Arm.class);
         arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR);
         arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
-        arm.openFlap();
+        arm.cycleFlap();
 
         prepareArmForDriving();
 

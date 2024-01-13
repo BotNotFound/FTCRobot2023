@@ -151,7 +151,6 @@ public final class Arm extends ConcurrentModule {
         wristServo.runIfAvailable(
                 device -> {
                     getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber());
-                    device.setPosition(0.5);
                 },
                 () -> getTelemetry().addLine("[Arm] could not find wrist servo!")
         );
@@ -308,11 +307,9 @@ public final class Arm extends ConcurrentModule {
      */
     public void rotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
         final double normalizedAngle = normalizeAngleOurWay(rotation + angleUnit.fromUnit(ANGLE_UNIT, ARM_ANGLE_OFFSET), angleUnit);
-        final double normalizedDeposit = normalizeAngleOurWay(ArmPresets.DEPOSIT_ON_FLOOR + angleUnit.fromUnit(ANGLE_UNIT, ARM_ANGLE_OFFSET), angleUnit);
-        final double normalizedIntake = normalizeAngleOurWay(ArmPresets.READY_TO_INTAKE + angleUnit.fromUnit(ANGLE_UNIT, ARM_ANGLE_OFFSET), angleUnit);
 
         // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
-        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE - 1) {
+        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE) {
             return; // don't rotate the arm into the floor
         }
 

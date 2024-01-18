@@ -155,9 +155,7 @@ public final class Arm extends Module {
                 () -> getTelemetry().addLine("[Arm] could not find arm motor!")
         );
         wristServo.runIfAvailable(
-                device -> {
-                    getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber());
-                },
+                device -> getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber()),
                 () -> getTelemetry().addLine("[Arm] could not find wrist servo!")
         );
         flapServo.runIfAvailable(

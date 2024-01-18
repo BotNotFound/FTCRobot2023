@@ -108,7 +108,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
     protected void scoreOnBackdrop() {
         arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP);
         arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
-        arm.openFlap();
+        arm.cycleFlap();
     }
 
     /**

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 
@@ -14,6 +15,8 @@ import static org.firstinspires.ftc.teamcode.modules.Arm.*;
 
 @TeleOp(group = "Tests")
 public final class ArmTest extends OpMode {
+
+    private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
     @Disabled
     @TeleOp(group = "Tests")
     public static class AT2 extends LinearOpMode {
@@ -82,8 +85,29 @@ public final class ArmTest extends OpMode {
     }
 
     @Override
+    public void start() {
+        previousGamepad1 = new Gamepad();
+        currentGamepad1 = new Gamepad();
+    }
+
+    @Override
     public void loop() {
         if (checkFailsafe()) return;
+
+        // Store the gamepad values from the previous loop iteration in
+        // previousGamepad1/2 to be used in this loop iteration.
+        // This is equivalent to doing this at the end of the previous
+        // loop iteration, as it will run in the same order except for
+        // the first/last iteration of the loop.
+        previousGamepad1.copy(currentGamepad1);
+        //previousGamepad2.copy(currentGamepad2);
+
+        // Store the gamepad values from this loop iteration in
+        // currentGamepad1/2 to be used for the entirety of this loop iteration.
+        // This prevents the gamepad values from changing between being
+        // used and stored in previousGamepad1/2.
+        currentGamepad1.copy(gamepad1);
+        //currentGamepad2.copy(gamepad2);
 
         if (gamepad1.y) {
             ArmTestConfig.targetPosition = ArmTestConfig.angleUnit.fromDegrees(90);
@@ -92,6 +116,13 @@ public final class ArmTest extends OpMode {
             arm.beginRotateArmTo(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit);
         }
         arm.cycleArmPID();
+
+        if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
+            arm.cycleFlap();
+        }
+        if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
+            arm.fullCycleFlap();
+        }
 
         telemetry.addData("curPos", arm.getArmMotorPosition());
         telemetry.addData("tPos", arm.getArmMotorTarget());

@@ -1,12 +1,58 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import android.util.Pair;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
-public class FieldCentricDriveTrain extends DriveTrain {
+public class FieldCentricDriveTrain extends Module {
+    /**
+     * The motor that drives the front right mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
+     */
+    protected final DcMotorEx getFrontRightMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, DriveTrain.FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
+
+
+    /**
+     * The motor that drives the front left mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
+     */
+    protected final DcMotorEx getFrontLeftMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, DriveTrain.FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
+
+
+    /**
+     * The motor that drives the back right mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
+     */
+    protected final DcMotorEx getBackRightMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, DriveTrain.BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
+
+    /**
+     * The motor that drives the back left mecanum wheel
+     * @apiNote This should only be called within the
+     * {@link ConditionalHardwareDeviceGroup#executeIfAllAreAvailable(Runnable)} of {@link #hardwareDevices}
+     */
+    protected final DcMotorEx getBackLeftMecanumDriver() {
+        return hardwareDevices.getLoadedDevice(DcMotorEx.class, DriveTrain.BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME);
+    }
+
+    /**
+     * A {@link ConditionalHardwareDeviceGroup} containing all the hardware devices necessary for the drive train to function
+     */
+    protected final ConditionalHardwareDeviceGroup hardwareDevices;
 
     public static final AngleUnit ANGLE_UNIT = AngleUnit.RADIANS;
 
@@ -30,20 +76,44 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     public FieldCentricDriveTrain(OpMode registrar) {
         super(registrar);
-        hardwareDevices.tryLoadDevice(IMU.class, IMU_NAME);
+
+
+        hardwareDevices = new ConditionalHardwareDeviceGroup(parent.hardwareMap);
+        hardwareDevices.tryLoadDevices(
+                new Pair<>(DcMotorEx.class, DriveTrain.FRONT_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
+                new Pair<>(DcMotorEx.class, DriveTrain.FRONT_LEFT_MECANUM_DRIVER_DEFAULT_NAME),
+                new Pair<>(DcMotorEx.class, DriveTrain.BACK_RIGHT_MECANUM_DRIVER_DEFAULT_NAME),
+                new Pair<>(DcMotorEx.class, DriveTrain.BACK_LEFT_MECANUM_DRIVER_DEFAULT_NAME),
+                new Pair<>(IMU.class, IMU_NAME)
+        );
 
         hardwareDevices.executeIfAllAreAvailable(() -> {
+
+            // motor config
+            getFrontRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getBackRightMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getFrontLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            getBackLeftMecanumDriver().setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            DriveTrain.configureMotorDirections(
+                    getFrontLeftMecanumDriver(),
+                    getFrontRightMecanumDriver(),
+                    getBackLeftMecanumDriver(),
+                    getBackRightMecanumDriver()
+            );
+
+            // IMU config
             getIMU().initialize(getImuParameters());
             resetRotation();
-            getTelemetry().addLine("[Field Centric Drive Train] Found IMU");
-        }, () -> getTelemetry().addLine("[Field Centric Drive Train] Couldn't find IMU!"));
+
+            getTelemetry().addLine("[Field Centric Drive Train] Found all drive hardware");
+        }, () -> getTelemetry().addLine("[Field Centric Drive Train] Couldn't find all necessary hardware!"));
     }
 
     public void resetRotation() {
         hardwareDevices.executeIfAllAreAvailable(getIMU()::resetYaw);
     }
 
-    @Override
     public void setVelocity(double distX, double distY, double rotation) {
         hardwareDevices.executeIfAllAreAvailable(() -> {
             double botHeading = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT)/* - curZero*/;
@@ -70,5 +140,11 @@ public class FieldCentricDriveTrain extends DriveTrain {
             getFrontRightMecanumDriver().setPower(frontRightPower);
             getBackRightMecanumDriver().setPower(backRightPower);
         });
+    }
+
+
+    @Override
+    public void log() {
+        // nothing to log
     }
 }

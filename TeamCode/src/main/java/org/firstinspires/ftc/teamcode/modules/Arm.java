@@ -401,19 +401,20 @@ public final class Arm extends Module {
         return angleUnit.fromUnit(ANGLE_UNIT, getWristRotation());
     }
     /**
-     * Cycles the flap's state from OPEN_RIGHT -> OPEN_LEFT -> CLOSE -> OPEN_RIGHT and etc.
+     * Cycles the flap's state from OPEN_RIGHT -> OPEN_LEFT -> CLOSE -> OPEN_RIGHT etc.
      */
     public void cycleFlap() {
         flapServo.runIfAvailable(flap -> {
-            if (currentFlapState == FlapState.OPEN_RIGHT) {
-                currentFlapState = FlapState.OPEN_LEFT;
-                flap.setPosition(FLAP_OPEN_LEFT);
-            } else if (currentFlapState == FlapState.OPEN_LEFT) {
-                currentFlapState = FlapState.CLOSED;
-                flap.setPosition(FLAP_CLOSED);
-            } else {
-                currentFlapState = FlapState.OPEN_RIGHT;
-                flap.setPosition(FLAP_OPEN_RIGHT);
+            switch (currentFlapState) {
+                case OPEN_RIGHT:
+                    setFlapState(FlapState.OPEN_LEFT);
+                    break;
+                case OPEN_LEFT:
+                    setFlapState(FlapState.CLOSED);
+                    break;
+                case CLOSED:
+                    setFlapState(FlapState.OPEN_RIGHT);
+                    break;
             }
         });
     }
@@ -442,21 +443,9 @@ public final class Arm extends Module {
      */
     private void setFlapState(FlapState flapState) {
         flapServo.runIfAvailable(flap -> {
-            if (flapState == FlapState.OPEN_LEFT) {
-                currentFlapState = FlapState.OPEN_LEFT;
-                flap.setPosition(FLAP_OPEN_LEFT);
-            } else if (flapState == FlapState.CLOSED) {
-                currentFlapState = FlapState.CLOSED;
-                flap.setPosition(FLAP_CLOSED);
-            } else {
-                currentFlapState = FlapState.OPEN_RIGHT;
-                flap.setPosition(FLAP_OPEN_RIGHT);
-            }
+            currentFlapState = flapState;
+            flap.setPosition(flapState.flapPosition);
         });
-    }
-
-    public void closeFlap() {
-        setFlapState(FlapState.CLOSED);
     }
 
     public boolean isFlapOpenRight() {
@@ -479,6 +468,11 @@ public final class Arm extends Module {
     }
 
     private enum FlapState {
-        OPEN_RIGHT, OPEN_LEFT, CLOSED
+        OPEN_RIGHT(FLAP_OPEN_RIGHT), OPEN_LEFT(FLAP_OPEN_LEFT), CLOSED(FLAP_CLOSED);
+
+        public final double flapPosition;
+        FlapState(double flapPosition) {
+            this.flapPosition = flapPosition;
+        }
     }
 }

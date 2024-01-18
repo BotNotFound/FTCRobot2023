@@ -83,7 +83,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
      *  robot will be able to drive under the trusses without getting stuck
      */
     protected final void prepareArmForDriving() {
-        arm.closeFlap();
+        arm.cycleFlap();
         arm.rotateWristTo(Arm.WristPresets.IDLE);
         arm.rotateArmTo(Arm.ArmPresets.IDLE);
     }

@@ -112,7 +112,7 @@ public final class TeleOpMain extends OpBase {
             activeIntake.reverse();
         } else if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
             activeIntake.turbo();
-        } else if (activeIntake.isTurbo()) {
+        } else if (previousGamepad1.left_bumper) {
             activeIntake.unTurbo();
         }
 

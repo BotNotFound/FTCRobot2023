@@ -21,7 +21,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
 
     private static final IMU.Parameters IMU_PARAMETERS = new IMU.Parameters(new RevHubOrientationOnRobot(
             RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+            RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
     public static IMU.Parameters getImuParameters() {
         return IMU_PARAMETERS;
     }
@@ -46,29 +46,17 @@ public class FieldCentricDriveTrain extends DriveTrain {
     @Override
     public void setVelocity(double distX, double distY, double rotation) {
         hardwareDevices.executeIfAllAreAvailable(() -> {
-            double botHeading = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT)/* - curZero*/;
+            double botHeading = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
 
             // Rotate the movement direction counter to the robot's rotation
-            double rotX = (distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading));
+            double rotX = distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading);
             double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
             getTelemetry().addData("[Field Centric Drive Train] current x rotation", rotX);
             getTelemetry().addData("[Field Centric Drive Train] current y rotation", rotY);
             getTelemetry().addData("[Field Centric Drive Train] bot heading value", botHeading);
             rotX = rotX * 1.1;  // Counteract imperfect strafing
 
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers maintain the same ratio,
-            // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rotation), 1);
-            double frontLeftPower = (rotY + rotX + rotation) / denominator;
-            double backLeftPower = (rotY - rotX + rotation) / denominator;
-            double frontRightPower = (rotY - rotX - rotation) / denominator;
-            double backRightPower = (rotY + rotX - rotation) / denominator;
-            //Set power to motors
-            getFrontLeftMecanumDriver().setPower(frontLeftPower);
-            getBackLeftMecanumDriver().setPower(backLeftPower);
-            getFrontRightMecanumDriver().setPower(frontRightPower);
-            getBackRightMecanumDriver().setPower(backRightPower);
+            super.setVelocity(rotX, rotY, rotation);
         });
     }
 }

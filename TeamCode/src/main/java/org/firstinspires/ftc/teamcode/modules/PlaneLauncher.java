@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 public class PlaneLauncher extends Module {
 
-    private static final double SERVO_POSITION_LAUNCHED = 0;
+    private static final double SERVO_POSITION_LAUNCHED = 1;
     public static final String LAUNCHER_SERVO_NAME = "Launcher Servo";
 
     /**
@@ -24,11 +24,13 @@ public class PlaneLauncher extends Module {
     public PlaneLauncher(@NonNull OpMode registrar) {
         super(registrar);
         launcherServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, LAUNCHER_SERVO_NAME);
+
     }
 
     public void launch() {
         launcherServo.runIfAvailable(launcher -> launcher.setPosition(SERVO_POSITION_LAUNCHED));
     }
+
 
     public boolean hasLaunched() {
         return launcherServo.requireDevice().getPosition() == SERVO_POSITION_LAUNCHED;

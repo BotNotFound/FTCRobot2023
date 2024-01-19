@@ -48,7 +48,7 @@ public abstract class AutonomousBlueWallStartImpl extends AutonomousBlueImpl {
      * places the first pixel on the spike mark.
      */
     @Override
-    protected void scoreOnSpikeMark() {
+    protected void scoreOnSpikeMark() throws InterruptedException {
         final TrajectoryBuilder builder = getDriverToPosition().trajectoryBuilder(getDriverToPosition().getPoseEstimate());
 
         builder.strafeRight(AutonomousConstants.SPIKE_MARK_WIDTH_IN / 3);
@@ -56,9 +56,13 @@ public abstract class AutonomousBlueWallStartImpl extends AutonomousBlueImpl {
         getDriverToPosition().followTrajectory(builder.build());
 
         final Arm arm = getModuleManager().getModule(Arm.class);
+        arm.rotateWristTo(Arm.WristPresets.IDLE);
+        Thread.sleep(200);
+        arm.rotateArmTo(Arm.ArmPresets.IDLE);
+        Thread.sleep(200);
         arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR);
         arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
-        arm.openFlap();
+        arm.cycleFlap();
 
         prepareArmForDriving();
 

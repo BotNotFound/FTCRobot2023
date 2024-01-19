@@ -42,7 +42,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
     }
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         // assumed starting position is touching the wall, with the active intake facing away from the backdrop
 
         driveToSpikeMarks();
@@ -82,9 +82,11 @@ public abstract class AutonomousBase extends OpBaseLinear {
      * Called after methods that move the arm, before methods that move the robot.  Moves the arm and wrist so that the
      *  robot will be able to drive under the trusses without getting stuck
      */
-    protected final void prepareArmForDriving() {
-        arm.closeFlap();
-        arm.rotateArmTo(Arm.ArmPresets.IDLE);
+    protected final void prepareArmForDriving() throws InterruptedException {
+        /*arm.closeFlap();
+        arm.rotateWristTo(Arm.WristPresets.IDLE);
+        Thread.sleep(200);
+        arm.rotateArmTo(Arm.ArmPresets.IDLE);*/
     }
 
     /**
@@ -98,16 +100,20 @@ public abstract class AutonomousBase extends OpBaseLinear {
      *  in front of it.  When implemented, moves the robot so that the pixel won't be placed on top of the team prop, and
      *  places the first pixel on the spike mark.
      */
-    protected abstract void scoreOnSpikeMark();
+    protected abstract void scoreOnSpikeMark() throws InterruptedException;
 
     /**
      * Called when the robot is facing the backdrop, directly in front of the target AprilTag.  Places the second pixel
      *  on the backdrop.
      */
-    protected void scoreOnBackdrop() {
+    protected void scoreOnBackdrop() throws InterruptedException {
+        /*arm.rotateWristTo(Arm.WristPresets.IDLE);
+        Thread.sleep(200);
+        arm.rotateArmTo(Arm.ArmPresets.IDLE);
+        Thread.sleep(200);
         arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP);
         arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
-        arm.openFlap();
+        arm.cycleFlap();*/
     }
 
     /**

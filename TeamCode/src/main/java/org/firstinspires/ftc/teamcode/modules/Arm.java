@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -30,6 +31,8 @@ public final class Arm extends ConcurrentModule {
      */
     public static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;
 
+    public static final double ARM_ANGLE_OFFSET = ANGLE_UNIT.fromDegrees(-29.208);
+
     /**
      * One full rotation in the unit specified by {@link #ANGLE_UNIT}
      */
@@ -38,34 +41,36 @@ public final class Arm extends ConcurrentModule {
     /**
      * Rotate flap to open position
      */
-    public static final double FLAP_OPEN = 0;
+    public static final double FLAP_OPEN_RIGHT = 0.35;
+
+    public static final double FLAP_OPEN_LEFT = 0.65;
 
     /**
      * Rotate flap to closed position
      */
-    public static final double FLAP_CLOSED = 1;
+    public static final double FLAP_CLOSED = 0.5;
 
     public static final class ArmPresets extends Presets {
         /**
          * Rotates the arm to the position it was in at the start of execution.  This should be parallel to the ground,
          *  with the end of the arm closest to the active intake.
          */
-        public static final double START_POS = 0.0;
+        public static final double IDLE = 25.0;
 
         /**
          * Rotates the arm so that the robot can collect pixels
          */
-        public static final double READY_TO_INTAKE = -25.0;
+        public static final double READY_TO_INTAKE = 0.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static final double DEPOSIT_ON_FLOOR = 200.0;
+        public static final double DEPOSIT_ON_FLOOR = 210.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 115.0;
+        public static final double DEPOSIT_ON_BACKDROP = 160.0;
     }
 
     public static final class WristPresets extends Presets { // TODO these presets are untested
@@ -73,24 +78,25 @@ public final class Arm extends ConcurrentModule {
          * Rotates the wrist to the position it was in at the start of execution.
          * This should be parallel to the ground.
          */
-        public static final double IDLE = 180.0;
+        public static final double IDLE = 0.75;
         /**
          * Rotates the wrist so that the robot can collect pixels
          */
-        public static final double READY_TO_INTAKE = 30.0;
+        public static final double READY_TO_INTAKE = 0.55;
 
         /**
          * Rotates the wrist so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static final double DEPOSIT_ON_FLOOR = 180.0;
+        public static final double DEPOSIT_ON_FLOOR = 0.5;
 
         /**
          * Rotates the wrist so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 90.0;
+        public static final double DEPOSIT_ON_BACKDROP = 0.4;
     }
 
-    private boolean isFlapOpen;
+    //private boolean isFlapOpen;
+    private FlapState currentFlapState;
 
     /**
      * The motor that rotates the arm
@@ -155,8 +161,7 @@ public final class Arm extends ConcurrentModule {
         });
         armData = new ArmData();
 
-        isFlapOpen = true;
-        closeFlap();
+        setFlapState(FlapState.CLOSED);
 
         exitSetup();
 
@@ -215,7 +220,7 @@ public final class Arm extends ConcurrentModule {
 
                     currentPosition = arm.getCurrentPosition();
                     if (adjustWristPosition) {
-                        host.rotateWristTo(host.getWristRotation() - host.getArmRotation());
+                        //host.rotateWristTo(host.getWristRotation() - host.getArmRotation());
                     }
 
                     error = currentPosition - curTarget;
@@ -291,7 +296,7 @@ public final class Arm extends ConcurrentModule {
         final double normalizedAngle = normalizeAngleOurWay(rotation, angleUnit);
 
         // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
-        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE) {
+        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE ) {
             return; // don't rotate the arm into the floor
         }
 
@@ -351,8 +356,8 @@ public final class Arm extends ConcurrentModule {
      */
     public void rotateWristTo(double rotation, AngleUnit angleUnit) {
         wristServo.runIfAvailable((Servo wrist) -> {
-            final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
-            wrist.setPosition(convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT);
+            //final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
+            wrist.setPosition(MathUtils.clamp(rotation, 0.35, 0.85));//convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT);
         });
     }
 
@@ -397,10 +402,70 @@ public final class Arm extends ConcurrentModule {
     public double getWristRotation(AngleUnit angleUnit) {
         return angleUnit.fromUnit(ANGLE_UNIT, getWristRotation());
     }
+
+    public void cycleFlap() {
+        flapServo.runIfAvailable(flap -> {
+            if (currentFlapState == FlapState.OPEN_RIGHT) {
+                currentFlapState = FlapState.OPEN_LEFT;
+                flap.setPosition(FLAP_OPEN_LEFT);
+            } else if (currentFlapState == FlapState.OPEN_LEFT) {
+                currentFlapState = FlapState.CLOSED;
+                flap.setPosition(FLAP_CLOSED);
+            } else {
+                currentFlapState = FlapState.OPEN_RIGHT;
+                flap.setPosition(FLAP_OPEN_RIGHT);
+            }
+        });
+    }
+
+    public static final long FLAP_CYCLE_WAIT_TIME = 200;
+
+    public void fullCycleFlap() {
+        try {
+            setFlapState(FlapState.CLOSED);
+            cycleFlap();
+            Thread.sleep(FLAP_CYCLE_WAIT_TIME);
+            cycleFlap();
+            Thread.sleep(FLAP_CYCLE_WAIT_TIME);
+            cycleFlap();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setFlapState(FlapState flapState) {
+        flapServo.runIfAvailable(flap -> {
+            if (flapState == FlapState.OPEN_LEFT) {
+                currentFlapState = FlapState.OPEN_LEFT;
+                flap.setPosition(FLAP_OPEN_LEFT);
+            } else if (flapState == FlapState.CLOSED) {
+                currentFlapState = FlapState.CLOSED;
+                flap.setPosition(FLAP_CLOSED);
+            } else {
+                currentFlapState = FlapState.OPEN_RIGHT;
+                flap.setPosition(FLAP_OPEN_RIGHT);
+            }
+        });
+    }
+
+    public void closeFlap() {
+        setFlapState(FlapState.CLOSED);
+    }
+
+    public boolean isFlapOpenRight() {
+        flapServo.requireDevice();
+        return currentFlapState == FlapState.OPEN_RIGHT;
+    }
+
+    public boolean isFlapOpenLeft() {
+        flapServo.requireDevice();
+        return  currentFlapState == FlapState.OPEN_LEFT;
+    }
+
     /**
      * Opens the flap, if the flap is not already open
      */
-    public void openFlap() {
+    /*public void openFlap() {
         flapServo.runIfAvailable(flap -> {
             if (isFlapOpen) {
                 return;
@@ -408,12 +473,12 @@ public final class Arm extends ConcurrentModule {
             flap.setPosition(FLAP_OPEN);
             isFlapOpen = true;
         });
-    }
+    }*/
 
     /**
      * Closes the flap, if the flap is not already closed
      */
-    public void closeFlap() {
+    /*public void closeFlap() {
         flapServo.runIfAvailable(flap -> {
             if (!isFlapOpen) {
                 return;
@@ -421,12 +486,12 @@ public final class Arm extends ConcurrentModule {
             flap.setPosition(FLAP_CLOSED);
             isFlapOpen = false;
         });
-    }
+    }*/
 
     /**
      * If the flap is open, close it.  Otherwise, open the flap
      */
-    public void toggleFlap() {
+    /*public void toggleFlap() {
         if (isFlapOpen) {
             closeFlap();
         }
@@ -438,7 +503,7 @@ public final class Arm extends ConcurrentModule {
     public boolean isFlapOpen() {
         flapServo.requireDevice();
         return isFlapOpen;
-    }
+    }*/
 
     @Override
     protected void registerModuleThreads() {
@@ -452,6 +517,10 @@ public final class Arm extends ConcurrentModule {
                 Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 ));
         wristServo.runIfAvailable(wrist -> getTelemetry().addData( "[Arm] (wrist servo) current rotation",
                 Math.rint(getWristRotation(AngleUnit.DEGREES) * 100) / 100 ));
-        flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap open", isFlapOpen()));
+        flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap open", !(isFlapOpenLeft() && isFlapOpenRight())));
+    }
+
+    private enum FlapState {
+        OPEN_RIGHT, OPEN_LEFT, CLOSED
     }
 }

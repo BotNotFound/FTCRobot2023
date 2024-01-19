@@ -144,7 +144,6 @@ public final class Arm extends ConcurrentModule {
         wristServo.runIfAvailable(
                 device -> {
                     getTelemetry().addLine("[Arm] found wrist servo of type " + device.getDeviceName() + " on port " + device.getPortNumber());
-                    device.setPosition(0.5);
                 },
                 () -> getTelemetry().addLine("[Arm] could not find wrist servo!")
         );

@@ -51,49 +51,51 @@ public final class Arm extends ConcurrentModule {
      */
     public static final double FLAP_CLOSED = 0.5;
 
+    @Config
     public static final class ArmPresets extends Presets {
         /**
          * Rotates the arm to the position it was in at the start of execution.  This should be parallel to the ground,
          *  with the end of the arm closest to the active intake.
          */
-        public static final double IDLE = 0.0;
+        public static double IDLE = 0.0;
 
         /**
          * Rotates the arm so that the robot can collect pixels
          */
-        public static final double READY_TO_INTAKE = -25.0;
+        public static double READY_TO_INTAKE = -25.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static final double DEPOSIT_ON_FLOOR = 200.0;
+        public static double DEPOSIT_ON_FLOOR = 200.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 115.0;
+        public static double DEPOSIT_ON_BACKDROP = 115.0;
     }
 
+    @Config
     public static final class WristPresets extends Presets { // TODO these presets are untested
         /**
          * Rotates the wrist to the position it was in at the start of execution.
          * This should be parallel to the ground.
          */
-        public static final double IDLE = 180.0;
+        public static double IDLE = 180.0;
         /**
          * Rotates the wrist so that the robot can collect pixels
          */
-        public static final double READY_TO_INTAKE = 30.0;
+        public static double READY_TO_INTAKE = 30.0;
 
         /**
          * Rotates the wrist so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static final double DEPOSIT_ON_FLOOR = 180.0;
+        public static double DEPOSIT_ON_FLOOR = 180.0;
 
         /**
          * Rotates the wrist so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 90.0;
+        public static double DEPOSIT_ON_BACKDROP = 90.0;
     }
 
     private FlapState currentFlapState;

@@ -31,6 +31,8 @@ public final class Arm extends ConcurrentModule {
      */
     public static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;
 
+    public static final double ARM_ANGLE_OFFSET = ANGLE_UNIT.fromDegrees(-29.208);
+
     /**
      * One full rotation in the unit specified by {@link #ANGLE_UNIT}
      */
@@ -295,7 +297,7 @@ public final class Arm extends ConcurrentModule {
      * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
      */
     public void rotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
-        final double normalizedAngle = normalizeAngleOurWay(rotation, angleUnit);
+        final double normalizedAngle = normalizeAngleOurWay(rotation - ARM_ANGLE_OFFSET, angleUnit);
 
         // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
         if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE) {
@@ -376,7 +378,7 @@ public final class Arm extends ConcurrentModule {
      * @return The arm's rotation in the unit specified by {@link #ANGLE_UNIT}
      */
     public double getArmRotation() {
-        return ((double)getArmMotorPosition() * ONE_REVOLUTION_OUR_ANGLE_UNIT / ONE_REVOLUTION_ENCODER_TICKS);
+        return ((double)getArmMotorPosition() * ONE_REVOLUTION_OUR_ANGLE_UNIT / ONE_REVOLUTION_ENCODER_TICKS) + ARM_ANGLE_OFFSET;
     }
 
     /**

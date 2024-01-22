@@ -8,6 +8,8 @@ import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDeviceGroup;
 
 public class FieldCentricDriveTrain extends DriveTrain {
 
+    public static final AngleUnit ANGLE_UNIT = AngleUnit.RADIANS;
+
     /**
      * The IMU
      * @apiNote This should only be called within the
@@ -37,33 +39,20 @@ public class FieldCentricDriveTrain extends DriveTrain {
         }, () -> getTelemetry().addLine("[Field Centric Drive Train] Couldn't find IMU!"));
     }
 
-    private static final double TAU = 2 * Math.PI;
-
     public void resetRotation() {
         hardwareDevices.executeIfAllAreAvailable(getIMU()::resetYaw);
-    }
-
-    private static double findSmallestPositiveCoterminalAngle(double radians) {
-        while (radians < 0) {
-            radians += TAU; // 1 rotation; the angle is still coterminal
-        }
-
-        return radians % TAU;
     }
 
     @Override
     public void setVelocity(double distX, double distY, double rotation) {
         hardwareDevices.executeIfAllAreAvailable(() -> {
-            final double botHeading =
-                    findSmallestPositiveCoterminalAngle(
-                            getIMU()
-                                    .getRobotYawPitchRollAngles()
-                                    .getYaw(AngleUnit.RADIANS)
-                    );
+            double botHeading = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
 
             // Rotate the movement direction counter to the robot's rotation
             double rotX = distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading);
             double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
+            getTelemetry().addData("[Field Centric Drive Train] current x rotation", rotX);
+            getTelemetry().addData("[Field Centric Drive Train] current y rotation", rotY);
             getTelemetry().addData("[Field Centric Drive Train] bot heading value", botHeading);
             rotX = rotX * 1.1;  // Counteract imperfect strafing
 

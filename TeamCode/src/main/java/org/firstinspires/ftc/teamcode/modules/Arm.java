@@ -399,15 +399,16 @@ public final class Arm extends ConcurrentModule {
      */
     public void cycleFlap() {
         flapServo.runIfAvailable(flap -> {
-            if (currentFlapState == FlapState.OPEN_RIGHT) {
-                currentFlapState = FlapState.OPEN_LEFT;
-                flap.setPosition(FLAP_OPEN_LEFT);
-            } else if (currentFlapState == FlapState.OPEN_LEFT) {
-                currentFlapState = FlapState.CLOSED;
-                flap.setPosition(FLAP_CLOSED);
-            } else {
-                currentFlapState = FlapState.OPEN_RIGHT;
-                flap.setPosition(FLAP_OPEN_RIGHT);
+            switch (currentFlapState) {
+                case OPEN_RIGHT:
+                    setFlapState(FlapState.OPEN_LEFT);
+                    break;
+                case OPEN_LEFT:
+                    setFlapState(FlapState.CLOSED);
+                    break;
+                case CLOSED:
+                    setFlapState(FlapState.OPEN_RIGHT);
+                    break;
             }
         });
     }
@@ -434,19 +435,8 @@ public final class Arm extends ConcurrentModule {
      * Sets the currentFlapState, as well moving the flap to that state
      * @param flapState The FLAP_STATE to set the flap to
      */
-    public void setFlapState(FlapState flapState) {
-        flapServo.runIfAvailable(flap -> {
-            if (flapState == FlapState.OPEN_LEFT) {
-                currentFlapState = FlapState.OPEN_LEFT;
-                flap.setPosition(FLAP_OPEN_LEFT);
-            } else if (flapState == FlapState.CLOSED) {
-                currentFlapState = FlapState.CLOSED;
-                flap.setPosition(FLAP_CLOSED);
-            } else {
-                currentFlapState = FlapState.OPEN_RIGHT;
-                flap.setPosition(FLAP_OPEN_RIGHT);
-            }
-        });
+    private void setFlapState(FlapState flapState) {
+        flapServo.runIfAvailable(flap -> flap.setPosition(flapState.targetFlapPosition));
     }
 
     public void closeFlap() {
@@ -479,6 +469,14 @@ public final class Arm extends ConcurrentModule {
     }
 
     private enum FlapState {
-        OPEN_RIGHT, OPEN_LEFT, CLOSED
+        OPEN_RIGHT(FLAP_OPEN_RIGHT),
+        OPEN_LEFT(FLAP_OPEN_LEFT),
+        CLOSED(FLAP_CLOSED);
+
+        public final double targetFlapPosition;
+
+        FlapState(double targetFlapPosition) {
+            this.targetFlapPosition = targetFlapPosition;
+        }
     }
 }

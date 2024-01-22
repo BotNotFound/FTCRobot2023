@@ -354,23 +354,11 @@ public final class Arm extends ConcurrentModule {
     }
 
     /**
-     * Rotates the wrist to the specified rotation
-     * @param rotation The target rotation
-     * @param angleUnit The unit of rotation used
+     * Rotates the wrist to the specified position
+     * @param position The target position.  This value must be between 0.0 and 1.0 (inclusive)
      */
-    public void rotateWristTo(double rotation, AngleUnit angleUnit) {
-        wristServo.runIfAvailable((Servo wrist) -> {
-            final double convertedRotation = ANGLE_UNIT.fromUnit(angleUnit, rotation); // convert angle to our unit
-            wrist.setPosition(MathUtils.clamp((convertedRotation * ONE_REVOLUTION_ENCODER_TICKS / ONE_REVOLUTION_OUR_ANGLE_UNIT), 0.35, 0.85));
-        });
-    }
-
-    /**
-     * Rotates the wrist to the specified rotation
-     * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
-     */
-    public void rotateWristTo(double rotation) {
-        rotateWristTo(rotation, ANGLE_UNIT);
+    public void rotateWristTo(double position) {
+        wristServo.runIfAvailable(wrist -> wrist.setPosition(MathUtils.clamp(position, 0.35, 0.85)));
     }
 
     /**

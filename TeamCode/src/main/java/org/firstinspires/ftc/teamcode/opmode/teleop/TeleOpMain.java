@@ -92,7 +92,7 @@ public final class TeleOpMain extends OpBase {
                 gamepad1.left_stick_x * 0.5,
                 gamepad1.right_stick_x * 0.5
         );
-        if (currentGamepad1.start) {
+        if (currentGamepad1.start && !previousGamepad1.start) {
             driveTrain.resetRotation();
         }
 
@@ -145,7 +145,7 @@ public final class TeleOpMain extends OpBase {
             activeIntake.reverse();
         } else if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper) {
             activeIntake.turbo();
-        } else if (activeIntake.isTurbo()) {
+        } else if (previousGamepad1.left_bumper) {
             activeIntake.unTurbo();
         }
 

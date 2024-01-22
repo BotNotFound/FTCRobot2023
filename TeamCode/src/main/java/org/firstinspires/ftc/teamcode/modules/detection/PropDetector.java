@@ -24,7 +24,7 @@ public class PropDetector extends Module {
      */
     public PropDetector(OpMode registrar) {
         super(registrar);
-        sensor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, ColorRangeSensor.class, SENSOR_NAME); //parent.hardwareMap.get(ColorRangeSensor.class, SENSOR_NAME);
+        sensor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, ColorRangeSensor.class, SENSOR_NAME);
         // status update
         sensor.runIfAvailable(
                 device -> getTelemetry().addLine("[PropDetector] found ColorRangeSensor of type " + device.getDeviceName()),

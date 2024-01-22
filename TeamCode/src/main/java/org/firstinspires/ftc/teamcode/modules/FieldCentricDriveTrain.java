@@ -44,13 +44,13 @@ public class FieldCentricDriveTrain extends DriveTrain {
     }
 
     @Override
-    public void setVelocity(double distX, double distY, double rotation) {
+    public void setVelocity(double strafe, double forward, double rotation) {
         hardwareDevices.executeIfAllAreAvailable(() -> {
             double botHeading = getIMU().getRobotYawPitchRollAngles().getYaw(ANGLE_UNIT);
 
             // Rotate the movement direction counter to the robot's rotation
-            double rotX = distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading);
-            double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
+            double rotX = strafe * Math.cos(-botHeading) - forward * Math.sin(-botHeading);
+            double rotY = strafe * Math.sin(-botHeading) + forward * Math.cos(-botHeading);
             getTelemetry().addData("[Field Centric Drive Train] current x velocity", rotX);
             getTelemetry().addData("[Field Centric Drive Train] current y velocity", rotY);
             getTelemetry().addData("[Field Centric Drive Train] bot heading value", botHeading);

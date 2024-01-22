@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ModuleThread;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
+@Config
 public final class Arm extends ConcurrentModule {
     /**
      * One full rotation of the arm motor in encoder ticks.<br />
@@ -41,14 +41,14 @@ public final class Arm extends ConcurrentModule {
     /**
      * Rotate flap to open position
      */
-    public static final double FLAP_OPEN_RIGHT = 0.35;
+    public static double FLAP_OPEN_RIGHT = 0.4;
 
-    public static final double FLAP_OPEN_LEFT = 0.65;
+    public static double FLAP_OPEN_LEFT = 0.6;
 
     /**
      * Rotate flap to closed position
      */
-    public static final double FLAP_CLOSED = 0.5;
+    public static double FLAP_CLOSED = 0.53;
 
     public static final class ArmPresets extends Presets {
         /**
@@ -65,12 +65,12 @@ public final class Arm extends ConcurrentModule {
         /**
          * Rotates the arm so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static final double DEPOSIT_ON_FLOOR = 210.0;
+        public static final double DEPOSIT_ON_FLOOR = 200.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 160.0;
+        public static final double DEPOSIT_ON_BACKDROP = 155.0;
     }
 
     public static final class WristPresets extends Presets { // TODO these presets are untested
@@ -78,11 +78,11 @@ public final class Arm extends ConcurrentModule {
          * Rotates the wrist to the position it was in at the start of execution.
          * This should be parallel to the ground.
          */
-        public static final double IDLE = 0.75;
+        public static final double IDLE = 1;
         /**
          * Rotates the wrist so that the robot can collect pixels
          */
-        public static final double READY_TO_INTAKE = 0.55;
+        public static final double READY_TO_INTAKE = 0.565;
 
         /**
          * Rotates the wrist so that the robot can deposit pixels on the floor behind the active intake
@@ -92,7 +92,7 @@ public final class Arm extends ConcurrentModule {
         /**
          * Rotates the wrist so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 0.4;
+        public static final double DEPOSIT_ON_BACKDROP = 0.45;
     }
 
     //private boolean isFlapOpen;

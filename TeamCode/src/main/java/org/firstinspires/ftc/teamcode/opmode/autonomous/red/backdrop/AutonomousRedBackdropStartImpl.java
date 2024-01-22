@@ -56,7 +56,7 @@ public abstract class AutonomousRedBackdropStartImpl extends AutonomousRedImpl {
         getDriverToPosition().followTrajectory(builder.build());
 
         final Arm arm = getModuleManager().getModule(Arm.class);
-        /*arm.rotateWristTo(Arm.WristPresets.IDLE);
+        arm.rotateWristTo(Arm.WristPresets.IDLE);
         Thread.sleep(200);
         arm.rotateArmTo(Arm.ArmPresets.IDLE);
         Thread.sleep(200);
@@ -64,7 +64,7 @@ public abstract class AutonomousRedBackdropStartImpl extends AutonomousRedImpl {
         arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
         arm.cycleFlap();
 
-        prepareArmForDriving();*/
+        prepareArmForDriving();
 
         getDriverToPosition().followTrajectory(
                 getDriverToPosition().trajectoryBuilder(getDriverToPosition().getPoseEstimate())

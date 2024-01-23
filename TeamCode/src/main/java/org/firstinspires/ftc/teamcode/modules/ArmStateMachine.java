@@ -58,11 +58,13 @@ final class ArmStateMachine {
 
         public synchronized void setArmPower(double power) {
             if (power == prevArmPower) { return; }
+            prevArmPower = power;
             armMotor.runIfAvailable(arm -> arm.setPower(power));
         }
 
         public synchronized void setWristPosition(double position) {
             if (position == prevWristPosition) { return; }
+            prevWristPosition = position;
             wristServo.runIfAvailable(wrist -> wrist.setPosition(position));
         }
     }

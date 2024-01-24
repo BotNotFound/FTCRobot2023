@@ -125,7 +125,7 @@ final class ArmStateMachine {
     public void cycleStateMachine() {
         final RotationCommand cmd = curCmd.get();
         if (Math.abs(cmd.getWristTargetPosition() - hardwareInterface.getWristPosition()) > wristEpsilon) {
-            switch (cmd.wristRotationMode) {
+            switch (cmd.getWristRotationMode()) {
                 case DO_NOT_ROTATE:
                     break;
                 case ASAP:

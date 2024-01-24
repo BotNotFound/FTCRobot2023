@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.IntPredicate;
 
@@ -17,7 +16,7 @@ final class ArmStateMachine {
 
     private final IntPredicate wristDangerChecker;
     private final BiPredicate<Integer, Double> pixelSafetyChecker;
-    private final BiFunction<Integer, Integer, Double> armPowerCalculator;
+    private final MotorPowerCalculator armPowerCalculator;
 
     private final HardwareInterface hardwareInterface;
     private final AtomicReference<RotationCommand> curCmd;
@@ -28,7 +27,7 @@ final class ArmStateMachine {
             double wristEpsilon,
             IntPredicate wristDangerChecker,
             BiPredicate<Integer, Double> pixelSafetyChecker,
-            BiFunction<Integer, Integer, Double> armPowerCalculator
+            MotorPowerCalculator armPowerCalculator
     ) {
         this.armMotor = armMotor;
         this.wristServo = wristServo;
@@ -42,7 +41,7 @@ final class ArmStateMachine {
         );
     }
 
-    private enum WristRotationMode { ASAP, WITHOUT_DROPPING_PIXELS, FINISH_BEFORE_ARM_ROTATION, DO_NOT_ROTATE };
+    private enum WristRotationMode {ASAP, WITHOUT_DROPPING_PIXELS, FINISH_BEFORE_ARM_ROTATION, DO_NOT_ROTATE}
 
     private final class HardwareInterface {
         private double prevArmPower;
@@ -57,13 +56,17 @@ final class ArmStateMachine {
         }
 
         public synchronized void setArmPower(double power) {
-            if (power == prevArmPower) { return; }
+            if (power == prevArmPower) {
+                return;
+            }
             prevArmPower = power;
             armMotor.runIfAvailable(arm -> arm.setPower(power));
         }
 
         public synchronized void setWristPosition(double position) {
-            if (position == prevWristPosition) { return; }
+            if (position == prevWristPosition) {
+                return;
+            }
             prevWristPosition = position;
             wristServo.runIfAvailable(wrist -> wrist.setPosition(position));
         }
@@ -111,6 +114,14 @@ final class ArmStateMachine {
         curCmd.set(new RotationCommand(armTargetPosition, wristTargetPosition, wristRotationMode));
     }
 
+    public int getArmTargetPosition() {
+        return curCmd.get().getArmTargetPosition();
+    }
+
+    public double getWristTargetPosition() {
+        return curCmd.get().getWristTargetPosition();
+    }
+
     public void cycleStateMachine() {
         final RotationCommand cmd = curCmd.get();
         if (Math.abs(cmd.getWristTargetPosition() - hardwareInterface.getWristPosition()) > wristEpsilon) {
@@ -132,9 +143,8 @@ final class ArmStateMachine {
         }
 
         if (hardwareInterface.getArmPosition() != cmd.getArmTargetPosition()) {
-            hardwareInterface.setArmPower(armPowerCalculator.apply(hardwareInterface.getArmPosition(), cmd.getArmTargetPosition()));
-        }
-        else {
+            hardwareInterface.setArmPower(armPowerCalculator.calculateMotorPower(hardwareInterface.getArmPosition(), cmd.getArmTargetPosition()));
+        } else {
             hardwareInterface.setArmPower(0.0);
         }
     }

@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import android.util.Range;
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.hardware.GearRatio;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
 import org.firstinspires.ftc.teamcode.modules.concurrent.ModuleThread;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.DoubleUnaryOperator;
 
 public final class Arm extends ConcurrentModule {
     /**
@@ -52,6 +52,8 @@ public final class Arm extends ConcurrentModule {
      * Rotate flap to closed position
      */
     public static final double FLAP_CLOSED = 0.5;
+
+    private static final Range<Double> WRIST_VALID_POSITION_RANGE = new Range<>(0.35, 0.85);
 
     @Config
     public static final class ArmPresets extends Presets {
@@ -133,6 +135,11 @@ public final class Arm extends ConcurrentModule {
     public static final String FLAP_SERVO_NAME = "Flap Servo";
 
     /**
+     * The state machine that moves the arm and wrist
+     */
+    private final ArmStateMachine armStateMachine;
+
+    /**
      * Initializes the module and registers it with the specified OpMode
      *
      * @param registrar The OpMode initializing the module
@@ -163,12 +170,35 @@ public final class Arm extends ConcurrentModule {
             arm.setDirection(DcMotorSimple.Direction.FORWARD);
             arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         });
-        armData = new ArmData();
+        armStateMachine = new ArmStateMachine(
+                armMotor,
+                wristServo,
+                0.001,
+                Arm::isWristInDanger,
+                Arm::willPixelsFallOut,
+                new PIDAlgorithm(
+                        ArmPositionUpdaterThread.kP,
+                        ArmPositionUpdaterThread.kI,
+                        ArmPositionUpdaterThread.kD,
+                        DoubleUnaryOperator.identity(),
+                        PIDAlgorithm.limitIntegralTermTo((long)Math.ceil(ArmPositionUpdaterThread.INTEGRAL_MAX_POWER))
+                )
+        );
 
         setFlapState(FlapState.CLOSED);
 
         exitSetup();
+    }
 
+    private static boolean isWristInDanger(int armPosition) {
+        return armPosition < ONE_REVOLUTION_ENCODER_TICKS * 2 / 3;
+    }
+
+    private static boolean willPixelsFallOut(int armPosition, double wristPosition) {
+        double armRotationDegrees = armPosition * 360.0 / ONE_REVOLUTION_ENCODER_TICKS;
+        double wristRotationDegrees = wristPosition * 360.0;
+        double pixelRotationDegrees = armRotationDegrees + wristRotationDegrees;
+        return Math.abs(pixelRotationDegrees) > 75.0;
     }
 
     /**
@@ -201,78 +231,11 @@ public final class Arm extends ConcurrentModule {
                 Thread.yield(); // wait until OpMode starts before moving the motor
             }
 
-            host.armMotor.runIfAvailable(arm -> { // this thread does nothing if there is no arm motor to update
-                int curTarget = 0;
-                int error,
-                        prevError = 0,
-                        errorChange,
-                        errorTotal = 0;
-                double power;
-                boolean adjustWristPosition = false;
-                int currentPosition;
-
-                while (host.getState().isRunning()) {
-                    if (host.armData.isDirty.compareAndSet(true, false)) {
-                        curTarget = host.armData.getTargetPosition();
-                        adjustWristPosition = host.armData.getAdjustWristPosition();
-
-                        // if we never made it to the target (i.e. we're tuning the PID controller and kI has been 0 for
-                        //  a while), we don't want a potentially massive error total to roll over to our new position
-                        //  and potentially be detrimental/dangerous
-                        errorTotal = 0;
-                    }
-
-                    currentPosition = arm.getCurrentPosition();
-                    if (adjustWristPosition) {
-                        host.rotateWristTo(host.getWristRotation() - host.getArmRotation());
-                    }
-
-                    error = currentPosition - curTarget;
-                    errorChange = error - prevError;
-                    errorTotal += error;
-                    errorTotal = (int)(Math.min(Math.abs(errorTotal), INTEGRAL_MAX_POWER / kI) * Math.signum(errorTotal)); // integral sum limit (errorTotal * kI <= INTEGRAL_MAX_POWER)
-
-                    power = error == 0 ? 0 : (error * kP) + (errorChange * kD) + (errorTotal * kI);
-                    arm.setPower(power);
-                    prevError = error;
-                }
-                arm.setPower(0.0); // this probably does something
-            });
-        }
-    }
-
-    private static class ArmData {
-        public final AtomicBoolean isDirty = new AtomicBoolean(true);
-        private int targetPosition = 0;
-        private boolean adjustWristPosition = false;
-        private final Object dataMonitor = new Object(); // I'm pretty sure this is how threads work
-        public int getTargetPosition() {
-            synchronized (dataMonitor) {
-                return targetPosition;
-            }
-        }
-        public void setTargetPosition(int newTarget) {
-            if (targetPosition == newTarget) {
-                return; // nothing to update
-            }
-
-            synchronized (dataMonitor) {
-                targetPosition = newTarget;
-                isDirty.set(true);
-            }
-        }
-        public boolean getAdjustWristPosition() {
-            synchronized (dataMonitor) {
-                return adjustWristPosition;
-            }
-        }
-        public void setAdjustWristPosition(boolean newValue) {
-            synchronized (dataMonitor) {
-                adjustWristPosition = newValue;
+            while (host.getState().isRunning()) {
+                host.armStateMachine.cycleStateMachine();
             }
         }
     }
-    private final ArmData armData;
 
     /**
      * Gets the arm motor's internal position
@@ -287,7 +250,7 @@ public final class Arm extends ConcurrentModule {
      * @return The arm's target position, in encoder ticks
      */
     public int getArmMotorTarget() {
-        return armData.getTargetPosition();
+        return armStateMachine.getArmTargetPosition();
     }
 
     /**
@@ -304,13 +267,19 @@ public final class Arm extends ConcurrentModule {
             return; // don't rotate the arm into the floor
         }
 
-        armData.setTargetPosition((int)Math.round(
+        final int armTargetPosition = (int)Math.round(
                 normalizedAngle
                         * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
                         / ONE_REVOLUTION_OUR_ANGLE_UNIT
-        ));
+        );
 
-        armData.setAdjustWristPosition(preserveWristRotation);
+        if (preserveWristRotation) {
+            final double targetWristPosition = armStateMachine.getWristTargetPosition() + normalizedAngle / ONE_REVOLUTION_OUR_ANGLE_UNIT;
+            armStateMachine.moveArmAndWrist(armTargetPosition, targetWristPosition);
+        }
+        else {
+            armStateMachine.setArmTargetPosition(armTargetPosition);
+        }
     }
 
     /**
@@ -358,7 +327,8 @@ public final class Arm extends ConcurrentModule {
      * @param position The target position.  This value must be between 0.0 and 1.0 (inclusive)
      */
     public void rotateWristTo(double position) {
-        wristServo.runIfAvailable(wrist -> wrist.setPosition(MathUtils.clamp(position, 0.35, 0.85)));
+        final double clampedPosition = WRIST_VALID_POSITION_RANGE.clamp(position);
+        armStateMachine.setWristTargetPosition(clampedPosition);
     }
 
     /**
@@ -436,6 +406,7 @@ public final class Arm extends ConcurrentModule {
      * @param flapState The FLAP_STATE to set the flap to
      */
     private void setFlapState(FlapState flapState) {
+        currentFlapState = flapState;
         flapServo.runIfAvailable(flap -> flap.setPosition(flapState.targetFlapPosition));
     }
 

@@ -72,12 +72,6 @@ public abstract class AutonomousBase extends OpBaseLinear {
         park();
     }
 
-    @Override
-    public void stop() {
-        super.stop();
-        aprilTagLocator.cleanupModule();
-    }
-
     /**
      * Called after methods that move the arm, before methods that move the robot.  Moves the arm and wrist so that the
      *  robot will be able to drive under the trusses without getting stuck

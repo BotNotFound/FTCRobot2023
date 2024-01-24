@@ -146,20 +146,20 @@ public class DriveTrain extends Module {
 
     /**
      * Moves and rotates the robot
-     * @param distX The right velocity
-     * @param distY The forward velocity
+     * @param strafe The right velocity
+     * @param forward The forward velocity
      * @param rotation The rotational velocity
      */
-    public void setVelocity(double distX, double distY, double rotation) {
+    public void setVelocity(double strafe, double forward, double rotation) {
         hardwareDevices.executeIfAllAreAvailable(() -> {
-            getTelemetry().addData("[Drive Train] Moving by vector:", "<%f, %f, %f>", distX, distY, rotation);
+            getTelemetry().addData("[Drive Train] Moving by vector:", "<%f, %f, %f>", strafe, forward, rotation);
 
             // Combine the requests for each axis-motion to determine each wheel's power.
             // (formula was found on gm0)
-            double leftFrontPower = distY + distX + rotation;
-            double leftBackPower = distY - distX + rotation;
-            double rightFrontPower = distY + distX - rotation;
-            double rightBackPower = distY - distX - rotation;
+            double leftFrontPower = forward + strafe + rotation;
+            double leftBackPower = forward - strafe + rotation;
+            double rightFrontPower = forward + strafe - rotation;
+            double rightBackPower = forward - strafe - rotation;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.

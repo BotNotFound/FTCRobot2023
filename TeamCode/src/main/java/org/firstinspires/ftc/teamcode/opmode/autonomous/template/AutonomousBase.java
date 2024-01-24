@@ -3,16 +3,10 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous.template;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 import org.firstinspires.ftc.teamcode.modules.detection.Prop;
 import org.firstinspires.ftc.teamcode.modules.detection.PropDetector;
-import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 import org.firstinspires.ftc.teamcode.opmode.OpBaseLinear;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 
 public abstract class AutonomousBase extends OpBaseLinear {
-    /**
-     * Used to get where to place the 2nd pixel
-     */
-    private AprilTagLocator aprilTagLocator;
-
     /**
      * The prop detector
      */
@@ -33,9 +27,18 @@ public abstract class AutonomousBase extends OpBaseLinear {
 
     private Arm arm;
 
+    protected final int getAprilTagId() {
+        return aprilTagId;
+    }
+
+    protected final void setAprilTagId(int aprilTagId) {
+        this.aprilTagId = aprilTagId;
+    }
+
+    private int aprilTagId;
+
     @Override
     protected void initModules() {
-        aprilTagLocator = getModuleManager().getModule(AprilTagLocator.class);
         propDetector = getModuleManager().getModule(PropDetector.class);
         arm = getModuleManager().getModule(Arm.class);
         driverToPosition = new SampleMecanumDrive(this);
@@ -50,16 +53,16 @@ public abstract class AutonomousBase extends OpBaseLinear {
         // determine what side team prop is on
         final Prop teamProp = getTeamProp();
         if (propDetector.isPropDetected(teamProp)) { // prop detected on the side facing the wall opposite the backdrop
-            aprilTagLocator.setTagId(getLeftAprilTagId());
+            setAprilTagId(getLeftAprilTagId());
         }
         else {
             rotateToNextSpikeMark();
             if (propDetector.isPropDetected(teamProp)) { // prop detected on the side facing the opposing alliance
-                aprilTagLocator.setTagId(getCenterAprilTagId());
+                setAprilTagId(getCenterAprilTagId());
             }
             else {
                 rotateToNextSpikeMark();
-                aprilTagLocator.setTagId(getRightAprilTagId()); // assume prop is on the side facing the backdrop
+                setAprilTagId(getRightAprilTagId()); // assume prop is on the side facing the backdrop
             }
         }
         scoreOnSpikeMark();

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
 import java.util.function.IntPredicate;
 
-final class ArmStateMachine {
+final class ArmAndWristMover {
     private final ConditionalHardwareDevice<DcMotor> armMotor;
     private final ConditionalHardwareDevice<Servo> wristServo;
 
@@ -21,7 +21,7 @@ final class ArmStateMachine {
     private final HardwareInterface hardwareInterface;
     private final AtomicReference<RotationCommand> curCmd;
 
-    public ArmStateMachine(
+    public ArmAndWristMover(
             ConditionalHardwareDevice<DcMotor> armMotor,
             ConditionalHardwareDevice<Servo> wristServo,
             double wristEpsilon,

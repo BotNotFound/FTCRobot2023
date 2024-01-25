@@ -137,7 +137,7 @@ public final class Arm extends ConcurrentModule {
     /**
      * The state machine that moves the arm and wrist
      */
-    private final ArmStateMachine armStateMachine;
+    private final ArmAndWristMover armAndWristMover;
 
     /**
      * Initializes the module and registers it with the specified OpMode
@@ -170,7 +170,7 @@ public final class Arm extends ConcurrentModule {
             arm.setDirection(DcMotorSimple.Direction.FORWARD);
             arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         });
-        armStateMachine = new ArmStateMachine(
+        armAndWristMover = new ArmAndWristMover(
                 armMotor,
                 wristServo,
                 0.001,
@@ -232,7 +232,7 @@ public final class Arm extends ConcurrentModule {
             }
 
             while (host.getState().isRunning()) {
-                host.armStateMachine.cycleStateMachine();
+                host.armAndWristMover.cycleStateMachine();
             }
         }
     }
@@ -250,7 +250,7 @@ public final class Arm extends ConcurrentModule {
      * @return The arm's target position, in encoder ticks
      */
     public int getArmMotorTarget() {
-        return armStateMachine.getArmTargetPosition();
+        return armAndWristMover.getArmTargetPosition();
     }
 
     /**
@@ -274,11 +274,11 @@ public final class Arm extends ConcurrentModule {
         );
 
         if (preserveWristRotation) {
-            final double targetWristPosition = armStateMachine.getWristTargetPosition() + normalizedAngle / ONE_REVOLUTION_OUR_ANGLE_UNIT;
-            armStateMachine.moveArmAndWrist(armTargetPosition, targetWristPosition);
+            final double targetWristPosition = armAndWristMover.getWristTargetPosition() + normalizedAngle / ONE_REVOLUTION_OUR_ANGLE_UNIT;
+            armAndWristMover.moveArmAndWrist(armTargetPosition, targetWristPosition);
         }
         else {
-            armStateMachine.setArmTargetPosition(armTargetPosition);
+            armAndWristMover.setArmTargetPosition(armTargetPosition);
         }
     }
 
@@ -328,7 +328,7 @@ public final class Arm extends ConcurrentModule {
      */
     public void rotateWristTo(double position) {
         final double clampedPosition = WRIST_VALID_POSITION_RANGE.clamp(position);
-        armStateMachine.setWristTargetPosition(clampedPosition);
+        armAndWristMover.setWristTargetPosition(clampedPosition);
     }
 
     /**

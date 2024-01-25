@@ -118,6 +118,8 @@ public final class TeleOpMain extends OpBase {
             arm.fullCycleFlap();
         }
 
+        arm.doArmUpdateLoop();
+
         if (currentGamepad1.b && !previousGamepad1.b) {
             activeIntake.stop();
         }

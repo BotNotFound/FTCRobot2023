@@ -6,15 +6,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.GearRatio;
-import org.firstinspires.ftc.teamcode.modules.concurrent.ConcurrentModule;
-import org.firstinspires.ftc.teamcode.modules.concurrent.ModuleThread;
+import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 import java.util.function.DoubleUnaryOperator;
 
-public final class Arm extends ConcurrentModule {
+public final class Arm extends Module {
     /**
      * One full rotation of the arm motor in encoder ticks.<br />
      * Taken from <a href="https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-50-9-1-ratio-24mm-length-8mm-rex-shaft-117-rpm-3-3-5v-encoder/">GoBilda</a>
@@ -54,6 +54,10 @@ public final class Arm extends ConcurrentModule {
     public static final double FLAP_CLOSED = 0.5;
 
     private static final Range<Double> WRIST_VALID_POSITION_RANGE = new Range<>(0.35, 0.85);
+    public static double kP = 0.000945;
+    public static double kI = 0.001;
+    public static double kD = 0;
+    public static double INTEGRAL_MAX_POWER = 0.05;
 
     @Config
     public static final class ArmPresets extends Presets {
@@ -145,7 +149,7 @@ public final class Arm extends ConcurrentModule {
      * @param registrar The OpMode initializing the module
      */
     public Arm(OpMode registrar) {
-        super(registrar, "Arm Module Threads");
+        super(registrar);
         armMotor = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, DcMotor.class, ARM_MOTOR_NAME);
         wristServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, WRIST_SERVO_NAME);
         flapServo = ConditionalHardwareDevice.tryGetHardwareDevice(parent.hardwareMap, Servo.class, FLAP_SERVO_NAME);
@@ -177,17 +181,19 @@ public final class Arm extends ConcurrentModule {
                 Arm::isWristInDanger,
                 Arm::willPixelsFallOut,
                 new PIDAlgorithm(
-                        ArmPositionUpdaterThread.kP,
-                        ArmPositionUpdaterThread.kI,
-                        ArmPositionUpdaterThread.kD,
+                        kP,
+                        kI,
+                        kD,
                         DoubleUnaryOperator.identity(),
-                        PIDAlgorithm.limitIntegralTermTo((long)Math.ceil(ArmPositionUpdaterThread.INTEGRAL_MAX_POWER))
+                        PIDAlgorithm.limitIntegralTermTo((long)Math.ceil(INTEGRAL_MAX_POWER))
                 )
         );
 
         setFlapState(FlapState.CLOSED);
+    }
 
-        exitSetup();
+    public void doArmUpdateLoop() {
+        armAndWristMover.cycleStateMachine();
     }
 
     private static boolean isWristInDanger(int armPosition) {
@@ -199,42 +205,6 @@ public final class Arm extends ConcurrentModule {
         double wristRotationDegrees = wristPosition * 360.0;
         double pixelRotationDegrees = armRotationDegrees + wristRotationDegrees;
         return Math.abs(pixelRotationDegrees) > 75.0;
-    }
-
-    /**
-     * A thread that keeps the arm motor at the target position
-     */
-    @Config("Arm (Position Updater Thread)")
-    private static class ArmPositionUpdaterThread extends ModuleThread<Arm> {
-        public static final String THREAD_NAME = "Arm Position Updater";
-
-        public static double kP = 0.000945;
-        public static double kI = 0.001;
-        public static double kD = 0;
-
-        public static double INTEGRAL_MAX_POWER = 0.05;
-
-        /**
-         * Initializes the thread
-         * @param arm The arm to use
-         */
-        public ArmPositionUpdaterThread(Arm arm) {
-            super(arm, THREAD_NAME);
-        }
-
-        @Override
-        public void execute() {
-            while (host.getState().isInInit()) {
-                if (host.getState().isTerminated()) {
-                    return; // if OpMode ends in init, end the thread
-                }
-                Thread.yield(); // wait until OpMode starts before moving the motor
-            }
-
-            while (host.getState().isRunning()) {
-                host.armAndWristMover.cycleStateMachine();
-            }
-        }
     }
 
     /**
@@ -443,11 +413,6 @@ public final class Arm extends ConcurrentModule {
     }
 
     @Override
-    protected void registerModuleThreads() {
-        registerAsyncOperation(new ArmPositionUpdaterThread(this));
-    }
-
-    @Override
     public void log() {
         getTelemetry().addData("[Arm] module state", getState());
         armMotor.runIfAvailable(arm -> getTelemetry().addData( "[Arm] (arm motor) current rotation",
@@ -467,5 +432,22 @@ public final class Arm extends ConcurrentModule {
         FlapState(double targetFlapPosition) {
             this.targetFlapPosition = targetFlapPosition;
         }
+    }
+
+    /**
+     * Used for logging from modules
+     */
+    @Override
+    public Telemetry getTelemetry() {
+        return super.getTelemetry();
+    }
+
+    /**
+     * Ran by parent OpMode in its stop() method
+     * Cleans up items like background threads
+     */
+    @Override
+    public void cleanupModule() {
+
     }
 }

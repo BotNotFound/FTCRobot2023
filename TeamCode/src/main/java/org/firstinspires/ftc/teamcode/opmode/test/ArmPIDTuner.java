@@ -82,14 +82,11 @@ public final class ArmPIDTuner extends OpMode {
 
         telemetry.addData("curPos", 0);
         telemetry.addData("tPos", 0);
-        telemetry.addData("s", arm.getState());
     }
 
     @Override
     public void start() {
         super.start();
-        arm.startThreads();
-
         previousGamepad1 = new Gamepad();
         currentGamepad1 = new Gamepad();
     }
@@ -129,7 +126,6 @@ public final class ArmPIDTuner extends OpMode {
 
         telemetry.addData("curPos", arm.getArmMotorPosition());
         telemetry.addData("tPos", arm.getArmMotorTarget());
-        telemetry.addData("s", arm.getState());
     }
 
     @Override

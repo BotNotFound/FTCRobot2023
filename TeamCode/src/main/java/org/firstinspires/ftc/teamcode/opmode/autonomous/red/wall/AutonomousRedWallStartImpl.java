@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous.red.wall;
 
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import org.firstinspires.ftc.teamcode.modules.Arm;
-import org.firstinspires.ftc.teamcode.modules.location.AprilTagLocator;
 import org.firstinspires.ftc.teamcode.opmode.autonomous.red.AutonomousRedImpl;
 import org.firstinspires.ftc.teamcode.opmode.autonomous.template.AutonomousConstants;
 
@@ -15,8 +14,7 @@ public abstract class AutonomousRedWallStartImpl extends AutonomousRedImpl {
      */
     @Override
     protected void driveToBackdrop() {
-        final AprilTagLocator aprilTagLocator = getModuleManager().getModule(AprilTagLocator.class);
-        final int tagId = aprilTagLocator.getTagId();
+        final int tagId = getAprilTagId();
         TrajectoryBuilder builder = getDriverToPosition().trajectoryBuilder(getDriverToPosition().getPoseEstimate());
         if (tagId == getLeftAprilTagId()) {
             builder.strafeLeft(AutonomousConstants.TILE_SIDE_LENGTH_IN);

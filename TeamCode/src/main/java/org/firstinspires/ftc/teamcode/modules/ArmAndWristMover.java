@@ -72,7 +72,7 @@ final class ArmAndWristMover {
         }
     }
 
-    private static final class RotationCommand {
+    private final class RotationCommand {
         private final int armTargetPosition;
         private final double wristTargetPosition;
         private final WristRotationMode wristRotationMode;
@@ -94,24 +94,47 @@ final class ArmAndWristMover {
         public WristRotationMode getWristRotationMode() {
             return wristRotationMode;
         }
+
+        public boolean isArmMovementCompleted() {
+            return hardwareInterface.getArmPosition() == getArmTargetPosition();
+        }
+
+        public boolean isWristMovementCompleted() {
+            return Math.abs(getWristTargetPosition() - hardwareInterface.getWristPosition()) > wristEpsilon;
+        }
+
+        public boolean hasMovementCompleted() {
+            return isWristMovementCompleted() && isArmMovementCompleted();
+        }
     }
 
-    public void moveArmAndWrist(int armTargetPosition, double wristTargetPosition) {
+    private RotationCommand makeRotationCommand(int armTargetPosition, double wristTargetPosition) {
         WristRotationMode wristRotationMode = WristRotationMode.ASAP;
         if (!pixelSafetyChecker.test(hardwareInterface.getArmPosition(), wristTargetPosition)) {
             wristRotationMode = WristRotationMode.WITHOUT_DROPPING_PIXELS;
         } else if (wristDangerChecker.test(armTargetPosition)) {
             wristRotationMode = WristRotationMode.FINISH_BEFORE_ARM_ROTATION;
         }
-        curCmd.set(new RotationCommand(armTargetPosition, wristTargetPosition, wristRotationMode));
+        return new RotationCommand(armTargetPosition, wristTargetPosition, wristRotationMode);
+    }
+
+    public void moveArmAndWristAsync(int armTargetPosition, double wristTargetPosition) {
+        curCmd.set(makeRotationCommand(armTargetPosition, wristTargetPosition));
     }
 
     public void setArmTargetPosition(int armTargetPosition) {
-        moveArmAndWrist(armTargetPosition, getWristTargetPosition());
+        curCmd.getAndUpdate(cmd -> makeRotationCommand(armTargetPosition, cmd.getWristTargetPosition()));
     }
 
     public void setWristTargetPosition(double wristTargetPosition) {
-        moveArmAndWrist(getArmTargetPosition(), wristTargetPosition);
+        curCmd.getAndUpdate(cmd -> makeRotationCommand(cmd.getArmTargetPosition(), wristTargetPosition));
+    }
+
+    public void moveArmAndWrist(int armTargetPosition, double wristTargetPosition) {
+        final RotationCommand cmd = makeRotationCommand(armTargetPosition, wristTargetPosition);
+        while (!cmd.hasMovementCompleted()) {
+            cycleStateMachine();
+        }
     }
 
     public int getArmTargetPosition() {
@@ -124,7 +147,8 @@ final class ArmAndWristMover {
 
     public void cycleStateMachine() {
         final RotationCommand cmd = curCmd.get();
-        if (Math.abs(cmd.getWristTargetPosition() - hardwareInterface.getWristPosition()) > wristEpsilon) {
+
+        if (!cmd.isWristMovementCompleted()) {
             switch (cmd.getWristRotationMode()) {
                 case DO_NOT_ROTATE:
                     break;
@@ -142,7 +166,7 @@ final class ArmAndWristMover {
             }
         }
 
-        if (hardwareInterface.getArmPosition() != cmd.getArmTargetPosition()) {
+        if (!cmd.isArmMovementCompleted()) {
             hardwareInterface.setArmPower(armPowerCalculator.calculateMotorPower(hardwareInterface.getArmPosition(), cmd.getArmTargetPosition()));
         } else {
             hardwareInterface.setArmPower(0.0);

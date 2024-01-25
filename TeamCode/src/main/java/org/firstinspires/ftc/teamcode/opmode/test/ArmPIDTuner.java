@@ -116,9 +116,9 @@ public final class ArmPIDTuner extends OpMode {
 
         if (gamepad1.y) {
             ArmTestConfig.targetPosition = ArmTestConfig.angleUnit.fromDegrees(90);
-            arm.rotateArmTo((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES); // [-90, 90] + 90 = [0, 180]
+            arm.rotateArmToAsync((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES); // [-90, 90] + 90 = [0, 180]
         } else {
-            arm.rotateArmTo(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit);
+            arm.rotateArmToAsync(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit);
         }
 
         if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {

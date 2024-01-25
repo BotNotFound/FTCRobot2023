@@ -253,29 +253,37 @@ public final class Arm extends ConcurrentModule {
         return armAndWristMover.getArmTargetPosition();
     }
 
+    private int calculateArmPosition(double angle) {
+        return (int)Math.round(
+                angle
+                        * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
+                        / ONE_REVOLUTION_OUR_ANGLE_UNIT
+        );
+    }
+
+    private boolean isArmRotationNotAllowed(double angle) {
+        return angle > ArmPresets.DEPOSIT_ON_FLOOR || angle < ArmPresets.READY_TO_INTAKE;
+    }
+
     /**
      * Rotates the arm to the specified rotation
      * @param rotation The target rotation
      * @param angleUnit The unit of rotation used
      * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
      */
-    public void rotateArmTo(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
+    public void rotateArmToAsync(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
         final double normalizedAngle = normalizeAngleOurWay(rotation - ARM_ANGLE_OFFSET, angleUnit);
 
         // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
-        if (normalizedAngle > ArmPresets.DEPOSIT_ON_FLOOR || normalizedAngle < ArmPresets.READY_TO_INTAKE) {
+        if (isArmRotationNotAllowed(normalizedAngle)) {
             return; // don't rotate the arm into the floor
         }
 
-        final int armTargetPosition = (int)Math.round(
-                normalizedAngle
-                        * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
-                        / ONE_REVOLUTION_OUR_ANGLE_UNIT
-        );
+        final int armTargetPosition = calculateArmPosition(normalizedAngle);
 
         if (preserveWristRotation) {
-            final double targetWristPosition = armAndWristMover.getWristTargetPosition() + normalizedAngle / ONE_REVOLUTION_OUR_ANGLE_UNIT;
-            armAndWristMover.moveArmAndWrist(armTargetPosition, targetWristPosition);
+            final double targetWristPosition = armAndWristMover.getWristTargetPosition() + (normalizedAngle / ONE_REVOLUTION_OUR_ANGLE_UNIT);
+            armAndWristMover.moveArmAndWristAsync(armTargetPosition, targetWristPosition);
         }
         else {
             armAndWristMover.setArmTargetPosition(armTargetPosition);
@@ -301,8 +309,8 @@ public final class Arm extends ConcurrentModule {
      * @param rotation The target rotation
      * @param angleUnit The unit of rotation used
      */
-    public void rotateArmTo(double rotation, AngleUnit angleUnit) {
-        rotateArmTo(rotation, angleUnit, false);
+    public void rotateArmToAsync(double rotation, AngleUnit angleUnit) {
+        rotateArmToAsync(rotation, angleUnit, false);
     }
 
     /**
@@ -310,25 +318,35 @@ public final class Arm extends ConcurrentModule {
      * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
      * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
      */
-    public void rotateArmTo(double rotation, boolean preserveWristRotation) {
-        rotateArmTo(rotation, ANGLE_UNIT, preserveWristRotation);
+    public void rotateArmToAsync(double rotation, boolean preserveWristRotation) {
+        rotateArmToAsync(rotation, ANGLE_UNIT, preserveWristRotation);
     }
 
     /**
      * Rotates the arm to the specified rotation, WITHOUT preserving wrist rotation.
      * @param rotation The target rotation, in {@link #ANGLE_UNIT}s
      */
-    public void rotateArmTo(double rotation) {
-        rotateArmTo(rotation, false);
+    public void rotateArmToAsync(double rotation) {
+        rotateArmToAsync(rotation, false);
     }
 
     /**
      * Rotates the wrist to the specified position
      * @param position The target position.  This value must be between 0.0 and 1.0 (inclusive)
      */
-    public void rotateWristTo(double position) {
+    public void rotateWristToAsync(double position) {
         final double clampedPosition = WRIST_VALID_POSITION_RANGE.clamp(position);
         armAndWristMover.setWristTargetPosition(clampedPosition);
+    }
+
+    public void rotateArmAndWrist(double armRotation, double wristPosition) {
+        if (isArmRotationNotAllowed(armRotation)) {
+            return;
+        }
+
+        final int armPosition = calculateArmPosition(armRotation);
+
+        armAndWristMover.moveArmAndWrist(armPosition, wristPosition);
     }
 
     /**

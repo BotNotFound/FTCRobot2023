@@ -56,8 +56,7 @@ public abstract class AutonomousBlueBackdropStartImpl extends AutonomousBlueImpl
         getDriverToPosition().followTrajectory(builder.build());
 
         final Arm arm = getModuleManager().getModule(Arm.class);
-        arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR);
-        arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
+        arm.rotateArmAndWrist(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.WristPresets.DEPOSIT_ON_FLOOR);
         arm.cycleFlap();
 
         prepareArmForDriving();

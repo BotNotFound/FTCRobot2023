@@ -84,7 +84,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
      */
     protected final void prepareArmForDriving() {
         arm.closeFlap();
-        arm.rotateArmTo(Arm.ArmPresets.IDLE);
+        arm.rotateArmAndWrist(Arm.ArmPresets.IDLE, Arm.WristPresets.IDLE);
     }
 
     /**
@@ -105,8 +105,7 @@ public abstract class AutonomousBase extends OpBaseLinear {
      *  on the backdrop.
      */
     protected void scoreOnBackdrop() {
-        arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP);
-        arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
+        arm.rotateArmAndWrist(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.WristPresets.DEPOSIT_ON_BACKDROP);
         arm.cycleFlap();
     }
 

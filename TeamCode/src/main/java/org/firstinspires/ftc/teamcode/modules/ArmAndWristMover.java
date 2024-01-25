@@ -109,6 +109,9 @@ final class ArmAndWristMover {
     }
 
     private RotationCommand makeRotationCommand(int armTargetPosition, double wristTargetPosition) {
+        if (wristTargetPosition < 0) { wristTargetPosition = 0; }
+        else if (wristTargetPosition > 1) { wristTargetPosition = 1; }
+
         WristRotationMode wristRotationMode = WristRotationMode.ASAP;
         if (!pixelSafetyChecker.test(hardwareInterface.getArmPosition(), wristTargetPosition)) {
             wristRotationMode = WristRotationMode.WITHOUT_DROPPING_PIXELS;

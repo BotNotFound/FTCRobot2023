@@ -16,7 +16,7 @@ import static org.firstinspires.ftc.teamcode.modules.Arm.*;
 @TeleOp(group = "Tests")
 public final class ArmPIDTuner extends OpMode {
 
-    private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
+    private Gamepad currentGamepad1, previousGamepad1;
     @Disabled
     @TeleOp(group = "Tests")
     public static class AT2 extends LinearOpMode {

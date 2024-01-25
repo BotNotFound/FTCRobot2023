@@ -8,14 +8,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 
 import static org.firstinspires.ftc.teamcode.modules.Arm.*;
 
 @TeleOp(group = "Tests")
-public final class ArmTest extends OpMode {
+public final class ArmPIDTuner extends OpMode {
 
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
     @Disabled

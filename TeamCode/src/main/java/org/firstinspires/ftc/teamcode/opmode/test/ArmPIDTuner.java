@@ -57,7 +57,6 @@ public final class ArmPIDTuner extends OpMode {
 
         if (gamepad1.a || gamepad1.back) {
             failsafeEngaged = true;
-            arm.interrupt();
             terminateOpModeNow(); // failsafe
             arm.cleanupModule();
             return true;

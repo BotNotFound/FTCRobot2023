@@ -133,7 +133,11 @@ final class ArmStateMachine {
                     break;
                 case FINISH_BEFORE_ARM_ROTATION:
                     hardwareInterface.setWristPosition(cmd.getWristTargetPosition());
-                    return;
+                    if (hardwareInterface.getWristPosition() != cmd.getWristTargetPosition()) {
+                        hardwareInterface.setArmPower(0.0);
+                        return;
+                    }
+                    break;
                 case WITHOUT_DROPPING_PIXELS:
                     if (pixelSafetyChecker.test(hardwareInterface.getArmPosition(), cmd.getWristTargetPosition())) {
                         hardwareInterface.setWristPosition(cmd.getWristTargetPosition());

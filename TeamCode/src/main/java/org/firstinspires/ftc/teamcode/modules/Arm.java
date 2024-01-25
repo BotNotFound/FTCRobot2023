@@ -100,7 +100,7 @@ public final class Arm extends ConcurrentModule {
         public static double DEPOSIT_ON_BACKDROP = 90.0;
     }
 
-    private FlapState currentFlapState;
+    private FlapState currentFlapState = FlapState.CLOSED;
 
     /**
      * The motor that rotates the arm
@@ -413,7 +413,7 @@ public final class Arm extends ConcurrentModule {
         });
     }
 
-    public  static final long FLAP_CYCLE_WAIT_TIME = 200;
+    public static final long FLAP_CYCLE_WAIT_TIME = 200;
 
     /**
      * Cycles through all flap states with enough time for pixels to fall out
@@ -436,6 +436,7 @@ public final class Arm extends ConcurrentModule {
      * @param flapState The FLAP_STATE to set the flap to
      */
     private void setFlapState(FlapState flapState) {
+        currentFlapState = flapState;
         flapServo.runIfAvailable(flap -> flap.setPosition(flapState.targetFlapPosition));
     }
 

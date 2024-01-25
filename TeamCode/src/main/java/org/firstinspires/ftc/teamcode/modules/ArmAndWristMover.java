@@ -133,11 +133,7 @@ final class ArmAndWristMover {
                     break;
                 case FINISH_BEFORE_ARM_ROTATION:
                     hardwareInterface.setWristPosition(cmd.getWristTargetPosition());
-                    if (hardwareInterface.getWristPosition() != cmd.getWristTargetPosition()) {
-                        hardwareInterface.setArmPower(0.0);
-                        return;
-                    }
-                    break;
+                    return;
                 case WITHOUT_DROPPING_PIXELS:
                     if (pixelSafetyChecker.test(hardwareInterface.getArmPosition(), cmd.getWristTargetPosition())) {
                         hardwareInterface.setWristPosition(cmd.getWristTargetPosition());

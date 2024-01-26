@@ -54,7 +54,7 @@ public class FieldCentricDriveTrain extends DriveTrain {
             // Rotate the movement direction counter to the bot's rotation
             double rotX = distX * Math.cos(-botHeading) - distY * Math.sin(-botHeading);
             double rotY = distX * Math.sin(-botHeading) + distY * Math.cos(-botHeading);
-
+            getTelemetry().addData("[Field Centric Drive Train] bot heading value", botHeading);
             rotX = rotX * 1.1;  // Counteract imperfect strafing
 
             // Denominator is the largest motor power (absolute value) or 1

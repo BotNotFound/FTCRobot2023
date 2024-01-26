@@ -180,6 +180,7 @@ public final class Arm extends Module {
                 10,
                 0.001,
                 Arm::isWristInDanger,
+                0.75,
                 Arm::willPixelsFallOut,
                 new PIDAlgorithm(
                         kP,

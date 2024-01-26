@@ -17,6 +17,7 @@ final class ArmAndWristMover {
     private final double wristEpsilon;
 
     private final IntPredicate wristDangerChecker;
+    private final  double safeWristPosition;
     private final BiPredicate<Integer, Double> pixelSafetyChecker;
     private final MotorPowerCalculator armPowerCalculator;
 
@@ -29,6 +30,7 @@ final class ArmAndWristMover {
             int armEpsilon,
             double wristEpsilon,
             IntPredicate wristDangerChecker,
+            double safeWristPosition,
             BiPredicate<Integer, Double> pixelSafetyChecker,
             MotorPowerCalculator armPowerCalculator
     ) {
@@ -37,6 +39,7 @@ final class ArmAndWristMover {
         this.armEpsilon = armEpsilon;
         this.wristEpsilon = wristEpsilon;
         this.wristDangerChecker = wristDangerChecker;
+        this.safeWristPosition = safeWristPosition;
         this.pixelSafetyChecker = pixelSafetyChecker;
         this.armPowerCalculator = armPowerCalculator;
         this.hardwareInterface = new HardwareInterface();
@@ -176,7 +179,7 @@ final class ArmAndWristMover {
                         hardwareInterface.setWristPosition(cmd.getWristTargetPosition());
                     }
                     else {
-                        hardwareInterface.setWristPosition(1.0);
+                        hardwareInterface.setWristPosition(safeWristPosition);
                     }
                     break;
                 case WITHOUT_DROPPING_PIXELS:

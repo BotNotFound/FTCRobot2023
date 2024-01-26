@@ -13,6 +13,7 @@ final class ArmAndWristMover {
     private final ConditionalHardwareDevice<DcMotor> armMotor;
     private final ConditionalHardwareDevice<Servo> wristServo;
 
+    private final double armEpsilon;
     private final double wristEpsilon;
 
     private final IntPredicate wristDangerChecker;
@@ -25,6 +26,7 @@ final class ArmAndWristMover {
     public ArmAndWristMover(
             ConditionalHardwareDevice<DcMotor> armMotor,
             ConditionalHardwareDevice<Servo> wristServo,
+            int armEpsilon,
             double wristEpsilon,
             IntPredicate wristDangerChecker,
             BiPredicate<Integer, Double> pixelSafetyChecker,
@@ -32,6 +34,7 @@ final class ArmAndWristMover {
     ) {
         this.armMotor = armMotor;
         this.wristServo = wristServo;
+        this.armEpsilon = armEpsilon;
         this.wristEpsilon = wristEpsilon;
         this.wristDangerChecker = wristDangerChecker;
         this.pixelSafetyChecker = pixelSafetyChecker;
@@ -97,11 +100,11 @@ final class ArmAndWristMover {
         }
 
         public boolean isArmMovementCompleted() {
-            return hardwareInterface.getArmPosition() == getArmTargetPosition();
+            return Math.abs(hardwareInterface.getArmPosition() - getArmTargetPosition()) < armEpsilon;
         }
 
         public boolean isWristMovementCompleted() {
-            return Math.abs(getWristTargetPosition() - hardwareInterface.getWristPosition()) > wristEpsilon;
+            return Math.abs(getWristTargetPosition() - hardwareInterface.getWristPosition()) < wristEpsilon;
         }
 
         public boolean hasMovementCompleted() {

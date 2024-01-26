@@ -177,6 +177,7 @@ public final class Arm extends Module {
         armAndWristMover = new ArmAndWristMover(
                 armMotor,
                 wristServo,
+                10,
                 0.001,
                 Arm::isWristInDanger,
                 Arm::willPixelsFallOut,

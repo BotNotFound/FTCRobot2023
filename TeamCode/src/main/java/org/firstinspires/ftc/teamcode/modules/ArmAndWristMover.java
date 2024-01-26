@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.hardware.ConditionalHardwareDevice;
@@ -106,6 +107,15 @@ final class ArmAndWristMover {
         public boolean hasMovementCompleted() {
             return isWristMovementCompleted() && isArmMovementCompleted();
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "{ Arm Target Position: " + armTargetPosition
+                    + "(Done: " + isArmMovementCompleted() + "); "
+                    + "Wrist Target Position: " + wristTargetPosition
+                    + "(Done: " + isWristMovementCompleted() + ") }";
+        }
     }
 
     private RotationCommand makeRotationCommand(int armTargetPosition, double wristTargetPosition) {
@@ -174,5 +184,9 @@ final class ArmAndWristMover {
         } else {
             hardwareInterface.setArmPower(0.0);
         }
+    }
+
+    public String getStatusString() {
+        return curCmd.get().toString();
     }
 }

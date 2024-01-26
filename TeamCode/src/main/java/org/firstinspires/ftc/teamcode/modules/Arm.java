@@ -414,6 +414,7 @@ public final class Arm extends Module {
 
     @Override
     public void log() {
+        getTelemetry().addData("[Arm] Movement status", armAndWristMover.getStatusString());
         armMotor.runIfAvailable(arm -> getTelemetry().addData( "[Arm] (arm motor) current rotation",
                 Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 ));
         wristServo.runIfAvailable(wrist -> getTelemetry().addData( "[Arm] (wrist servo) current rotation",

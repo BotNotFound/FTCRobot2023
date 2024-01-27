@@ -89,7 +89,7 @@ public final class Arm extends Module {
          * Rotates the wrist to the position it was in at the start of execution.
          * This should be parallel to the ground.
          */
-        public static final double IDLE = 0.75;
+        public static final double IDLE = 0.675;
         /**
          * Rotates the wrist so that the robot can collect pixels
          */

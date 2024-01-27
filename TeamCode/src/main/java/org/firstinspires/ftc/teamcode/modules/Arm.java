@@ -203,10 +203,10 @@ public final class Arm extends Module {
     }
 
     private static boolean willPixelsFallOut(int armPosition, double wristPosition) {
-        double armRotationDegrees = armPosition * 360.0 / ONE_REVOLUTION_ENCODER_TICKS;
-        double wristRotationDegrees = wristPosition * 360.0;
-        double pixelRotationDegrees = armRotationDegrees + wristRotationDegrees;
-        return Math.abs(pixelRotationDegrees) > 75.0;
+        final double armRotationDegrees = armPosition * 360.0 / ONE_REVOLUTION_ENCODER_TICKS;
+        final double wristRotationDegrees = wristPosition * 360.0;
+        final double pixelRotationDegrees = armRotationDegrees + wristRotationDegrees;
+        return pixelRotationDegrees > 120.0;
     }
 
     /**

@@ -236,8 +236,11 @@ public final class Arm extends Module {
         );
     }
 
-    private boolean isArmRotationNotAllowed(double angle) {
-        return false;
+    private static final double MAX_ALLOWED_ARM_ROTATION = ANGLE_UNIT.fromDegrees(225);
+
+    private boolean isArmRotationUnsafe(double angle) {
+        return angle < 0 | // we are trying to rotate into the floor
+                angle > MAX_ALLOWED_ARM_ROTATION; // we are trying to rotate into the floor from the other direction
     }
 
     /**
@@ -250,7 +253,7 @@ public final class Arm extends Module {
         final double normalizedAngle = normalizeAngleOurWay(rotation - ARM_ANGLE_OFFSET, angleUnit);
 
         // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
-        if (isArmRotationNotAllowed(normalizedAngle)) {
+        if (isArmRotationUnsafe(normalizedAngle)) {
             return; // don't rotate the arm into the floor
         }
 
@@ -315,7 +318,7 @@ public final class Arm extends Module {
     }
 
     public void rotateArmAndWrist(double armRotation, double wristPosition) {
-        if (isArmRotationNotAllowed(armRotation)) {
+        if (isArmRotationUnsafe(armRotation)) {
             return;
         }
 

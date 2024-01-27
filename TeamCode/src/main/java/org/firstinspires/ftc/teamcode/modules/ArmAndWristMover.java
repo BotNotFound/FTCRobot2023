@@ -17,7 +17,7 @@ final class ArmAndWristMover {
     private final double wristEpsilon;
 
     private final IntPredicate wristDangerChecker;
-    private final  double safeWristPosition;
+    private final double safeWristPosition;
     private final BiPredicate<Integer, Double> pixelSafetyChecker;
     private final MotorPowerCalculator armPowerCalculator;
 
@@ -62,6 +62,14 @@ final class ArmAndWristMover {
             return wristServo.isAvailable() ? wristServo.requireDevice().getPosition() : 0.0;
         }
 
+        public synchronized boolean isArmWithinRangeOf(int expectedPosition) {
+            return Math.abs(getArmPosition() - expectedPosition) < armEpsilon;
+        }
+
+        public synchronized boolean isWristWithinRangeOf(double expectedPosition) {
+            return Math.abs(hardwareInterface.getWristPosition() - expectedPosition) < wristEpsilon;
+        }
+
         public synchronized void setArmPower(double power) {
             if (power == prevArmPower) {
                 return;
@@ -103,11 +111,11 @@ final class ArmAndWristMover {
         }
 
         public boolean isArmMovementCompleted() {
-            return Math.abs(hardwareInterface.getArmPosition() - getArmTargetPosition()) < armEpsilon;
+            return hardwareInterface.isArmWithinRangeOf(armTargetPosition);
         }
 
         public boolean isWristMovementCompleted() {
-            return Math.abs(getWristTargetPosition() - hardwareInterface.getWristPosition()) < wristEpsilon;
+            return wristRotationMode == WristRotationMode.DO_NOT_ROTATE || hardwareInterface.isWristWithinRangeOf(wristTargetPosition);
         }
 
         public boolean hasMovementCompleted() {
@@ -180,6 +188,9 @@ final class ArmAndWristMover {
                     }
                     else {
                         hardwareInterface.setWristPosition(safeWristPosition);
+                        if (!hardwareInterface.isWristWithinRangeOf(safeWristPosition)) {
+                            return;
+                        }
                     }
                     break;
                 case WITHOUT_DROPPING_PIXELS:

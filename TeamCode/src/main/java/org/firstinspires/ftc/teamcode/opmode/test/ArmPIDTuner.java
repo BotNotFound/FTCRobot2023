@@ -8,16 +8,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.modules.Arm;
 
 import static org.firstinspires.ftc.teamcode.modules.Arm.*;
 
 @TeleOp(group = "Tests")
-public final class ArmTest extends OpMode {
+public final class ArmPIDTuner extends OpMode {
 
-    private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
+    private Gamepad currentGamepad1, previousGamepad1;
     @Disabled
     @TeleOp(group = "Tests")
     public static class AT2 extends LinearOpMode {
@@ -58,7 +57,6 @@ public final class ArmTest extends OpMode {
 
         if (gamepad1.a || gamepad1.back) {
             failsafeEngaged = true;
-            arm.interrupt();
             terminateOpModeNow(); // failsafe
             arm.cleanupModule();
             return true;
@@ -84,14 +82,11 @@ public final class ArmTest extends OpMode {
 
         telemetry.addData("curPos", 0);
         telemetry.addData("tPos", 0);
-        telemetry.addData("s", arm.getState());
     }
 
     @Override
     public void start() {
         super.start();
-        arm.startThreads();
-
         previousGamepad1 = new Gamepad();
         currentGamepad1 = new Gamepad();
     }
@@ -117,9 +112,9 @@ public final class ArmTest extends OpMode {
 
         if (gamepad1.y) {
             ArmTestConfig.targetPosition = ArmTestConfig.angleUnit.fromDegrees(90);
-            arm.rotateArmTo((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES); // [-90, 90] + 90 = [0, 180]
+            arm.rotateArmToAsync((-gamepad1.left_stick_y * 90) + 90, AngleUnit.DEGREES); // [-90, 90] + 90 = [0, 180]
         } else {
-            arm.rotateArmTo(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit);
+            arm.rotateArmToAsync(ArmTestConfig.targetPosition, ArmTestConfig.angleUnit);
         }
 
         if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
@@ -131,7 +126,6 @@ public final class ArmTest extends OpMode {
 
         telemetry.addData("curPos", arm.getArmMotorPosition());
         telemetry.addData("tPos", arm.getArmMotorTarget());
-        telemetry.addData("s", arm.getState());
     }
 
     @Override

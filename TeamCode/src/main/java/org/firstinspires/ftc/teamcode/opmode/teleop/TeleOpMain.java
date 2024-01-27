@@ -23,7 +23,7 @@ public final class TeleOpMain extends OpBase {
 
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
-    private FieldCentricDriveTrain driveTrain;
+    private DriveTrain driveTrain;
     private Arm arm;
     private ActiveIntake activeIntake;
     private PlaneLauncher planeLauncher;
@@ -33,7 +33,7 @@ public final class TeleOpMain extends OpBase {
 
     @Override
     protected void initModules() {
-        driveTrain = getModuleManager().getModule(FieldCentricDriveTrain.class);
+        driveTrain = getModuleManager().getModule(DriveTrain.class);
         arm = getModuleManager().getModule(Arm.class);
         activeIntake = getModuleManager().getModule(ActiveIntake.class);
         planeLauncher = getModuleManager().getModule(PlaneLauncher.class);
@@ -51,7 +51,7 @@ public final class TeleOpMain extends OpBase {
     @Override
     public void start() {
         super.start();
-        driveTrain.resetRotation();
+//        driveTrain.resetRotation();
         activeIntake.start();
 
         previousGamepad1 = new Gamepad();
@@ -87,9 +87,9 @@ public final class TeleOpMain extends OpBase {
                 gamepad1.left_stick_y * 0.5,
                 gamepad1.right_stick_x * 0.5
         );
-        if (currentGamepad1.start && !previousGamepad1.start) {
-            driveTrain.resetRotation();
-        }
+//        if (currentGamepad1.start && !previousGamepad1.start) {
+//            driveTrain.resetRotation();
+//        }
 
         // 2nd gamepad controls grabbing and plane launcher
         if (currentGamepad2.start && launchedPlane.compareAndSet(false, true)) {
@@ -97,18 +97,18 @@ public final class TeleOpMain extends OpBase {
         }
 
         if (gamepad2.x) {
-            arm.rotateWristTo(Arm.WristPresets.IDLE);
-            arm.rotateArmTo(Arm.ArmPresets.IDLE, true);
+            arm.rotateWristToAsync(Arm.WristPresets.IDLE);
+            arm.rotateArmToAsync(Arm.ArmPresets.IDLE, true);
         } else if (gamepad2.y) {
-            arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
-            arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT);
+            arm.rotateWristToAsync(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
+            arm.rotateArmToAsync(Arm.ArmPresets.DEPOSIT_ON_BACKDROP);
         } else if (gamepad2.b) {
-            arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
-            arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.ANGLE_UNIT);
+            arm.rotateWristToAsync(Arm.WristPresets.DEPOSIT_ON_FLOOR);
+            arm.rotateArmToAsync(Arm.ArmPresets.DEPOSIT_ON_FLOOR);
         }
         else if (gamepad2.a) {
-            arm.rotateWristTo(Arm.WristPresets.READY_TO_INTAKE);
-            arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
+            arm.rotateWristToAsync(Arm.WristPresets.READY_TO_INTAKE);
+            arm.rotateArmToAsync(Arm.ArmPresets.READY_TO_INTAKE);
         }
 
         if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
@@ -117,6 +117,8 @@ public final class TeleOpMain extends OpBase {
         if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper) {
             arm.fullCycleFlap();
         }
+
+        arm.doArmUpdateLoop();
 
         if (currentGamepad1.b && !previousGamepad1.b) {
             activeIntake.stop();
@@ -140,7 +142,7 @@ public final class TeleOpMain extends OpBase {
             telemetry.addData("[Hang] motor amp usage", motor.getCurrent(CurrentUnit.MILLIAMPS));
         });
 
-        getModuleManager().logModuleStatus();
+//        getModuleManager().logModuleStatus();
     }
     
 }

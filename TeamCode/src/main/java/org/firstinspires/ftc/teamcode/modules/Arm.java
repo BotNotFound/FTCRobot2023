@@ -41,17 +41,17 @@ public final class Arm extends Module {
     /**
      * Rotate flap to open position with the right pixel exposed
      */
-    public static final double FLAP_OPEN_RIGHT = 0.35;
+    public static final double FLAP_OPEN_RIGHT = 0.4;
 
     /**
      * Rotate flap to open position with the left pixel exposed
      */
-    public static final double FLAP_OPEN_LEFT = 0.65;
+    public static final double FLAP_OPEN_LEFT = 0.6;
 
     /**
      * Rotate flap to closed position
      */
-    public static final double FLAP_CLOSED = 0.5;
+    public static final double FLAP_CLOSED = 0.53;
 
     private static final Range<Double> WRIST_VALID_POSITION_RANGE = new Range<>(0.35, 0.85);
     public static double kP = 0.000945;
@@ -65,45 +65,45 @@ public final class Arm extends Module {
          * Rotates the arm to the position it was in at the start of execution.  This should be parallel to the ground,
          *  with the end of the arm closest to the active intake.
          */
-        public static double IDLE = 0.0;
+        public static final double IDLE = 25.0;
 
         /**
          * Rotates the arm so that the robot can collect pixels
          */
-        public static double READY_TO_INTAKE = -25.0;
+        public static final double READY_TO_INTAKE = 0.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static double DEPOSIT_ON_FLOOR = 200.0;
+        public static final double DEPOSIT_ON_FLOOR = 200.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static double DEPOSIT_ON_BACKDROP = 115.0;
+        public static final double DEPOSIT_ON_BACKDROP = 155.0;
     }
 
     @Config
-    public static final class WristPresets extends Presets { // TODO these presets are untested
+    public static final class WristPresets extends Presets {
         /**
          * Rotates the wrist to the position it was in at the start of execution.
          * This should be parallel to the ground.
          */
-        public static double IDLE = 180.0;
+        public static final double IDLE = 1.0;
         /**
          * Rotates the wrist so that the robot can collect pixels
          */
-        public static double READY_TO_INTAKE = 30.0;
+        public static final double READY_TO_INTAKE = 0.565;
 
         /**
          * Rotates the wrist so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static double DEPOSIT_ON_FLOOR = 180.0;
+        public static final double DEPOSIT_ON_FLOOR = 0.5;
 
         /**
          * Rotates the wrist so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static double DEPOSIT_ON_BACKDROP = 90.0;
+        public static final double DEPOSIT_ON_BACKDROP = 0.45;
     }
 
     private FlapState currentFlapState;
@@ -227,7 +227,7 @@ public final class Arm extends Module {
 
     private int calculateArmPosition(double angle) {
         return (int)Math.round(
-                angle
+                (angle + ARM_ANGLE_OFFSET)
                         * ONE_REVOLUTION_ENCODER_TICKS // multiply before dividing to retain maximum precision
                         / ONE_REVOLUTION_OUR_ANGLE_UNIT
         );
@@ -335,7 +335,7 @@ public final class Arm extends Module {
      * @return The arm's rotation in the unit specified
      */
     public double getArmRotation(AngleUnit angleUnit) {
-        return angleUnit.fromUnit(ANGLE_UNIT, getArmRotation());
+        return angleUnit.fromUnit(ANGLE_UNIT, getArmRotation()) - ARM_ANGLE_OFFSET;
     }
 
     /**

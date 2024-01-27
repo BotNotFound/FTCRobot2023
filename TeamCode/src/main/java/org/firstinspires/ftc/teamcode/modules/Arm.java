@@ -89,7 +89,7 @@ public final class Arm extends Module {
          * Rotates the wrist to the position it was in at the start of execution.
          * This should be parallel to the ground.
          */
-        public static final double IDLE = 0.675;
+        public static final double IDLE = 0.52;
         /**
          * Rotates the wrist so that the robot can collect pixels
          */
@@ -103,7 +103,7 @@ public final class Arm extends Module {
         /**
          * Rotates the wrist so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 0.25;
+        public static final double DEPOSIT_ON_BACKDROP = 0.55;
     }
 
     private FlapState currentFlapState;

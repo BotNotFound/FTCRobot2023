@@ -179,7 +179,7 @@ public final class Arm extends Module {
                 wristServo,
                 100,
                 0.001,
-                Arm::isWristInDanger,
+                this::isWristInDanger,
                 0.75,
                 Arm::willPixelsFallOut,
                 new PIDAlgorithm(
@@ -198,8 +198,11 @@ public final class Arm extends Module {
         armAndWristMover.cycleStateMachine();
     }
 
-    private static boolean isWristInDanger(int armPosition) {
-        return armPosition < ONE_REVOLUTION_ENCODER_TICKS * 2 / 3;
+    private static final int WRIST_DANGER_ZONE_END = (int)(ONE_REVOLUTION_ENCODER_TICKS * 2 / 3);
+
+    private boolean isWristInDanger(int armPosition) {
+        return getArmMotorPosition() <= WRIST_DANGER_ZONE_END | // we start in the danger zone
+                armPosition <= WRIST_DANGER_ZONE_END; // we end in the danger zone
     }
 
     private static boolean willPixelsFallOut(int armPosition, double wristPosition) {
@@ -234,7 +237,7 @@ public final class Arm extends Module {
     }
 
     private boolean isArmRotationNotAllowed(double angle) {
-        return angle >= ArmPresets.DEPOSIT_ON_FLOOR || angle <= ArmPresets.READY_TO_INTAKE;
+        return false;
     }
 
     /**

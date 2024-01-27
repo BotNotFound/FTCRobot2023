@@ -158,8 +158,8 @@ public class DriveTrain extends Module {
             // (formula was found on gm0)
             double leftFrontPower = forward + strafe + rotation;
             double leftBackPower = forward - strafe + rotation;
-            double rightFrontPower = forward + strafe - rotation;
-            double rightBackPower = forward - strafe - rotation;
+            double rightFrontPower = forward - strafe - rotation;
+            double rightBackPower = forward + strafe - rotation;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.

@@ -234,7 +234,7 @@ public final class Arm extends Module {
     }
 
     private boolean isArmRotationNotAllowed(double angle) {
-        return angle > ArmPresets.DEPOSIT_ON_FLOOR || angle < ArmPresets.READY_TO_INTAKE;
+        return angle >= ArmPresets.DEPOSIT_ON_FLOOR || angle <= ArmPresets.READY_TO_INTAKE;
     }
 
     /**

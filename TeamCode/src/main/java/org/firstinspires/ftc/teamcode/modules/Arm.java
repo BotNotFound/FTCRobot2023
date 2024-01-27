@@ -75,7 +75,7 @@ public final class Arm extends Module {
         /**
          * Rotates the arm so that the robot can deposit pixels on the floor behind the active intake
          */
-        public static final double DEPOSIT_ON_FLOOR = 200.0;
+        public static final double DEPOSIT_ON_FLOOR = 190.0;
 
         /**
          * Rotates the arm so that the robot can deposit pixels on the backdrop behind the active intake
@@ -103,7 +103,7 @@ public final class Arm extends Module {
         /**
          * Rotates the wrist so that the robot can deposit pixels on the backdrop behind the active intake
          */
-        public static final double DEPOSIT_ON_BACKDROP = 0.45;
+        public static final double DEPOSIT_ON_BACKDROP = 0.25;
     }
 
     private FlapState currentFlapState;

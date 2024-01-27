@@ -106,7 +106,7 @@ public final class Arm extends Module {
         public static final double DEPOSIT_ON_BACKDROP = 0.55;
     }
 
-    private FlapState currentFlapState;
+    private FlapState currentFlapState = FlapState.CLOSED;
 
     /**
      * The motor that rotates the arm
@@ -373,7 +373,7 @@ public final class Arm extends Module {
         });
     }
 
-    public  static final long FLAP_CYCLE_WAIT_TIME = 200;
+    public static final long FLAP_CYCLE_WAIT_TIME = 200;
 
     /**
      * Cycles through all flap states with enough time for pixels to fall out

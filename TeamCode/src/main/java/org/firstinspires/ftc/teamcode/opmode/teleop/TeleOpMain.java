@@ -114,7 +114,7 @@ public final class TeleOpMain extends OpBase {
         if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
             arm.cycleFlap();
         }
-        if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper) {
+        else if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper) {
             arm.fullCycleFlap();
         }
 

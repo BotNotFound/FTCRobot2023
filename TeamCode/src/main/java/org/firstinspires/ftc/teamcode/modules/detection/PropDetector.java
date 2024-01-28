@@ -34,8 +34,16 @@ public class PropDetector extends Module {
     }
 
     /**
-     * Returns whether the prop is there, based on which RGB value (Red, Green, or Blue) is most present in the sensor's view, as well as the distance to the nearest object
-     * @param prop This is the prop type to look for
+     * Returns whether the prop is there, based on the distance to the nearest object
+     * @return Whether the prop is there or not as a boolean
+     */
+    public boolean isPropDetected() {
+        return sensor.requireDevice().getDistance(DistanceUnit.CM) < 9.5;
+    }
+
+    /**
+     * Returns whether the prop is there, based on the distance to the nearest object, as well as which RGB value (Red, Green, or Blue) is most present in the sensor's view(as a redundancy)
+     * @param prop This is the prop type/color to look for
      * @return Whether the prop is there or not as a boolean
      */
     public boolean isPropDetected(Prop prop) {

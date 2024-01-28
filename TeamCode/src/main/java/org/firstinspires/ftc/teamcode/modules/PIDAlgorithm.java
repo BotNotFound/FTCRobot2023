@@ -3,10 +3,9 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.LongUnaryOperator;
 
 public class PIDAlgorithm implements MotorPowerCalculator {
-    private long totalError;
+    private double totalError;
     private int prevError;
     private final ElapsedTime elapsedTime;
     private int targetPosition;
@@ -14,14 +13,14 @@ public class PIDAlgorithm implements MotorPowerCalculator {
     private final double integralCoefficient;
     private final double derivativeCoefficient;
     private final DoubleUnaryOperator derivativeTermModifier;
-    private final LongUnaryOperator integralTermModifier;
+    private final DoubleUnaryOperator integralTermModifier;
 
     public PIDAlgorithm(
             double proportionalCoefficient,
             double integralCoefficient,
             double derivativeCoefficient,
             DoubleUnaryOperator derivativeTermModifier,
-            LongUnaryOperator integralTermModifier
+            DoubleUnaryOperator integralTermModifier
     ) {
         this.proportionalCoefficient = proportionalCoefficient;
         this.integralCoefficient = integralCoefficient;
@@ -46,8 +45,9 @@ public class PIDAlgorithm implements MotorPowerCalculator {
         return -1L; // value is not positive or zero; it must be negative
     }
 
-    public static LongUnaryOperator limitIntegralTermTo(long absLimit) {
-        return i -> Math.min(Math.abs(i), absLimit) * signOf(i);
+    public static DoubleUnaryOperator limitIntegralTermTo(double limit) {
+        final double absLimit = Math.abs(limit);
+        return i -> Math.min(Math.abs(i), absLimit) * Math.signum(i);
     }
 
     protected int calculateError(int currentPosition, int targetPosition) {
@@ -57,9 +57,9 @@ public class PIDAlgorithm implements MotorPowerCalculator {
         final double actualChange = (currentError - previousError) / deltaTime;
         return derivativeTermModifier.applyAsDouble(actualChange);
     }
-    protected long calculateTotalError(int currentError, long previousTotalError) {
-        final long actualTotal = currentError + previousTotalError;
-        return integralTermModifier.applyAsLong(actualTotal);
+    protected double calculateTotalError(int currentError, double previousTotalError) {
+        final double actualTotal = currentError + previousTotalError;
+        return integralTermModifier.applyAsDouble(actualTotal);
     }
 
     private void setTargetPosition(int newTarget) {

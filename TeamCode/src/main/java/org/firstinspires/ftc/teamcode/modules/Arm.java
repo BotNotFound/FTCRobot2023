@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 import java.util.function.DoubleUnaryOperator;
 
+@Config
 public final class Arm extends Module {
     /**
      * One full rotation of the arm motor in encoder ticks.<br />
@@ -24,7 +25,7 @@ public final class Arm extends Module {
     public static final GearRatio GEAR_RATIO_EXTERNAL = new GearRatio(20, 100);
 
     public static final double ONE_REVOLUTION_ENCODER_TICKS =
-            GEAR_RATIO_EXTERNAL.calculateStart(ENCODER_RESOLUTION);
+            ENCODER_RESOLUTION * 5;
 
     /**
      * The unit of rotation used by default
@@ -56,8 +57,8 @@ public final class Arm extends Module {
     private static final Range<Double> WRIST_VALID_POSITION_RANGE = new Range<>(0.35, 0.85);
     public static double kP = 0.000945;
     public static double kI = 0.001;
-    public static double kD = 0;
-    public static double INTEGRAL_MAX_POWER = 0.05;
+    public static double kD = 0.01;
+    public static double INTEGRAL_MAX_POWER = 0.07;
 
     @Config
     public static final class ArmPresets extends Presets {
@@ -177,8 +178,8 @@ public final class Arm extends Module {
         armAndWristMover = new ArmAndWristMover(
                 armMotor,
                 wristServo,
-                100,
-                0.001,
+                5,
+                0.0005,
                 this::isWristInDanger,
                 0.75,
                 Arm::willPixelsFallOut,
@@ -187,7 +188,7 @@ public final class Arm extends Module {
                         kI,
                         kD,
                         DoubleUnaryOperator.identity(),
-                        PIDAlgorithm.limitIntegralTermTo((long)Math.ceil(INTEGRAL_MAX_POWER))
+                        PIDAlgorithm.limitIntegralTermTo(INTEGRAL_MAX_POWER / kI)
                 )
         );
 
@@ -198,11 +199,10 @@ public final class Arm extends Module {
         armAndWristMover.cycleStateMachine();
     }
 
-    private static final int WRIST_DANGER_ZONE_END = (int)(ONE_REVOLUTION_ENCODER_TICKS * 2 / 3);
+    private static final int WRIST_DANGER_ZONE_END = 1777;
 
     private boolean isWristInDanger(int armPosition) {
-        return getArmMotorPosition() <= WRIST_DANGER_ZONE_END | // we start in the danger zone
-                armPosition <= WRIST_DANGER_ZONE_END; // we end in the danger zone
+        return armPosition <= WRIST_DANGER_ZONE_END;
     }
 
     private static boolean willPixelsFallOut(int armPosition, double wristPosition) {
@@ -217,7 +217,7 @@ public final class Arm extends Module {
      * @return The arm's position, in encoder ticks
      */
     public int getArmMotorPosition() {
-        return armMotor.requireDevice().getCurrentPosition();
+        return armAndWristMover.getArmPosition();
     }
 
     /**
@@ -239,8 +239,9 @@ public final class Arm extends Module {
     private static final double MAX_ALLOWED_ARM_ROTATION = ANGLE_UNIT.fromDegrees(225);
 
     private boolean isArmRotationUnsafe(double angle) {
-        return angle < 0 | // we are trying to rotate into the floor
-                angle > MAX_ALLOWED_ARM_ROTATION; // we are trying to rotate into the floor from the other direction
+        return false; // this doesn't work as intended, so it's getting scrapped rn
+//        return angle < 0 | // we are trying to rotate into the floor
+//                angle > MAX_ALLOWED_ARM_ROTATION; // we are trying to rotate into the floor from the other direction
     }
 
     /**
@@ -317,6 +318,16 @@ public final class Arm extends Module {
         armAndWristMover.setWristTargetPosition(clampedPosition);
     }
 
+    public void rotateArmAndWristAsync(double armRotation, double wristPosition) {
+        if (isArmRotationUnsafe(armRotation)) {
+            return;
+        }
+
+        final int armPosition = calculateArmPosition(armRotation);
+
+        armAndWristMover.moveArmAndWristAsync(armPosition, wristPosition);
+    }
+
     public void rotateArmAndWrist(double armRotation, double wristPosition) {
         if (isArmRotationUnsafe(armRotation)) {
             return;
@@ -349,7 +360,7 @@ public final class Arm extends Module {
      * @return the rotation in the unit specified by {@link #ANGLE_UNIT}
      */
     public double getWristRotation() {
-        return wristServo.requireDevice().getPosition() * (ONE_REVOLUTION_OUR_ANGLE_UNIT / 2); // servo can only rotate up to 180 degrees (1/2 of a full rotation)
+        return armAndWristMover.getWristPosition() * (ONE_REVOLUTION_OUR_ANGLE_UNIT / 2); // servo can only rotate up to 180 degrees (1/2 of a full rotation)
     }
 
     /**
@@ -423,8 +434,12 @@ public final class Arm extends Module {
     @Override
     public void log() {
         getTelemetry().addData("[Arm] Movement status", armAndWristMover.getStatusString());
-        armMotor.runIfAvailable(arm -> getTelemetry().addData( "[Arm] (arm motor) current rotation",
-                Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 ));
+        armMotor.runIfAvailable(arm -> {
+            getTelemetry().addData( "[Arm] (arm motor) current rotation",
+                    Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 );
+            getTelemetry().addData("[Arm] current position", getArmMotorPosition());
+            getTelemetry().addData("[Arm] target position", getArmMotorTarget());
+        });
         wristServo.runIfAvailable(wrist -> getTelemetry().addData( "[Arm] (wrist servo) current rotation",
                 Math.rint(getWristRotation(AngleUnit.DEGREES) * 100) / 100 ));
         flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap closed", !(isFlapOpenLeft() && isFlapOpenRight())));

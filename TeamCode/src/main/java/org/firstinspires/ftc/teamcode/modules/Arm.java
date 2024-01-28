@@ -52,7 +52,7 @@ public final class Arm extends Module {
     /**
      * Rotate flap to closed position
      */
-    public static double FLAP_CLOSED = 0.55;
+    public static double FLAP_CLOSED = 0.546;
 
     private static final Range<Double> WRIST_VALID_POSITION_RANGE = new Range<>(0.35, 0.85);
     public static double kP = 0.000945;

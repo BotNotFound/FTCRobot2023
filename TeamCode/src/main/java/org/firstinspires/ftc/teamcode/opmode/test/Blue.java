@@ -13,10 +13,10 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 import kotlin.Unit;
 
 @Autonomous(group = "Tests", name="Blue Backdrop")
-public class FullAutoTest extends LinearOpMode {
+public class Blue extends LinearOpMode {
     public static final double UNIT_MOVEMENT = AutonomousConstants.TILE_SIDE_LENGTH_IN * 1.25;
 
-    private SampleMecanumDrive drive;
+    protected SampleMecanumDrive drive;
     private Arm arm;
     private PropDetector propDetector;
 
@@ -58,15 +58,15 @@ public class FullAutoTest extends LinearOpMode {
         park(aprilTagId);
     }
 
-    private TrajectorySequenceBuilder makeTrajectorySequenceBuilder() {
+    protected TrajectorySequenceBuilder makeTrajectorySequenceBuilder() {
         return drive.trajectorySequenceBuilder(drive.getPoseEstimate());
     }
 
     private void driveToSpikeMarks() {
         drive.followTrajectorySequence(
-            makeTrajectorySequenceBuilder()
-                    .strafeLeft(UNIT_MOVEMENT)
-                    .build()
+                makeTrajectorySequenceBuilder()
+                        .strafeLeft(UNIT_MOVEMENT)
+                        .build()
         );
     }
 
@@ -80,7 +80,7 @@ public class FullAutoTest extends LinearOpMode {
         );
     }
 
-    private void driveToBackdrop() {
+    protected void driveToBackdrop() {
         drive.followTrajectorySequence(
                 makeTrajectorySequenceBuilder()
                         .strafeLeft(UNIT_MOVEMENT / 2)
@@ -98,7 +98,7 @@ public class FullAutoTest extends LinearOpMode {
         );
     }
 
-    private void park(int aprilTagId) {
+    protected void park(int aprilTagId) {
         double tempMovement = UNIT_MOVEMENT;
         if (aprilTagId == 1) {
             tempMovement += UNIT_MOVEMENT / 4;

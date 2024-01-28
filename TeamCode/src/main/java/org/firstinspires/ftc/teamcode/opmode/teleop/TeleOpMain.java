@@ -23,7 +23,7 @@ public final class TeleOpMain extends OpBase {
 
     private Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
 
-    private DriveTrain driveTrain;
+    private FieldCentricDriveTrain driveTrain;
     private Arm arm;
     private ActiveIntake activeIntake;
     private PlaneLauncher planeLauncher;
@@ -33,7 +33,7 @@ public final class TeleOpMain extends OpBase {
 
     @Override
     protected void initModules() {
-        driveTrain = getModuleManager().getModule(DriveTrain.class);
+        driveTrain = getModuleManager().getModule(FieldCentricDriveTrain.class);
         arm = getModuleManager().getModule(Arm.class);
         activeIntake = getModuleManager().getModule(ActiveIntake.class);
         planeLauncher = getModuleManager().getModule(PlaneLauncher.class);
@@ -87,9 +87,9 @@ public final class TeleOpMain extends OpBase {
                 gamepad1.left_stick_y * 0.5,
                 gamepad1.right_stick_x * 0.5
         );
-//        if (currentGamepad1.start && !previousGamepad1.start) {
-//            driveTrain.resetRotation();
-//        }
+        if (currentGamepad1.start && !previousGamepad1.start) {
+            driveTrain.resetRotation();
+        }
 
         // 2nd gamepad controls grabbing and plane launcher
         if (currentGamepad2.start && launchedPlane.compareAndSet(false, true)) {

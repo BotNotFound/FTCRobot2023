@@ -25,7 +25,7 @@ public final class Arm extends Module {
     public static final GearRatio GEAR_RATIO_EXTERNAL = new GearRatio(20, 100);
 
     public static final double ONE_REVOLUTION_ENCODER_TICKS =
-            GEAR_RATIO_EXTERNAL.calculateStart(ENCODER_RESOLUTION);
+            ENCODER_RESOLUTION * 5;
 
     /**
      * The unit of rotation used by default
@@ -179,7 +179,7 @@ public final class Arm extends Module {
                 armMotor,
                 wristServo,
                 5,
-                0.001,
+                0.0005,
                 this::isWristInDanger,
                 0.75,
                 Arm::willPixelsFallOut,
@@ -199,11 +199,10 @@ public final class Arm extends Module {
         armAndWristMover.cycleStateMachine();
     }
 
-    private static final int WRIST_DANGER_ZONE_END = (int)(ONE_REVOLUTION_ENCODER_TICKS * 2 / 3);
+    private static final int WRIST_DANGER_ZONE_END = 1777;
 
     private boolean isWristInDanger(int armPosition) {
-        return getArmMotorPosition() <= WRIST_DANGER_ZONE_END | // we start in the danger zone
-                armPosition <= WRIST_DANGER_ZONE_END; // we end in the danger zone
+        return armPosition <= WRIST_DANGER_ZONE_END;
     }
 
     private static boolean willPixelsFallOut(int armPosition, double wristPosition) {

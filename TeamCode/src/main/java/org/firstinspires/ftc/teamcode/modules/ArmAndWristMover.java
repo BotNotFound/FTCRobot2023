@@ -161,7 +161,7 @@ final class ArmAndWristMover {
 
         WristRotationMode wristRotationMode = WristRotationMode.ASAP;
 
-        if (wristDangerChecker.test(armTargetPosition)) {
+        if (wristDangerChecker.test(hardwareInterface.getArmPosition()) || wristDangerChecker.test(armTargetPosition)) {
             wristRotationMode = WristRotationMode.COMPACT_WHILE_UNSAFE;
         }
         else if (!pixelSafetyChecker.test(hardwareInterface.getArmPosition(), wristTargetPosition)) {
@@ -207,6 +207,15 @@ final class ArmAndWristMover {
         return curCmd.get().getWristTargetPosition();
     }
 
+    private double getSafeWristPosition() {
+        if (wristDangerChecker.test(hardwareInterface.getArmPosition())) {
+            return safeWristPosition;
+        }
+        else {
+            return 1.0 - safeWristPosition;
+        }
+    }
+
     public void cycleStateMachine() {
         final RotationCommand cmd = curCmd.get();
 
@@ -221,23 +230,26 @@ final class ArmAndWristMover {
                     if (cmd.isArmMovementCompleted()) {
                         cmd.updateWristMode(WristRotationMode.ASAP);
                     }
-                    else if (cmd.isWristUnsafe()) {
-                        hardwareInterface.setWristPosition(safeWristPosition);
-                        if (!hardwareInterface.isWristWithinRangeOf(safeWristPosition)) {
+                    else /*if (cmd.isWristUnsafe())*/ {
+                        final double safetyPosition = getSafeWristPosition();
+                        if (!hardwareInterface.isWristWithinRangeOf(safetyPosition)) {
+                            hardwareInterface.setArmPower(0.0); // for safety
+                            hardwareInterface.setWristPosition(safetyPosition);
                             return;
                         }
                     }
-                    else {
-                        cmd.updateWristMode(WristRotationMode.WITHOUT_DROPPING_PIXELS);
-                    }
+//                    else {
+//                        cmd.updateWristMode(WristRotationMode.WITHOUT_DROPPING_PIXELS);
+//                    }
                     break;
                 case WITHOUT_DROPPING_PIXELS:
-                    if (cmd.isArmMovementCompleted()) {
-                        cmd.updateWristMode(WristRotationMode.ASAP);
-                    }
-                    else {
-                        hardwareInterface.setWristPosition(safeWristPosition - (getArmTargetPosition() / Arm.ONE_REVOLUTION_ENCODER_TICKS));
-                    }
+                    cmd.updateWristMode(WristRotationMode.COMPACT_WHILE_UNSAFE);
+//                    if (cmd.isArmMovementCompleted()) {
+//                        cmd.updateWristMode(WristRotationMode.ASAP);
+//                    }
+//                    else {
+//                        hardwareInterface.setWristPosition(safeWristPosition - (getArmTargetPosition() / Arm.ONE_REVOLUTION_ENCODER_TICKS));
+//                    }
                     break;
             }
         }

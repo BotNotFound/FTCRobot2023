@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 import java.util.function.DoubleUnaryOperator;
 
+@Config
 public final class Arm extends Module {
     /**
      * One full rotation of the arm motor in encoder ticks.<br />
@@ -56,8 +57,8 @@ public final class Arm extends Module {
     private static final Range<Double> WRIST_VALID_POSITION_RANGE = new Range<>(0.35, 0.85);
     public static double kP = 0.000945;
     public static double kI = 0.001;
-    public static double kD = 0;
-    public static double INTEGRAL_MAX_POWER = 0.05;
+    public static double kD = 0.01;
+    public static double INTEGRAL_MAX_POWER = 0.07;
 
     @Config
     public static final class ArmPresets extends Presets {
@@ -177,7 +178,7 @@ public final class Arm extends Module {
         armAndWristMover = new ArmAndWristMover(
                 armMotor,
                 wristServo,
-                100,
+                1,
                 0.001,
                 this::isWristInDanger,
                 0.75,
@@ -187,7 +188,7 @@ public final class Arm extends Module {
                         kI,
                         kD,
                         DoubleUnaryOperator.identity(),
-                        PIDAlgorithm.limitIntegralTermTo((long)Math.ceil(INTEGRAL_MAX_POWER))
+                        PIDAlgorithm.limitIntegralTermTo(INTEGRAL_MAX_POWER / kI)
                 )
         );
 
@@ -434,8 +435,12 @@ public final class Arm extends Module {
     @Override
     public void log() {
         getTelemetry().addData("[Arm] Movement status", armAndWristMover.getStatusString());
-        armMotor.runIfAvailable(arm -> getTelemetry().addData( "[Arm] (arm motor) current rotation",
-                Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 ));
+        armMotor.runIfAvailable(arm -> {
+            getTelemetry().addData( "[Arm] (arm motor) current rotation",
+                    Math.rint(getArmRotation(AngleUnit.DEGREES) * 100) / 100 );
+            getTelemetry().addData("[Arm] current position", getArmMotorPosition());
+            getTelemetry().addData("[Arm] target position", getArmMotorTarget());
+        });
         wristServo.runIfAvailable(wrist -> getTelemetry().addData( "[Arm] (wrist servo) current rotation",
                 Math.rint(getWristRotation(AngleUnit.DEGREES) * 100) / 100 ));
         flapServo.runIfAvailable(flap -> getTelemetry().addData("[Arm] is the flap closed", !(isFlapOpenLeft() && isFlapOpenRight())));

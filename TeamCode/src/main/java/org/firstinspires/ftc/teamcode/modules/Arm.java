@@ -317,6 +317,16 @@ public final class Arm extends Module {
         armAndWristMover.setWristTargetPosition(clampedPosition);
     }
 
+    public void rotateArmAndWristAsync(double armRotation, double wristPosition) {
+        if (isArmRotationUnsafe(armRotation)) {
+            return;
+        }
+
+        final int armPosition = calculateArmPosition(armRotation);
+
+        armAndWristMover.moveArmAndWristAsync(armPosition, wristPosition);
+    }
+
     public void rotateArmAndWrist(double armRotation, double wristPosition) {
         if (isArmRotationUnsafe(armRotation)) {
             return;

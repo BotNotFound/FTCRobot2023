@@ -215,7 +215,7 @@ final class ArmAndWristMover {
                     break;
                 case COMPACT_WHILE_UNSAFE:
                     if (cmd.isArmMovementCompleted() || !cmd.isWristUnsafe()) {
-                        curCmd.compareAndSet(cmd, new RotationCommand(cmd.getArmTargetPosition(), cmd.getWristTargetPosition(), WristRotationMode.WITHOUT_DROPPING_PIXELS));
+                        hardwareInterface.setWristPosition(cmd.getWristTargetPosition());
                     }
                     else {
                         hardwareInterface.setWristPosition(safeWristPosition);
@@ -226,7 +226,7 @@ final class ArmAndWristMover {
                     break;
                 case WITHOUT_DROPPING_PIXELS:
                     if (pixelSafetyChecker.test(hardwareInterface.getArmPosition(), cmd.getWristTargetPosition())) {
-                        curCmd.compareAndSet(cmd, new RotationCommand(cmd.getArmTargetPosition(), cmd.getWristTargetPosition(), WristRotationMode.ASAP));
+                        hardwareInterface.setWristPosition(cmd.getWristTargetPosition());
                     }
                     else {
                         hardwareInterface.setWristPosition(safeWristPosition - (getArmTargetPosition() / Arm.ONE_REVOLUTION_ENCODER_TICKS));

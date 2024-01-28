@@ -152,11 +152,14 @@ final class ArmAndWristMover {
         else if (wristTargetPosition > 1) { wristTargetPosition = 1; }
 
         WristRotationMode wristRotationMode = WristRotationMode.ASAP;
-        if (!pixelSafetyChecker.test(hardwareInterface.getArmPosition(), wristTargetPosition)) {
-            wristRotationMode = WristRotationMode.WITHOUT_DROPPING_PIXELS;
-        } else if (wristDangerChecker.test(armTargetPosition)) {
+
+        if (wristDangerChecker.test(armTargetPosition)) {
             wristRotationMode = WristRotationMode.COMPACT_WHILE_UNSAFE;
         }
+        else if (!pixelSafetyChecker.test(hardwareInterface.getArmPosition(), wristTargetPosition)) {
+            wristRotationMode = WristRotationMode.WITHOUT_DROPPING_PIXELS;
+        }
+
         return new RotationCommand(armTargetPosition, wristTargetPosition, wristRotationMode);
     }
 

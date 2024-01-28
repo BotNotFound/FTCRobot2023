@@ -51,7 +51,7 @@ public final class TeleOpMain extends OpBase {
     @Override
     public void start() {
         super.start();
-        driveTrain.resetRotation();
+//        driveTrain.resetRotation();
         activeIntake.start();
 
         previousGamepad1 = new Gamepad();
@@ -97,26 +97,28 @@ public final class TeleOpMain extends OpBase {
         }
 
         if (gamepad2.x) {
-            arm.rotateWristTo(Arm.WristPresets.IDLE);
-            arm.rotateArmTo(Arm.ArmPresets.IDLE, true);
+            arm.rotateWristToAsync(Arm.WristPresets.IDLE);
+            arm.rotateArmToAsync(Arm.ArmPresets.IDLE, true);
         } else if (gamepad2.y) {
-            arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
-            arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_BACKDROP, Arm.ANGLE_UNIT);
+            arm.rotateWristToAsync(Arm.WristPresets.DEPOSIT_ON_BACKDROP);
+            arm.rotateArmToAsync(Arm.ArmPresets.DEPOSIT_ON_BACKDROP);
         } else if (gamepad2.b) {
-            arm.rotateWristTo(Arm.WristPresets.DEPOSIT_ON_FLOOR);
-            arm.rotateArmTo(Arm.ArmPresets.DEPOSIT_ON_FLOOR, Arm.ANGLE_UNIT);
+            arm.rotateWristToAsync(Arm.WristPresets.DEPOSIT_ON_FLOOR);
+            arm.rotateArmToAsync(Arm.ArmPresets.DEPOSIT_ON_FLOOR);
         }
         else if (gamepad2.a) {
-            arm.rotateWristTo(Arm.WristPresets.READY_TO_INTAKE);
-            arm.rotateArmTo(Arm.ArmPresets.READY_TO_INTAKE, Arm.ANGLE_UNIT);
+            arm.rotateWristToAsync(Arm.WristPresets.READY_TO_INTAKE);
+            arm.rotateArmToAsync(Arm.ArmPresets.READY_TO_INTAKE);
         }
 
         if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
             arm.cycleFlap();
         }
-        if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper) {
+        else if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper) {
             arm.fullCycleFlap();
         }
+
+        arm.doArmUpdateLoop();
 
         if (currentGamepad1.b && !previousGamepad1.b) {
             activeIntake.stop();
@@ -140,7 +142,8 @@ public final class TeleOpMain extends OpBase {
             telemetry.addData("[Hang] motor amp usage", motor.getCurrent(CurrentUnit.MILLIAMPS));
         });
 
-        getModuleManager().logModuleStatus();
+        arm.log();
+//        getModuleManager().logModuleStatus();
     }
     
 }

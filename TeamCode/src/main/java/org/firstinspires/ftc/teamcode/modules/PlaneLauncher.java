@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.modules.core.Module;
 
 public class PlaneLauncher extends Module {
 
-    private static final double SERVO_POSITION_LAUNCHED = 0;
+    private static final double SERVO_POSITION_LAUNCHED = 1;
     public static final String LAUNCHER_SERVO_NAME = "Launcher Servo";
 
     /**

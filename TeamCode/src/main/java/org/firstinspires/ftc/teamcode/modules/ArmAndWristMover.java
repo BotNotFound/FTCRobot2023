@@ -139,10 +139,11 @@ final class ArmAndWristMover {
         @NonNull
         @Override
         public String toString() {
-            return "{ Arm Target Position: " + armTargetPosition
-                    + "(Done: " + isArmMovementCompleted() + "); "
-                    + "Wrist Target Position: " + wristTargetPosition
-                    + "(Done: " + isWristMovementCompleted() + ") }";
+            return "{ Arm: " + armTargetPosition
+//                    + "(Done: " + isArmMovementCompleted() + "); "
+                    + " Wrist: " + wristTargetPosition
+                    + " Wmode: " + wristRotationMode + " }";
+//                    + "(Done: " + isWristMovementCompleted() + ") }";
         }
     }
 

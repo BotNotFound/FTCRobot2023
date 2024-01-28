@@ -179,7 +179,7 @@ public final class Arm extends Module {
                 wristServo,
                 100,
                 0.001,
-                Arm::isWristInDanger,
+                this::isWristInDanger,
                 0.75,
                 Arm::willPixelsFallOut,
                 new PIDAlgorithm(
@@ -198,15 +198,18 @@ public final class Arm extends Module {
         armAndWristMover.cycleStateMachine();
     }
 
-    private static boolean isWristInDanger(int armPosition) {
-        return armPosition < ONE_REVOLUTION_ENCODER_TICKS * 2 / 3;
+    private static final int WRIST_DANGER_ZONE_END = (int)(ONE_REVOLUTION_ENCODER_TICKS * 2 / 3);
+
+    private boolean isWristInDanger(int armPosition) {
+        return getArmMotorPosition() <= WRIST_DANGER_ZONE_END | // we start in the danger zone
+                armPosition <= WRIST_DANGER_ZONE_END; // we end in the danger zone
     }
 
     private static boolean willPixelsFallOut(int armPosition, double wristPosition) {
-        double armRotationDegrees = armPosition * 360.0 / ONE_REVOLUTION_ENCODER_TICKS;
-        double wristRotationDegrees = wristPosition * 360.0;
-        double pixelRotationDegrees = armRotationDegrees + wristRotationDegrees;
-        return Math.abs(pixelRotationDegrees) > 75.0;
+        final double armRotationDegrees = armPosition * 360.0 / ONE_REVOLUTION_ENCODER_TICKS;
+        final double wristRotationDegrees = wristPosition * 360.0;
+        final double pixelRotationDegrees = armRotationDegrees + wristRotationDegrees;
+        return pixelRotationDegrees > 120.0;
     }
 
     /**
@@ -233,8 +236,11 @@ public final class Arm extends Module {
         );
     }
 
-    private boolean isArmRotationNotAllowed(double angle) {
-        return angle >= ArmPresets.DEPOSIT_ON_FLOOR || angle <= ArmPresets.READY_TO_INTAKE;
+    private static final double MAX_ALLOWED_ARM_ROTATION = ANGLE_UNIT.fromDegrees(225);
+
+    private boolean isArmRotationUnsafe(double angle) {
+        return angle < 0 | // we are trying to rotate into the floor
+                angle > MAX_ALLOWED_ARM_ROTATION; // we are trying to rotate into the floor from the other direction
     }
 
     /**
@@ -247,7 +253,7 @@ public final class Arm extends Module {
         final double normalizedAngle = normalizeAngleOurWay(rotation - ARM_ANGLE_OFFSET, angleUnit);
 
         // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
-        if (isArmRotationNotAllowed(normalizedAngle)) {
+        if (isArmRotationUnsafe(normalizedAngle)) {
             return; // don't rotate the arm into the floor
         }
 
@@ -312,7 +318,7 @@ public final class Arm extends Module {
     }
 
     public void rotateArmAndWrist(double armRotation, double wristPosition) {
-        if (isArmRotationNotAllowed(armRotation)) {
+        if (isArmRotationUnsafe(armRotation)) {
             return;
         }
 

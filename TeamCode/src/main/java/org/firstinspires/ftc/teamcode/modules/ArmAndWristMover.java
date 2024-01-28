@@ -136,6 +136,10 @@ final class ArmAndWristMover {
             return !hasSafetyTriggered() || wristDangerChecker.test(hardwareInterface.getArmPosition());
         }
 
+        public boolean isCommandActive() {
+            return curCmd.get() == this;
+        }
+
         @NonNull
         @Override
         public String toString() {
@@ -177,9 +181,18 @@ final class ArmAndWristMover {
 
     public void moveArmAndWrist(int armTargetPosition, double wristTargetPosition) {
         final RotationCommand cmd = makeRotationCommand(armTargetPosition, wristTargetPosition);
-        while (!cmd.hasMovementCompleted()) {
+        curCmd.set(cmd);
+        while (!cmd.hasMovementCompleted() && cmd.isCommandActive()) {
             cycleStateMachine();
         }
+    }
+
+    public int getArmPosition() {
+        return hardwareInterface.getArmPosition();
+    }
+
+    public double getWristPosition() {
+        return hardwareInterface.getWristPosition();
     }
 
     public int getArmTargetPosition() {

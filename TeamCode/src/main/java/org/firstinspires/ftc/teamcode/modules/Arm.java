@@ -217,7 +217,7 @@ public final class Arm extends Module {
      * @return The arm's position, in encoder ticks
      */
     public int getArmMotorPosition() {
-        return armMotor.requireDevice().getCurrentPosition();
+        return armAndWristMover.getArmPosition();
     }
 
     /**
@@ -359,7 +359,7 @@ public final class Arm extends Module {
      * @return the rotation in the unit specified by {@link #ANGLE_UNIT}
      */
     public double getWristRotation() {
-        return wristServo.requireDevice().getPosition() * (ONE_REVOLUTION_OUR_ANGLE_UNIT / 2); // servo can only rotate up to 180 degrees (1/2 of a full rotation)
+        return armAndWristMover.getWristPosition() * (ONE_REVOLUTION_OUR_ANGLE_UNIT / 2); // servo can only rotate up to 180 degrees (1/2 of a full rotation)
     }
 
     /**

@@ -42,17 +42,17 @@ public final class Arm extends Module {
     /**
      * Rotate flap to open position with the right pixel exposed
      */
-    public static final double FLAP_OPEN_RIGHT = 0.4;
+    public static double FLAP_OPEN_RIGHT = 0.25;
 
     /**
      * Rotate flap to open position with the left pixel exposed
      */
-    public static final double FLAP_OPEN_LEFT = 0.6;
+    public static double FLAP_OPEN_LEFT = 0.75;
 
     /**
      * Rotate flap to closed position
      */
-    public static final double FLAP_CLOSED = 0.53;
+    public static double FLAP_CLOSED = 0.55;
 
     private static final Range<Double> WRIST_VALID_POSITION_RANGE = new Range<>(0.35, 0.85);
     public static double kP = 0.000945;
@@ -414,7 +414,7 @@ public final class Arm extends Module {
      */
     private void setFlapState(FlapState flapState) {
         currentFlapState = flapState;
-        flapServo.runIfAvailable(flap -> flap.setPosition(flapState.targetFlapPosition));
+        flapServo.runIfAvailable(flap -> flap.setPosition(flapState.getTargetFlapPosition()));
     }
 
     public void closeFlap() {
@@ -454,6 +454,18 @@ public final class Arm extends Module {
 
         FlapState(double targetFlapPosition) {
             this.targetFlapPosition = targetFlapPosition;
+        }
+
+        public double getTargetFlapPosition() {
+            switch (this) {
+                default:
+                case CLOSED:
+                    return FLAP_CLOSED;
+                case OPEN_RIGHT:
+                    return FLAP_OPEN_RIGHT;
+                case OPEN_LEFT:
+                    return FLAP_OPEN_LEFT;
+            }
         }
     }
 

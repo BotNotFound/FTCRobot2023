@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.opmode.autonomous.template.AutonomousConst
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 
-import kotlin.Unit;
-
 @Autonomous(group = "Tests", name="Blue Backdrop")
 public class Blue extends LinearOpMode {
     public static final double UNIT_MOVEMENT = AutonomousConstants.TILE_SIDE_LENGTH_IN * 1.25;
@@ -110,6 +108,8 @@ public class Blue extends LinearOpMode {
                         .strafeLeft(tempMovement)
                         .build()
         );
+        arm.cycleFlap();
+        arm.rotateArmAndWrist(Arm.ArmPresets.READY_TO_INTAKE, Arm.WristPresets.READY_TO_INTAKE);
     }
 
     private boolean isTeamPropDetected() {

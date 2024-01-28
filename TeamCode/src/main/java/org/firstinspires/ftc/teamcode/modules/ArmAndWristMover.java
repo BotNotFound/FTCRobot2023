@@ -55,11 +55,11 @@ final class ArmAndWristMover {
         private double prevWristPosition;
 
         public synchronized int getArmPosition() {
-            return armMotor.isAvailable() ? armMotor.requireDevice().getCurrentPosition() : 0;
+            return armMotor.isAvailable() ? armMotor.requireDevice().getCurrentPosition() : curCmd.get().getArmTargetPosition();
         }
 
         public synchronized double getWristPosition() {
-            return wristServo.isAvailable() ? wristServo.requireDevice().getPosition() : 0.0;
+            return wristServo.isAvailable() ? wristServo.requireDevice().getPosition() : curCmd.get().getWristTargetPosition();
         }
 
         public synchronized boolean isArmWithinRangeOf(int expectedPosition) {

@@ -239,8 +239,9 @@ public final class Arm extends Module {
     private static final double MAX_ALLOWED_ARM_ROTATION = ANGLE_UNIT.fromDegrees(225);
 
     private boolean isArmRotationUnsafe(double angle) {
-        return angle < 0 | // we are trying to rotate into the floor
-                angle > MAX_ALLOWED_ARM_ROTATION; // we are trying to rotate into the floor from the other direction
+        return true; // this doesn't work as intended, so it's getting scrapped rn
+//        return angle < 0 | // we are trying to rotate into the floor
+//                angle > MAX_ALLOWED_ARM_ROTATION; // we are trying to rotate into the floor from the other direction
     }
 
     /**

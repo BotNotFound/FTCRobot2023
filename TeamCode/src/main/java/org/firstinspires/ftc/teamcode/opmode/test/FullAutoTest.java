@@ -10,9 +10,7 @@ import org.firstinspires.ftc.teamcode.opmode.autonomous.template.AutonomousConst
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 
-import kotlin.Unit;
-
-@Autonomous(group = "Tests", name="Blue Backdrop")
+@Autonomous(group = "Tests")
 public class FullAutoTest extends LinearOpMode {
     public static final double UNIT_MOVEMENT = AutonomousConstants.TILE_SIDE_LENGTH_IN * 1.25;
 

@@ -140,6 +140,10 @@ final class ArmAndWristMover {
             return curCmd.get() == this;
         }
 
+        public void updateWristMode(WristRotationMode newMode) {
+            curCmd.compareAndSet(this, new RotationCommand(this.armTargetPosition, this.wristTargetPosition, newMode));
+        }
+
         @NonNull
         @Override
         public String toString() {
@@ -214,19 +218,22 @@ final class ArmAndWristMover {
                     hardwareInterface.setWristPosition(cmd.getWristTargetPosition());
                     break;
                 case COMPACT_WHILE_UNSAFE:
-                    if (cmd.isArmMovementCompleted() || !cmd.isWristUnsafe()) {
-                        curCmd.compareAndSet(cmd, new RotationCommand(cmd.getArmTargetPosition(), cmd.getWristTargetPosition(), WristRotationMode.WITHOUT_DROPPING_PIXELS));
+                    if (cmd.isArmMovementCompleted()) {
+                        cmd.updateWristMode(WristRotationMode.ASAP);
                     }
-                    else {
+                    else if (cmd.isWristUnsafe()) {
                         hardwareInterface.setWristPosition(safeWristPosition);
                         if (!hardwareInterface.isWristWithinRangeOf(safeWristPosition)) {
                             return;
                         }
                     }
+                    else {
+                        cmd.updateWristMode(WristRotationMode.WITHOUT_DROPPING_PIXELS);
+                    }
                     break;
                 case WITHOUT_DROPPING_PIXELS:
-                    if (pixelSafetyChecker.test(hardwareInterface.getArmPosition(), cmd.getWristTargetPosition())) {
-                        curCmd.compareAndSet(cmd, new RotationCommand(cmd.getArmTargetPosition(), cmd.getWristTargetPosition(), WristRotationMode.ASAP));
+                    if (cmd.isArmMovementCompleted()) {
+                        cmd.updateWristMode(WristRotationMode.ASAP);
                     }
                     else {
                         hardwareInterface.setWristPosition(safeWristPosition - (getArmTargetPosition() / Arm.ONE_REVOLUTION_ENCODER_TICKS));

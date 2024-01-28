@@ -12,11 +12,11 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 
 import kotlin.Unit;
 
-@Autonomous(group = "Tests", name="Blue Backdrop")
-public class FullAutoTest extends LinearOpMode {
+@Autonomous(group = "Tests", name="Red Backdrop")
+public class Red extends LinearOpMode {
     public static final double UNIT_MOVEMENT = AutonomousConstants.TILE_SIDE_LENGTH_IN * 1.25;
 
-    private SampleMecanumDrive drive;
+    protected SampleMecanumDrive drive;
     private Arm arm;
     private PropDetector propDetector;
 
@@ -58,15 +58,15 @@ public class FullAutoTest extends LinearOpMode {
         park(aprilTagId);
     }
 
-    private TrajectorySequenceBuilder makeTrajectorySequenceBuilder() {
+    protected TrajectorySequenceBuilder makeTrajectorySequenceBuilder() {
         return drive.trajectorySequenceBuilder(drive.getPoseEstimate());
     }
 
     private void driveToSpikeMarks() {
         drive.followTrajectorySequence(
-            makeTrajectorySequenceBuilder()
-                    .strafeLeft(UNIT_MOVEMENT)
-                    .build()
+                makeTrajectorySequenceBuilder()
+                        .strafeRight(UNIT_MOVEMENT)
+                        .build()
         );
     }
 
@@ -80,10 +80,10 @@ public class FullAutoTest extends LinearOpMode {
         );
     }
 
-    private void driveToBackdrop() {
+    protected void driveToBackdrop() {
         drive.followTrajectorySequence(
                 makeTrajectorySequenceBuilder()
-                        .strafeLeft(UNIT_MOVEMENT / 2)
+                        .strafeRight(UNIT_MOVEMENT / 2)
                         .build()
         );
         drive.followTrajectorySequence(
@@ -93,12 +93,12 @@ public class FullAutoTest extends LinearOpMode {
         );
         drive.followTrajectorySequence(
                 makeTrajectorySequenceBuilder()
-                        .strafeRight(UNIT_MOVEMENT / 2)
+                        .strafeLeft(UNIT_MOVEMENT / 2)
                         .build()
         );
     }
 
-    private void park(int aprilTagId) {
+    protected void park(int aprilTagId) {
         double tempMovement = UNIT_MOVEMENT;
         if (aprilTagId == 1) {
             tempMovement += UNIT_MOVEMENT / 4;
@@ -107,7 +107,7 @@ public class FullAutoTest extends LinearOpMode {
         }
         drive.followTrajectorySequence(
                 makeTrajectorySequenceBuilder()
-                        .strafeLeft(tempMovement)
+                        .strafeRight(tempMovement)
                         .build()
         );
     }
@@ -125,13 +125,13 @@ public class FullAutoTest extends LinearOpMode {
         if (aprilTagId == 1) {
             drive.followTrajectorySequence(
                     makeTrajectorySequenceBuilder()
-                            .strafeLeft(UNIT_MOVEMENT / 4)
+                            .strafeRight(UNIT_MOVEMENT / 4)
                             .build()
             );
         } else if (aprilTagId == 3) {
             drive.followTrajectorySequence(
                     makeTrajectorySequenceBuilder()
-                            .strafeRight(UNIT_MOVEMENT / 4)
+                            .strafeLeft(UNIT_MOVEMENT / 4)
                             .build()
             );
         }

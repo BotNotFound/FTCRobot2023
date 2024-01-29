@@ -13,7 +13,7 @@ public class ActiveIntake extends Module {
 
 	public static final String INTAKE_MOTOR_NAME = "Intake Motor";
 
-	private double activePower = 0.6;
+	private double activePower = 0.7;
 
 	private static final double TURBO_POWER = 1.0;
 

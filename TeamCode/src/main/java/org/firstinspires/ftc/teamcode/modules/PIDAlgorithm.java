@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
 
 public class PIDAlgorithm implements MotorPowerCalculator {
@@ -9,22 +10,22 @@ public class PIDAlgorithm implements MotorPowerCalculator {
     private int prevError;
     private final ElapsedTime elapsedTime;
     private int targetPosition;
-    private final double proportionalCoefficient;
-    private final double integralCoefficient;
-    private final double derivativeCoefficient;
+    private final DoubleSupplier proportionalCoefficientSupplier;
+    private final DoubleSupplier integralCoefficientSupplier;
+    private final DoubleSupplier derivativeCoefficientSupplier;
     private final DoubleUnaryOperator derivativeTermModifier;
     private final DoubleUnaryOperator integralTermModifier;
 
     public PIDAlgorithm(
-            double proportionalCoefficient,
-            double integralCoefficient,
-            double derivativeCoefficient,
+            DoubleSupplier proportionalCoefficientSupplier,
+            DoubleSupplier integralCoefficientSupplier,
+            DoubleSupplier derivativeCoefficientSupplier,
             DoubleUnaryOperator derivativeTermModifier,
             DoubleUnaryOperator integralTermModifier
     ) {
-        this.proportionalCoefficient = proportionalCoefficient;
-        this.integralCoefficient = integralCoefficient;
-        this.derivativeCoefficient = derivativeCoefficient;
+        this.proportionalCoefficientSupplier = proportionalCoefficientSupplier;
+        this.integralCoefficientSupplier = integralCoefficientSupplier;
+        this.derivativeCoefficientSupplier = derivativeCoefficientSupplier;
         this.elapsedTime = new ElapsedTime();
         this.derivativeTermModifier = derivativeTermModifier;
         this.integralTermModifier = integralTermModifier;
@@ -45,9 +46,8 @@ public class PIDAlgorithm implements MotorPowerCalculator {
         return -1L; // value is not positive or zero; it must be negative
     }
 
-    public static DoubleUnaryOperator limitIntegralTermTo(double limit) {
-        final double absLimit = Math.abs(limit);
-        return i -> Math.min(Math.abs(i), absLimit) * Math.signum(i);
+    public static DoubleUnaryOperator limitIntegralTermTo(DoubleSupplier limit) {
+        return i -> Math.min(Math.abs(i), Math.abs(limit.getAsDouble())) * Math.signum(i);
     }
 
     protected int calculateError(int currentPosition, int targetPosition) {
@@ -84,7 +84,19 @@ public class PIDAlgorithm implements MotorPowerCalculator {
 
         prevError = error;
 
-        double calculatedPower = (error * proportionalCoefficient) + (totalError * integralCoefficient) + (errorChange * derivativeCoefficient);
+        double calculatedPower = (error * getProportionalCoefficient()) + (totalError * getIntegralCoefficient()) + (errorChange * getDerivativeCoefficient());
         return MOTOR_POWER_RANGE.clamp(calculatedPower);
+    }
+
+    public double getProportionalCoefficient() {
+        return proportionalCoefficientSupplier.getAsDouble();
+    }
+
+    public double getIntegralCoefficient() {
+        return integralCoefficientSupplier.getAsDouble();
+    }
+
+    public double getDerivativeCoefficient() {
+        return derivativeCoefficientSupplier.getAsDouble();
     }
 }

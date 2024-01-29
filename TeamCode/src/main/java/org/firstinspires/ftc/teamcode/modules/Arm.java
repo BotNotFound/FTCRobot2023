@@ -184,15 +184,28 @@ public final class Arm extends Module {
                 0.75,
                 Arm::willPixelsFallOut,
                 new PIDAlgorithm(
-                        kP,
-                        kI,
-                        kD,
+                        Arm::getArmProportionalCoefficient,
+                        Arm::getArmIntegralCoefficient,
+                        Arm::getArmDerivativeCoefficient,
                         DoubleUnaryOperator.identity(),
-                        PIDAlgorithm.limitIntegralTermTo(INTEGRAL_MAX_POWER / kI)
+                        PIDAlgorithm.limitIntegralTermTo(this::getArmIntegralSumLimit)
                 )
         );
 
         setFlapState(FlapState.CLOSED);
+    }
+
+    private static double getArmProportionalCoefficient() {
+        return kP;
+    }
+    private static double getArmIntegralCoefficient() {
+        return kI;
+    }
+    private static double getArmDerivativeCoefficient() {
+        return kD;
+    }
+    private double getArmIntegralSumLimit() {
+        return INTEGRAL_MAX_POWER / kI;
     }
 
     public void doArmUpdateLoop() {

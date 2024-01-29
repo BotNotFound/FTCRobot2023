@@ -251,6 +251,7 @@ public final class Arm extends Module {
      * @param preserveWristRotation should the wrist rotate with the arm so that it is facing the same direction at the end of rotation?
      */
     public void rotateArmToAsync(double rotation, AngleUnit angleUnit, boolean preserveWristRotation) {
+        setFlapState(FlapState.CLOSED);
         final double normalizedAngle = normalizeAngleOurWay(rotation - ARM_ANGLE_OFFSET, angleUnit);
 
         // These presets are the most we will ever need to rotate the arm, so we can use them to prevent unwanted rotation
@@ -314,11 +315,13 @@ public final class Arm extends Module {
      * @param position The target position.  This value must be between 0.0 and 1.0 (inclusive)
      */
     public void rotateWristToAsync(double position) {
+        setFlapState(FlapState.CLOSED);
         final double clampedPosition = WRIST_VALID_POSITION_RANGE.clamp(position);
         armAndWristMover.setWristTargetPosition(clampedPosition);
     }
 
     public void rotateArmAndWristAsync(double armRotation, double wristPosition) {
+        setFlapState(FlapState.CLOSED);
         if (isArmRotationUnsafe(armRotation)) {
             return;
         }
@@ -329,6 +332,7 @@ public final class Arm extends Module {
     }
 
     public void rotateArmAndWrist(double armRotation, double wristPosition) {
+        setFlapState(FlapState.CLOSED);
         if (isArmRotationUnsafe(armRotation)) {
             return;
         }

@@ -142,7 +142,7 @@ public final class TeleOpMain extends OpBase {
             telemetry.addData("[Hang] motor amp usage", motor.getCurrent(CurrentUnit.MILLIAMPS));
         });
 
-//        getModuleManager().logModuleStatus();
+        getModuleManager().logModuleStatus();
     }
     
 }
